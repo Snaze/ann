@@ -1,0 +1,16 @@
+[
+  [{
+    "top": true,
+    "bottom": false,
+    "left": true,
+    "right": false,
+    "dot": "little"
+  },
+  {
+    "top": true,
+    "bottom": true,
+    "left": false,
+    "right": false,
+    "dot": "little"
+  }]
+]
