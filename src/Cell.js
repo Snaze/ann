@@ -4,6 +4,12 @@ import Dot from "./model/Dot";
 
 class Cell extends Component {
 
+    constructor(props) {
+        super(props);
+
+        this.state = {hover: false};
+    }
+
     get cellId() {
         return this.props.y + "_" + this.props.x;
     }
@@ -23,7 +29,8 @@ class Cell extends Component {
             borderTop : this.props.borderTop ? "Solid 2px #87CEEB": "none",
             borderBottom : this.props.borderBottom ? "Solid 2px #87CEEB": "none",
             verticalAlign : "middle",
-            textAlign : "center"
+            textAlign : "center",
+            backgroundColor: this.state.hover ? "#AED6F1" : "Black"
         };
 
         let width = 24;
@@ -48,16 +55,37 @@ class Cell extends Component {
         return toRet;
     }
 
-    render() {
+    getDot() {
         if (this.props.dotType === Dot.LITTLE) {
-            return (<td className="Cell" data-cell_id={this.cellId} key={this.cellId} style={this.style()}>.</td>);
+            return (<span>.</span>);
         }
 
         if (this.props.dotType === Dot.BIG) {
-            return (<td className="Cell" data-cell_id={this.cellId} key={this.cellId} style={this.style()}>O</td>);
+            return (<span>O</span>);
         }
 
-        return (<td className="Cell" data-cell_id={this.cellId} key={this.cellId} style={this.style()}></td>);
+        return <span></span>;
+    }
+
+    onMouseEnter(e) {
+        this.setState({hover: true});
+    }
+
+    onMouseLeave(e) {
+        this.setState({hover: false});
+    }
+
+    render() {
+        return (
+            <td className="Cell"
+                data-cell_id={this.cellId}
+                key={this.cellId}
+                style={this.style()}
+                onMouseEnter={(e) => this.onMouseEnter(e)}
+                onMouseLeave={(e) => this.onMouseLeave(e)}>
+                {this.getDot()}
+            </td>
+        );
     }
 }
 
