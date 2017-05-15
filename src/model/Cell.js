@@ -13,6 +13,13 @@ class Cell {
         this._dotType = Dot.NONE;
     }
 
+    equals(otherCell) {
+        return this.id === otherCell.id &&
+                this._solidBorder.equals(otherCell._solidBorder) &&
+                this._partialBorder.equals(otherCell._partialBorder) &&
+                this.dotType === otherCell.dotType;
+    }
+
     setSolidBorder(borderType, value) {
 
         if (!BorderType.isValid(borderType)) {

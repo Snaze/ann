@@ -18,6 +18,13 @@ class Border {
 
     set bottom (value) {this._bottom = value;}
     get bottom () {return this._bottom}
+
+    equals(otherBorder) {
+        return this.left === otherBorder.left &&
+                this.top === otherBorder.top &&
+                this.right === otherBorder.right &&
+                this.bottom === otherBorder.bottom;
+    }
 }
 
 export default Border;

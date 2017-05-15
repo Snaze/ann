@@ -1,9 +1,7 @@
 import Cell from "./Cell";
-import Dot from "./Dot";
-import BorderType from "./BorderType";
 
 const DEFAULT_WIDTH = 26;
-const DEFAULT_HEIGHT = 52;
+const DEFAULT_HEIGHT = 26;
 
 class Level {
     constructor() {
@@ -26,6 +24,20 @@ class Level {
         }
 
         return toRet;
+    }
+
+    get gameMatrix() { return this._gameMatrix; }
+
+    getCellById(cellId) {
+        let theArray = cellId.split("_");
+        let y = theArray[0];
+        let x = theArray[1];
+
+        return this.getCell(x, y);
+    }
+
+    getCell(x, y) {
+        return this._gameMatrix[y][x];
     }
 
     get width() { return this._currentWidth; }

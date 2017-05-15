@@ -1,4 +1,5 @@
 import Level from "./Level";
+import Cell from "./Cell";
 
 it('addRow works', () => {
     let theLevel = new Level();
@@ -44,4 +45,16 @@ it('removeColumn works', () => {
 
     expect(theLevel._gameMatrix[0].length).toEqual(prevLength - 1);
     expect(theLevel.width).toBe(prevWidth - 1);
+});
+
+it('getCell works', () => {
+    let theLevel = new Level();
+    let cell0_0 = theLevel.getCell(0, 0);
+    expect(cell0_0).toEqual(expect.any(Cell));
+});
+
+it ("getCellById works", () => {
+    let theLevel = new Level();
+    let cell0_0 = theLevel.getCellById("0_0");
+    expect(cell0_0).toEqual(expect.any(Cell));
 });
