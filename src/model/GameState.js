@@ -1,6 +1,6 @@
 
 
-class GameBoardState {
+class GameState {
 
     constructor(width, height) {
         this._width = width;
@@ -8,3 +8,5 @@ class GameBoardState {
     }
 
 }
+
+export default GameState;
