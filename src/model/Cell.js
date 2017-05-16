@@ -13,6 +13,14 @@ class Cell {
         this._dotType = Dot.NONE;
     }
 
+    clone(theId, direction="none") {
+        let toRet = new Cell(theId);
+        toRet._solidBorder = this._solidBorder.clone(direction);
+        toRet._partialBorder = this._partialBorder.clone(direction);
+        toRet._dotType = this._dotType;
+        return toRet;
+    }
+
     get solidBorder() {
         return this._solidBorder;
     }

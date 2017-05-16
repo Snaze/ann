@@ -13,6 +13,45 @@ class ContextMenu extends Component {
 
     }
 
+    onChange(e) {
+        // You might be able to move some of this logic back into the ContextMenu
+        let element = e.target.dataset["element"];
+        let checked = e.target.checked;
+
+        switch (element) {
+            case "borderLeft":
+                this.props.cell.solidBorder.left = checked;
+                break;
+            case "borderRight":
+                this.props.cell.solidBorder.right = checked;
+                break;
+            case "borderTop":
+                this.props.cell.solidBorder.top = checked;
+                break;
+            case "borderBottom":
+                this.props.cell.solidBorder.bottom = checked;
+                break;
+            case "bigDot":
+                if (checked) {
+                    this.props.cell.dotType = Dot.BIG;
+                } else {
+                    this.props.cell.dotType = Dot.NONE;
+                }
+                break;
+            case "littleDot":
+                if (checked) {
+                    this.props.cell.dotType = Dot.LITTLE;
+                } else {
+                    this.props.cell.dotType = Dot.NONE;
+                }
+                break;
+            default:
+                throw new Error("Unknown element name");
+        }
+
+        this.props.onChange(this.props.cell);
+    }
+
     render() {
         return (
             <table className="ContextMenu">
@@ -29,7 +68,7 @@ class ContextMenu extends Component {
                             <input type="checkbox"
                                    data-element="borderLeft"
                                    checked={this.props.cell.solidBorder.left}
-                                   onChange={(e) => this.props.onChange(e)} />
+                                   onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Left
@@ -40,7 +79,7 @@ class ContextMenu extends Component {
                             <input type="checkbox"
                                    data-element="borderRight"
                                    checked={this.props.cell.solidBorder.right}
-                                   onChange={(e) => this.props.onChange(e)} />
+                                   onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Right
@@ -51,7 +90,7 @@ class ContextMenu extends Component {
                             <input type="checkbox"
                                    data-element="borderTop"
                                    checked={this.props.cell.solidBorder.top}
-                                   onChange={(e) => this.props.onChange(e)} />
+                                   onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Top
@@ -62,7 +101,7 @@ class ContextMenu extends Component {
                             <input type="checkbox"
                                    data-element="borderBottom"
                                    checked={this.props.cell.solidBorder.bottom}
-                                   onChange={(e) => this.props.onChange(e)} />
+                                   onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Bottom
@@ -81,7 +120,7 @@ class ContextMenu extends Component {
                             <input type="checkbox"
                                    data-element="bigDot"
                                    checked={this.props.cell.dotType === Dot.BIG}
-                                   onChange={(e) => this.props.onChange(e)} />
+                                   onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Dot Big
@@ -92,7 +131,7 @@ class ContextMenu extends Component {
                             <input type="checkbox"
                                    data-element="littleDot"
                                    checked={this.props.cell.dotType === Dot.LITTLE}
-                                   onChange={(e) => this.props.onChange(e)} />
+                                   onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Dot Little

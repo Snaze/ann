@@ -27,3 +27,9 @@ it('right works', () => {
 it('bottom works', () => {
     testAttribute("bottom");
 });
+
+it ("clone works", () => {
+   let theBorder = new Border(true, true, true, true);
+   let theClone = theBorder.clone();
+   expect(theClone.equals(theBorder)).toBe(true);
+});

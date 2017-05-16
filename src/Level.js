@@ -4,7 +4,6 @@ import './Level.css';
 import Cell from "./Cell";
 import BorderType from "./model/BorderType";
 import {default as CellModel} from "./model/Cell";
-import Dot from "./model/Dot";
 import ContextMenu from "./ContextMenu";
 import LevelEditPanel from "./LevelEditPanel";
 
@@ -81,42 +80,7 @@ class Level extends Component {
         this.setState(newState);
     }
 
-    onContextMenuChange(e) {
-        // You might be able to move some of this logic back into the ContextMenu
-        let element = e.target.dataset["element"];
-        let checked = e.target.checked;
-        let activeCell = this.state.contextMenu.activeCell;
-
-        switch (element) {
-            case "borderLeft":
-                activeCell.solidBorder.left = checked;
-                break;
-            case "borderRight":
-                activeCell.solidBorder.right = checked;
-                break;
-            case "borderTop":
-                activeCell.solidBorder.top = checked;
-                break;
-            case "borderBottom":
-                activeCell.solidBorder.bottom = checked;
-                break;
-            case "bigDot":
-                if (checked) {
-                    activeCell.dotType = Dot.BIG;
-                } else {
-                    activeCell.dotType = Dot.NONE;
-                }
-                break;
-            case "littleDot":
-                if (checked) {
-                    activeCell.dotType = Dot.LITTLE;
-                } else {
-                    activeCell.dotType = Dot.NONE;
-                }
-                break;
-            default:
-                throw new Error("Unknown element name");
-        }
+    onContextMenuChange(activeCell) {
 
         this.setState({
             contextMenu: {
@@ -128,8 +92,6 @@ class Level extends Component {
             }
         });
     }
-
-
 
     renderCells(rowIndex) {
         let toRet = [];

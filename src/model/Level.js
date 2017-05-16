@@ -57,6 +57,50 @@ class Level {
         return toRet;
     }
 
+    mirrorHorizontally() {
+
+        let currentNewXIndex = 0;
+        let currentCell = null;
+        let currentClonedCell = null;
+
+        for (let y = 0; y < this._currentHeight; y++) {
+
+            currentNewXIndex = this._currentWidth;
+
+            for (let x = (this._currentWidth - 1); x >= 0; x--) {
+
+                currentCell = this.gameMatrix[y][x];
+                currentClonedCell = currentCell.clone(y + "_" + currentNewXIndex, "horizontal");
+                this.gameMatrix[y][currentNewXIndex++] = currentClonedCell;
+            }
+        }
+
+        this._currentWidth = currentNewXIndex;
+    }
+
+    mirrorVertically() {
+
+        let currentNewYIndex = this._currentHeight;
+        let currentCell = null;
+        let currentClonedCell = null;
+
+        for (let y = (this._currentHeight - 1); y >= 0; y--) {
+
+            this.gameMatrix[currentNewYIndex] = [];
+
+            for (let x = 0; x < this._currentWidth; x++) {
+
+                currentCell = this.gameMatrix[y][x];
+                currentClonedCell = currentCell.clone(currentNewYIndex + "_" + x, "vertical");
+                this.gameMatrix[currentNewYIndex][x] = currentClonedCell;
+            }
+
+            currentNewYIndex++;
+        }
+
+        this._currentHeight = currentNewYIndex;
+    }
+
     get gameMatrix() { return this._gameMatrix; }
 
     getCellById(cellId) {

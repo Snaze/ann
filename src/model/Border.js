@@ -7,6 +7,22 @@ class Border {
         this._bottom = bottom;
     }
 
+    clone(direction="none") {
+        if (direction === "none") {
+            return new Border(this._left, this._top, this._right, this._bottom);
+        }
+
+        if (direction === "horizontal") {
+            return new Border(this._right, this._top, this._left, this._bottom);
+        }
+
+        if (direction === "vertical") {
+            return new Border(this._left, this._bottom, this._right, this._top);
+        }
+
+        throw new Error("invalid direction found");
+    }
+
     set left (value) {this._left = value;}
     get left () {return this._left}
 

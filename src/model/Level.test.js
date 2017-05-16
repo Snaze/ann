@@ -1,5 +1,6 @@
 import Level from "./Level";
 import Cell from "./Cell";
+import BorderType from "./BorderType";
 
 it('addRow works', () => {
     let theLevel = new Level();
@@ -139,4 +140,20 @@ it("fromJSON works", () => {
     expect(theLevel.width).toBe(2);
     expect(theLevel.height).toBe(2);
     // TODO: Perform better checks in here
+});
+
+it ("mirrorHorizontally", () => {
+    let theLevel = new Level(1, 1);
+
+    theLevel.gameMatrix[0][0].setSolidBorder(BorderType.LEFT, true);
+    theLevel.gameMatrix[0][0].setSolidBorder(BorderType.TOP, true);
+    theLevel.gameMatrix[0][0].setSolidBorder(BorderType.RIGHT, true);
+    theLevel.gameMatrix[0][0].setSolidBorder(BorderType.BOTTOM, true);
+
+    theLevel.mirrorHorizontally();
+
+    expect(theLevel.gameMatrix[0][1].getSolidBorder(BorderType.LEFT)).toBe(true);
+    expect(theLevel.gameMatrix[0][1].getSolidBorder(BorderType.TOP)).toBe(true);
+    expect(theLevel.gameMatrix[0][1].getSolidBorder(BorderType.RIGHT)).toBe(true);
+    expect(theLevel.gameMatrix[0][1].getSolidBorder(BorderType.BOTTOM)).toBe(true);
 });

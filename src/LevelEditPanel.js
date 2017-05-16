@@ -46,6 +46,14 @@ class LevelEditPanel extends Component {
                 break;
             case "txtData":
                 break;
+            case "btnMirrorHorizontal":
+                theLevel.mirrorHorizontally();
+                this.props.onUpdate(theLevel);
+                break;
+            case "btnMirrorVertical":
+                theLevel.mirrorVertically();
+                this.props.onUpdate(theLevel);
+                break;
             default:
                 throw new Error("Unknown ID");
         }
@@ -88,6 +96,12 @@ class LevelEditPanel extends Component {
                     <td colSpan={3}>
                         <button id="btnLoad" className="LevelEditButton">Load</button>
                         <button id="btnSave" className="LevelEditButton">Save</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colSpan={3}>
+                        <button id="btnMirrorHorizontal" className="LevelEditButton">Mirror Horizontal</button>
+                        <button id="btnMirrorVertical" className="LevelEditButton">Mirror Vertical</button>
                     </td>
                 </tr>
                 <tr>
