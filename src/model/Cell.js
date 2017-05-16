@@ -13,6 +13,14 @@ class Cell {
         this._dotType = Dot.NONE;
     }
 
+    get solidBorder() {
+        return this._solidBorder;
+    }
+
+    get partialBorder() {
+        return this._partialBorder;
+    }
+
     equals(otherCell) {
         return this.id === otherCell.id &&
                 this._solidBorder.equals(otherCell._solidBorder) &&

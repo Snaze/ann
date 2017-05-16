@@ -6,6 +6,11 @@
     background: linear-gradient(steelblue, midnightblue); /* Standard syntax */
     color: White;
     font-family: Arial;
+    border: Solid 2px Orange;
+}
+
+.ContextMenuHeader {
+    border-bottom: Solid 2px Orange;
 }
 
 .ContextMenuRow {
@@ -18,4 +23,9 @@
 
 .ContextMenuCellRight {
     text-align: left;
+}
+
+.ContextMenuButton {
+    width: 100%;
+    height: 100%;
 }

@@ -82,7 +82,8 @@ class Cell extends Component {
                 key={this.cellId}
                 style={this.style()}
                 onMouseEnter={(e) => this.onMouseEnter(e)}
-                onMouseLeave={(e) => this.onMouseLeave(e)}>
+                onMouseLeave={(e) => this.onMouseLeave(e)}
+                onClick={(e) => this.props.onClick(e)}>
                 {this.getDot()}
             </td>
         );

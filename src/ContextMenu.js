@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import "./ContextMenu.css";
+import Dot from "./model/Dot";
 
 
 class ContextMenu extends Component {
@@ -7,8 +8,8 @@ class ContextMenu extends Component {
     constructor(props) {
         super(props);
 
-    }
 
+    }
 
     componentDidMount() {
 
@@ -21,10 +22,20 @@ class ContextMenu extends Component {
     render() {
         return (
             <table className="ContextMenu">
+                <thead>
+                    <tr>
+                        <th colSpan={2} className="ContextMenuHeader">
+                            Cell {this.props.cell.id}
+                        </th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft">
-                            <input type="checkbox" checked={this.props.borderLeft} />
+                            <input type="checkbox"
+                                   data-element="borderLeft"
+                                   checked={this.props.cell.solidBorder.left}
+                                   onChange={(e) => this.props.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Left
@@ -32,7 +43,10 @@ class ContextMenu extends Component {
                     </tr>
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft">
-                            <input type="checkbox" checked={this.props.borderRight} />
+                            <input type="checkbox"
+                                   data-element="borderRight"
+                                   checked={this.props.cell.solidBorder.right}
+                                   onChange={(e) => this.props.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Right
@@ -40,7 +54,10 @@ class ContextMenu extends Component {
                     </tr>
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft">
-                            <input type="checkbox" checked={this.props.borderTop} />
+                            <input type="checkbox"
+                                   data-element="borderTop"
+                                   checked={this.props.cell.solidBorder.top}
+                                   onChange={(e) => this.props.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Top
@@ -48,7 +65,10 @@ class ContextMenu extends Component {
                     </tr>
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft">
-                            <input type="checkbox" checked={this.props.borderBottom} />
+                            <input type="checkbox"
+                                   data-element="borderBottom"
+                                   checked={this.props.cell.solidBorder.bottom}
+                                   onChange={(e) => this.props.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Border Bottom
@@ -64,7 +84,10 @@ class ContextMenu extends Component {
                     </tr>
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft">
-                            <input type="checkbox" checked={this.props.bigDot} />
+                            <input type="checkbox"
+                                   data-element="bigDot"
+                                   checked={this.props.cell.dotType === Dot.BIG}
+                                   onChange={(e) => this.props.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Dot Big
@@ -72,10 +95,19 @@ class ContextMenu extends Component {
                     </tr>
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft">
-                            <input type="checkbox" checked={this.props.littleDot} />
+                            <input type="checkbox"
+                                   data-element="littleDot"
+                                   checked={this.props.cell.dotType === Dot.LITTLE}
+                                   onChange={(e) => this.props.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
                             Dot Little
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft" colSpan={2}>
+                            <input type="button" value="OK" className="ContextMenuButton"
+                                   onClick={(e) => this.props.onDismiss(e)} />
                         </td>
                     </tr>
                 </tbody>
