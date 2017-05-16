@@ -1,0 +1,21 @@
+.ContextMenu {
+    background: cadetblue; /* For browsers that do not support gradients */
+    background: -webkit-linear-gradient(steelblue, midnightblue); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(steelblue, midnightblue); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(steelblue, midnightblue); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(steelblue, midnightblue); /* Standard syntax */
+    color: White;
+    font-family: Arial;
+}
+
+.ContextMenuRow {
+    vertical-align: middle;
+}
+
+.ContextMenuCellLeft {
+    text-align: left;
+}
+
+.ContextMenuCellRight {
+    text-align: left;
+}
