@@ -5,12 +5,6 @@ import Dot from "./model/Dot";
 
 class ContextMenu extends Component {
 
-    constructor(props) {
-        super(props);
-
-
-    }
-
     componentDidMount() {
 
     }

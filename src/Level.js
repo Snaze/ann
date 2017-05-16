@@ -6,6 +6,7 @@ import BorderType from "./model/BorderType";
 import {default as CellModel} from "./model/Cell";
 import Dot from "./model/Dot";
 import ContextMenu from "./ContextMenu";
+import LevelEditPanel from "./LevelEditPanel";
 
 class Level extends Component {
     constructor(props) {
@@ -81,9 +82,9 @@ class Level extends Component {
     }
 
     onContextMenuChange(e) {
+        // You might be able to move some of this logic back into the ContextMenu
         let element = e.target.dataset["element"];
         let checked = e.target.checked;
-        let toSet = {};
         let activeCell = this.state.contextMenu.activeCell;
 
         switch (element) {
@@ -128,6 +129,8 @@ class Level extends Component {
         });
     }
 
+
+
     renderCells(rowIndex) {
         let toRet = [];
 
@@ -167,6 +170,12 @@ class Level extends Component {
         };
     }
 
+    onLevelEditPanelUpdate(theLevel) {
+        this.setState({
+            level: theLevel
+        });
+    }
+
     render() {
         return (
             <div>
@@ -177,6 +186,12 @@ class Level extends Component {
                     <ContextMenu onDismiss={(e) => this.contextMenuDismiss(e)}
                                  onChange={(e) => this.onContextMenuChange(e)}
                                  cell={this.state.contextMenu.activeCell} />
+                </div>
+                <div className="LevelEditorPanel">
+                    <LevelEditPanel width={this.state.level.width}
+                                    height={this.state.level.height}
+                                    level={this.state.level}
+                                    onUpdate={(l) => this.onLevelEditPanelUpdate(l)} />
                 </div>
             </div>
         );

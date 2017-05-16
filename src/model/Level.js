@@ -4,9 +4,9 @@ const DEFAULT_WIDTH = 26;
 const DEFAULT_HEIGHT = 26;
 
 class Level {
-    constructor() {
-        this._currentWidth = DEFAULT_WIDTH;
-        this._currentHeight = DEFAULT_HEIGHT;
+    constructor(width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT) {
+        this._currentWidth = width;
+        this._currentHeight = height;
 
         this._gameMatrix = Level.constructGameMatrix(this._currentWidth, this._currentHeight);
     }
@@ -20,6 +20,37 @@ class Level {
             for (let x = 0; x < width; x++) {
                 let currentId = y + "_" + x;
                 toRet[y][x] = new Cell(currentId);
+            }
+        }
+
+        return toRet;
+    }
+
+    static fromJSON(jsonObject) {
+        // let jsonObject = JSON.parse(json);
+        let width = jsonObject._currentWidth;
+        let height = jsonObject._currentHeight;
+        let toRet = new Level(width, height);
+        let currentCell = null;
+        let currentDataCell = null;
+
+        for (let y = 0; y < height; y++) {
+
+            for (let x = 0; x < width; x++) {
+                currentCell = toRet.gameMatrix[y][x];
+                currentDataCell = jsonObject._gameMatrix[y][x];
+
+                currentCell.setSolidBorder("left", currentDataCell._solidBorder._left);
+                currentCell.setSolidBorder("top", currentDataCell._solidBorder._top);
+                currentCell.setSolidBorder("right", currentDataCell._solidBorder._right);
+                currentCell.setSolidBorder("bottom", currentDataCell._solidBorder._bottom);
+
+                currentCell.setPartialBorder("left", currentDataCell._partialBorder._left);
+                currentCell.setPartialBorder("top", currentDataCell._partialBorder._top);
+                currentCell.setPartialBorder("right", currentDataCell._partialBorder._right);
+                currentCell.setPartialBorder("bottom", currentDataCell._partialBorder._bottom);
+
+                currentCell.dotType = currentDataCell._dotType;
             }
         }
 

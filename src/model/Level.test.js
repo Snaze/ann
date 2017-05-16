@@ -8,7 +8,7 @@ it('addRow works', () => {
     theLevel.addRow();
 
     expect(theLevel._gameMatrix[prevHeight]).toEqual(expect.anything());
-    expect(theLevel.height).toBe(prevHeight+1);
+    expect(theLevel.height).toBe(prevHeight + 1);
 });
 
 it('removeRow works', () => {
@@ -31,8 +31,8 @@ it('addColumn works', () => {
 
     theLevel.addColumn();
 
-    expect(theLevel._gameMatrix[0].length).toEqual(prevWidth+1);
-    expect(theLevel.width).toBe(prevWidth+1);
+    expect(theLevel._gameMatrix[0].length).toEqual(prevWidth + 1);
+    expect(theLevel.width).toBe(prevWidth + 1);
 });
 
 it('removeColumn works', () => {
@@ -53,8 +53,90 @@ it('getCell works', () => {
     expect(cell0_0).toEqual(expect.any(Cell));
 });
 
-it ("getCellById works", () => {
+it("getCellById works", () => {
     let theLevel = new Level();
     let cell0_0 = theLevel.getCellById("0_0");
     expect(cell0_0).toEqual(expect.any(Cell));
+});
+
+it("fromJSON works", () => {
+    let jsonObject = {
+        "_currentWidth": 2,
+        "_currentHeight": 2,
+        "_gameMatrix": [
+            [
+                {
+                    "_id": "0_0",
+                    "_solidBorder": {
+                        "_left": true,
+                        "_top": true,
+                        "_right": false,
+                        "_bottom": false
+                    },
+                    "_partialBorder": {
+                        "_left": false,
+                        "_top": false,
+                        "_right": false,
+                        "_bottom": false
+                    },
+                    "_dotType": 0
+                },
+                {
+                    "_id": "0_1",
+                    "_solidBorder": {
+                        "_left": false,
+                        "_top": true,
+                        "_right": true,
+                        "_bottom": false
+                    },
+                    "_partialBorder": {
+                        "_left": false,
+                        "_top": false,
+                        "_right": false,
+                        "_bottom": false
+                    },
+                    "_dotType": 0
+                }
+            ],
+            [
+                {
+                    "_id": "1_0",
+                    "_solidBorder": {
+                        "_left": true,
+                        "_top": false,
+                        "_right": false,
+                        "_bottom": true
+                    },
+                    "_partialBorder": {
+                        "_left": false,
+                        "_top": false,
+                        "_right": false,
+                        "_bottom": false
+                    },
+                    "_dotType": 0
+                },
+                {
+                    "_id": "1_1",
+                    "_solidBorder": {
+                        "_left": false,
+                        "_top": false,
+                        "_right": true,
+                        "_bottom": true
+                    },
+                    "_partialBorder": {
+                        "_left": false,
+                        "_top": false,
+                        "_right": false,
+                        "_bottom": false
+                    },
+                    "_dotType": 0
+                }
+            ]
+        ]
+    };
+
+    let theLevel = Level.fromJSON(jsonObject);
+    expect(theLevel.width).toBe(2);
+    expect(theLevel.height).toBe(2);
+    // TODO: Perform better checks in here
 });
