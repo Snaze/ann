@@ -11,7 +11,7 @@ class Cell extends Component {
     }
 
     get cellId() {
-        return this.props.y + "_" + this.props.x;
+        return this.props.cell.id;
     }
 
     componentDidMount() {
@@ -24,28 +24,44 @@ class Cell extends Component {
 
     style() {
         let toRet = {
-            borderLeft : this.props.borderLeft ? "Solid 2px #87CEEB": "none",
-            borderRight : this.props.borderRight ? "Solid 2px #87CEEB": "none",
-            borderTop : this.props.borderTop ? "Solid 2px #87CEEB": "none",
-            borderBottom : this.props.borderBottom ? "Solid 2px #87CEEB": "none",
+            borderLeft : this.props.cell.solidBorder.left ? "Solid 2px #87CEEB": "none",
+            borderRight : this.props.cell.solidBorder.right ? "Solid 2px #87CEEB": "none",
+            borderTop : this.props.cell.solidBorder.top ? "Solid 2px #87CEEB": "none",
+            borderBottom : this.props.cell.solidBorder.bottom ? "Solid 2px #87CEEB": "none",
             verticalAlign : "middle",
             textAlign : "center",
             backgroundColor: this.state.hover ? "#AED6F1" : "Black"
         };
 
+        if (toRet.borderLeft === "none" && this.props.cell.partialBorder.left) {
+            toRet.borderLeft = "Solid 2px White";
+        }
+
+        if (toRet.borderRight === "none" && this.props.cell.partialBorder.right) {
+            toRet.borderRight = "Solid 2px White";
+        }
+
+        if (toRet.borderTop === "none" && this.props.cell.partialBorder.top) {
+            toRet.borderTop = "Solid 2px White";
+        }
+
+        if (toRet.borderBottom === "none" && this.props.cell.partialBorder.bottom) {
+            toRet.borderBottom = "Solid 2px White";
+        }
+
         let width = 24;
-        if (this.props.borderLeft) {
+        if (this.props.cell.solidBorder.left || this.props.cell.partialBorder.left) {
             width -= 2;
         }
-        if (this.props.borderRight) {
+        if (this.props.cell.solidBorder.right || this.props.cell.partialBorder.right) {
             width -= 2;
         }
 
         let height = 24;
-        if (this.props.borderTop) {
+        if (this.props.cell.solidBorder.top || this.props.cell.partialBorder.top) {
             height -= 2;
         }
-        if (this.props.borderBottom) {
+        if (this.props.cell.solidBorder.bottom || this.props.cell.partialBorder.bottom) {
             height -= 2;
         }
 
@@ -56,11 +72,11 @@ class Cell extends Component {
     }
 
     getDot() {
-        if (this.props.dotType === Dot.LITTLE) {
+        if (this.props.cell.dotType === Dot.LITTLE) {
             return (<span>.</span>);
         }
 
-        if (this.props.dotType === Dot.BIG) {
+        if (this.props.cell.dotType === Dot.BIG) {
             return (<span>O</span>);
         }
 

@@ -99,13 +99,7 @@ class Level extends Component {
         for (let colIndex = 0; colIndex < this.state.level.gameMatrix[rowIndex].length; colIndex++) {
             let currentCell = this.state.level.gameMatrix[rowIndex][colIndex];
             toRet.push(<Cell key={"Cell_" + currentCell.id}
-                             y={rowIndex}
-                             x={colIndex}
-                             borderLeft={currentCell.getSolidBorder(BorderType.LEFT)}
-                             borderTop={currentCell.getSolidBorder(BorderType.TOP)}
-                             borderRight={currentCell.getSolidBorder(BorderType.RIGHT)}
-                             borderBottom={currentCell.getSolidBorder(BorderType.BOTTOM)}
-                             dotType={currentCell.dotType}
+                             cell={currentCell}
                              onClick={(e) => this.cellOnClick(e)} />);
         }
 
