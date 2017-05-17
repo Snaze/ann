@@ -3,12 +3,14 @@ import React, { Component } from 'react';
 import './App.css';
 import Level from "./Level";
 import ContextMenu from "./ContextMenu";
+import Entity from "./Entity";
+import EntityStyleDebug from "./EntityStyleDebug";
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <Level />
+      <div className="App" style={{backgroundColor: "Gray"}}>
+        <EntityStyleDebug />
       </div>
     );
   }

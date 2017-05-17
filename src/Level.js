@@ -13,6 +13,7 @@ class Level extends Component {
 
         this.state = {
             level: new LevelModel(),
+
             contextMenu: {
                 display: "none",
                 position: "absolute",
