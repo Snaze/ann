@@ -6,12 +6,31 @@ class EntityStyleDebug extends Component {
 
     render() {
         return (<div>
-            <div className="Entity RowEntity MrsPacManOpen"></div>
-            <div className="Entity RowEntity MrsPacManMid"></div>
-            <div className="Entity RowEntity MrsPacManClose"></div>
-            <div className="Entity RowEntity PacManOpen"></div>
-            <div className="Entity RowEntity PacManMid"></div>
-            <div className="Entity RowEntity PacManClose"></div>
+            <div className="Entity RowEntity MrsPacManRightOpen"></div>
+            <div className="Entity RowEntity MrsPacManRightMid"></div>
+            <div className="Entity RowEntity MrsPacManRightClose"></div>
+            <div className="Entity RowEntity MrsPacManLeftOpen"></div>
+            <div className="Entity RowEntity MrsPacManLeftMid"></div>
+            <div className="Entity RowEntity MrsPacManLeftClose"></div>
+            <div className="Entity RowEntity MrsPacManUpOpen"></div>
+            <div className="Entity RowEntity MrsPacManUpMid"></div>
+            <div className="Entity RowEntity MrsPacManUpClose"></div>
+            <div className="Entity RowEntity MrsPacManDownOpen"></div>
+            <div className="Entity RowEntity MrsPacManDownMid"></div>
+            <div className="Entity RowEntity MrsPacManDownClose"></div>
+
+            <div className="Entity RowEntity PacManRightOpen"></div>
+            <div className="Entity RowEntity PacManRightMid"></div>
+            <div className="Entity RowEntity PacManRightClose"></div>
+            <div className="Entity RowEntity PacManLeftOpen"></div>
+            <div className="Entity RowEntity PacManLeftMid"></div>
+            <div className="Entity RowEntity PacManLeftClose"></div>
+            <div className="Entity RowEntity PacManUpOpen"></div>
+            <div className="Entity RowEntity PacManUpMid"></div>
+            <div className="Entity RowEntity PacManUpClose"></div>
+            <div className="Entity RowEntity PacManDownOpen"></div>
+            <div className="Entity RowEntity PacManDownMid"></div>
+            <div className="Entity RowEntity PacManDownClose"></div>
 
             <div className="Entity RowEntity GhostRedRight1"></div>
             <div className="Entity RowEntity GhostRedRight2"></div>

@@ -8,28 +8,188 @@
     height: 28px;
 }
 
-.MrsPacManOpen {
+/** MRS PAC MAN **/
+
+.MrsPacManRightOpen {
     background-position: -2px -2px;
 }
 
-.MrsPacManMid {
+.MrsPacManRightMid {
     background-position: -30px -2px;
 }
 
-.MrsPacManClose {
+.MrsPacManRightClose {
     background-position: -58px -2px;
 }
 
-.PacManOpen {
+.MrsPacManLeftOpen {
+    background-position: -2px -2px;
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.MrsPacManLeftMid {
+    background-position: -30px -2px;
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.MrsPacManLeftClose {
+    background-position: -58px -2px;
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.MrsPacManUpOpen {
+    background-position: -2px -2px;
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+.MrsPacManUpMid {
+    background-position: -30px -2px;
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+.MrsPacManUpClose {
+    background-position: -58px -2px;
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+.MrsPacManDownOpen {
+    background-position: -2px -2px;
+    -moz-transform: rotate(90deg) scaleY(-1);
+    -o-transform: rotate(90deg) scaleY(-1);
+    -webkit-transform: rotate(90deg) scaleY(-1);
+    transform: rotate(90deg) scaleY(-1);
+}
+
+.MrsPacManDownMid {
+    background-position: -30px -2px;
+    -moz-transform: rotate(90deg) scaleY(-1);
+    -o-transform: rotate(90deg) scaleY(-1);
+    -webkit-transform: rotate(90deg) scaleY(-1);
+    transform: rotate(90deg) scaleY(-1);
+}
+
+.MrsPacManDownClose {
+    background-position: -58px -2px;
+    -moz-transform: rotate(90deg) scaleY(-1);
+    -o-transform: rotate(90deg) scaleY(-1);
+    -webkit-transform: rotate(90deg) scaleY(-1);
+    transform: rotate(90deg) scaleY(-1);
+}
+
+/** PAC MAN **/
+
+.PacManRightOpen {
     background-position: -86px -2px;
 }
 
-.PacManMid {
+.PacManRightMid {
     background-position: -114px -2px;
 }
 
-.PacManClose {
+.PacManRightClose {
     background-position: -142px -2px;
+}
+
+.PacManLeftOpen {
+    background-position: -86px -2px;
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.PacManLeftMid {
+    background-position: -114px -2px;
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.PacManLeftClose {
+    background-position: -142px -2px;
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.PacManUpOpen {
+    background-position: -86px -2px;
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+.PacManUpMid {
+    background-position: -114px -2px;
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+.PacManUpClose {
+    background-position: -142px -2px;
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    transform: rotate(270deg);
+}
+
+.PacManDownOpen {
+    background-position: -86px -2px;
+    -moz-transform: rotate(90deg) scaleY(-1);
+    -o-transform: rotate(90deg) scaleY(-1);
+    -webkit-transform: rotate(90deg) scaleY(-1);
+    transform: rotate(90deg) scaleY(-1);
+}
+
+.PacManDownMid {
+    background-position: -114px -2px;
+    -moz-transform: rotate(90deg) scaleY(-1);
+    -o-transform: rotate(90deg) scaleY(-1);
+    -webkit-transform: rotate(90deg) scaleY(-1);
+    transform: rotate(90deg) scaleY(-1);
+}
+
+.PacManDownClose {
+    background-position: -142px -2px;
+    -moz-transform: rotate(90deg) scaleY(-1);
+    -o-transform: rotate(90deg) scaleY(-1);
+    -webkit-transform: rotate(90deg) scaleY(-1);
+    transform: rotate(90deg) scaleY(-1);
 }
 
 /** RED **/
