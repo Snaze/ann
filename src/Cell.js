@@ -24,10 +24,10 @@ class Cell extends Component {
 
     style() {
         let toRet = {
-            borderLeft : this.props.cell.solidBorder.left ? "Solid 2px #87CEEB": "none",
-            borderRight : this.props.cell.solidBorder.right ? "Solid 2px #87CEEB": "none",
-            borderTop : this.props.cell.solidBorder.top ? "Solid 2px #87CEEB": "none",
-            borderBottom : this.props.cell.solidBorder.bottom ? "Solid 2px #87CEEB": "none",
+            borderLeft : this.props.cell.solidBorder.left ? "Solid 2px #1f1ff2": "none",
+            borderRight : this.props.cell.solidBorder.right ? "Solid 2px #1f1ff2": "none",
+            borderTop : this.props.cell.solidBorder.top ? "Solid 2px #1f1ff2": "none",
+            borderBottom : this.props.cell.solidBorder.bottom ? "Solid 2px #1f1ff2": "none",
             verticalAlign : "middle",
             textAlign : "center",
             backgroundColor: this.state.hover ? "#AED6F1" : "Black"
