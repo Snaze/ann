@@ -34,11 +34,23 @@ class Cell {
         return toRet;
     }
 
+    setAllSpawnValuesFalse() {
+        this._isPlayerSpawn = false;
+        this._isGhostBlueSpawn = false;
+        this._isGhostOrangeSpawn = false;
+        this._isGhostPinkSpawn = false;
+        this._isGhostRedSpawn = false;
+    }
+
     get isPlayerSpawn() {
         return this._isPlayerSpawn;
     }
 
     set isPlayerSpawn(value) {
+        if (value) {
+            this.setAllSpawnValuesFalse();
+        }
+
         this._isPlayerSpawn = value;
     }
 
@@ -47,6 +59,10 @@ class Cell {
     }
 
     set isGhostRedSpawn(value) {
+        if (value) {
+            this.setAllSpawnValuesFalse();
+        }
+
         this._isGhostRedSpawn = value;
     }
 
@@ -55,6 +71,10 @@ class Cell {
     }
 
     set isGhostPinkSpawn(value) {
+        if (value) {
+            this.setAllSpawnValuesFalse();
+        }
+
         this._isGhostPinkSpawn = value;
     }
 
@@ -63,6 +83,10 @@ class Cell {
     }
 
     set isGhostBlueSpawn(value) {
+        if (value) {
+            this.setAllSpawnValuesFalse();
+        }
+
         this._isGhostBlueSpawn = value;
     }
 
@@ -71,6 +95,10 @@ class Cell {
     }
 
     set isGhostOrangeSpawn(value) {
+        if (value) {
+            this.setAllSpawnValuesFalse();
+        }
+
         this._isGhostOrangeSpawn = value;
     }
 

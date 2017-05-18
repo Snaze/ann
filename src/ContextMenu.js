@@ -3,6 +3,7 @@ import "./ContextMenu.css";
 import Dot from "./model/Dot";
 import KeyEventer from "./utils/KeyEventer";
 import BorderType from "./model/BorderType";
+import Entity from "./Entity";
 
 
 class ContextMenu extends Component {
@@ -11,14 +12,29 @@ class ContextMenu extends Component {
         super(props);
 
         this._keyEventer = new KeyEventer();
+        this.state = {
+            stepNumber: 0
+        };
+        this._interval = null;
+    }
+
+    intervalTick(e) {
+        this.setState({
+           stepNumber: (this.state.stepNumber + 1)
+        });
     }
 
     componentDidMount() {
         this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
+        this._interval = setInterval((e) => this.intervalTick(e), 250);
     }
 
     componentWillUnmount() {
         this._keyEventer.unBindEvents();
+        if (this._interval !== null) {
+            clearInterval(this._interval);
+            this._interval = null;
+        }
     }
 
     onKeyDown (key) {
@@ -132,6 +148,21 @@ class ContextMenu extends Component {
                 break;
             case "isActive":
                 this.props.cell.isActive = checked;
+                break;
+            case "isPlayerSpawn":
+                this.props.cell.isPlayerSpawn = checked;
+                break;
+            case "isGhostRedSpawn":
+                this.props.cell.isGhostRedSpawn = checked;
+                break;
+            case "isGhostPinkSpawn":
+                this.props.cell.isGhostPinkSpawn = checked;
+                break;
+            case "isGhostBlueSpawn":
+                this.props.cell.isGhostBlueSpawn = checked;
+                break;
+            case "isGhostOrangeSpawn":
+                this.props.cell.isGhostOrangeSpawn = checked;
                 break;
             default:
                 throw new Error("Unknown element name");
@@ -285,6 +316,136 @@ class ContextMenu extends Component {
                         </td>
                         <td className="ContextMenuCellRight">
                             Active (x)
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft" colSpan={2}>
+                            <hr/>
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft">
+                            <input type="checkbox"
+                                   data-element="isPlayerSpawn"
+                                   checked={this.props.cell.isPlayerSpawn}
+                                   onChange={(e) => this.onChange(e)} />
+                        </td>
+                        <td className="ContextMenuCellRight">
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        Player Spawn
+                                    </td>
+                                    <td>
+                                        <Entity designator={Entity.DESIGNATOR_PAC_MAN}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                stepNumber={this.state.stepNumber} />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft" colSpan={2}>
+                            <hr/>
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft">
+                            <input type="checkbox"
+                                   data-element="isGhostRedSpawn"
+                                   checked={this.props.cell.isGhostRedSpawn}
+                                   onChange={(e) => this.onChange(e)} />
+                        </td>
+                        <td className="ContextMenuCellRight">
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        Red Ghost Spawn
+                                    </td>
+                                    <td>
+                                        <Entity designator={Entity.DESIGNATOR_RED_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                stepNumber={this.state.stepNumber} />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft">
+                            <input type="checkbox"
+                                   data-element="isGhostPinkSpawn"
+                                   checked={this.props.cell.isGhostPinkSpawn}
+                                   onChange={(e) => this.onChange(e)} />
+                        </td>
+                        <td className="ContextMenuCellRight">
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        Pink Ghost Spawn
+                                    </td>
+                                    <td>
+                                        <Entity designator={Entity.DESIGNATOR_PINK_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                stepNumber={this.state.stepNumber} />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft">
+                            <input type="checkbox"
+                                   data-element="isGhostBlueSpawn"
+                                   checked={this.props.cell.isGhostBlueSpawn}
+                                   onChange={(e) => this.onChange(e)} />
+                        </td>
+                        <td className="ContextMenuCellRight">
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        Blue Ghost Spawn
+                                    </td>
+                                    <td>
+                                        <Entity designator={Entity.DESIGNATOR_BLUE_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                stepNumber={this.state.stepNumber} />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft">
+                            <input type="checkbox"
+                                   data-element="isGhostOrangeSpawn"
+                                   checked={this.props.cell.isGhostOrangeSpawn}
+                                   onChange={(e) => this.onChange(e)} />
+                        </td>
+                        <td className="ContextMenuCellRight">
+                            <table>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        Orange Ghost Spawn
+                                    </td>
+                                    <td>
+                                        <Entity designator={Entity.DESIGNATOR_ORANGE_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                stepNumber={this.state.stepNumber} />
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
