@@ -7,7 +7,8 @@ class GameState {
             throw new Error('Cannot instantiate directly.');
         }
 
-        this._level = null;
+        this._stepNumber = 0;
+        this._interval = null;
     }
 
     static get instance() {
@@ -18,8 +19,43 @@ class GameState {
         return this[_singleton];
     }
 
-    get level() { return this._level; }
-    set level(value) { this._level = value; }
+    static tickHandlers = [];
+
+    intervalTick(e) {
+        this._stepNumber += 1;
+        let theStepNumber = this._stepNumber;
+
+        GameState.tickHandlers.forEach(function (th) {
+            th(theStepNumber);
+        });
+    }
+
+    start(tickFrequency = 250, handler) {
+        if (this._interval !== null) {
+            throw new Error("Interval already started");
+        }
+
+        GameState.tickHandlers.push(handler);
+        this._interval = setInterval((e) => this.intervalTick(e), tickFrequency);
+    }
+
+    stop(handler) {
+        if (this._interval === null) {
+            throw new Error("Interval already stopped");
+        }
+
+        let index = GameState.tickHandlers.indexOf(handler);
+        if (index > -1) {
+            GameState.tickHandlers.splice(index, 1);
+        }
+
+        clearInterval(this._interval);
+        this._interval = null;
+    }
+
+    get stepNumber() {
+        return this._stepNumber;
+    }
 
 
 }

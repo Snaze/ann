@@ -5,6 +5,8 @@ import Cell from "./Cell";
 import {default as CellModel} from "./model/Cell";
 import LevelEditPanel from "./LevelEditPanel";
 import KeyEventer from "./utils/KeyEventer";
+import GameState from "./model/GameState";
+import Player from "./actors/Player";
 
 class Level extends Component {
     constructor(props) {
@@ -12,10 +14,13 @@ class Level extends Component {
 
         this.state = {
             level: new LevelModel(),
-            selectedCell: new CellModel("-1_-1")
+            selectedCell: new CellModel("-1_-1"),
+            stepNumber: 0
         };
 
         this._keyEventer = new KeyEventer();
+        this._gameState = GameState.instance;
+        this._theHandler = null;
     }
 
     componentDidMount() {
@@ -24,10 +29,19 @@ class Level extends Component {
         this.setState({
             selectedCell: theSelectedCell
         });
+        this._theHandler = (e) => this.tickHandler(e);
+        this._gameState.start(250, this._theHandler);
     }
 
     componentWillUnmount() {
         this._keyEventer.unBindEvents();
+        this._gameState.stop(this._theHandler);
+    }
+
+    tickHandler(stepNumber) {
+        this.setState({
+            stepNumber: stepNumber
+        });
     }
 
     onKeyDown(key) {
@@ -154,10 +168,40 @@ class Level extends Component {
         });
     }
 
+    getLevelTableStyle() {
+        return {
+            width: Cell.DEFAULT_CELL_WIDTH * this.state.level.width,
+            height: Cell.DEFAULT_CELL_HEIGHT * this.state.level.height,
+        }
+    }
+
+    getPlayerStyle() {
+        let toRet = {
+            display: "none"
+        };
+
+        let playerIndices = this.state.level.spawnIndices.player;
+        let yIndex = playerIndices[0];
+        let xIndex = playerIndices[1];
+
+        if ((yIndex > -1) && (xIndex > -1)) {
+            let cellModel = this.state.level.gameMatrix[yIndex][xIndex];
+            let cellLocation = Cell.getCellLocation(cellModel);
+
+            toRet.display = "block";
+            toRet.position = "absolute";
+            toRet.top =  (cellLocation.y - 2) + "px";
+            toRet.left = (cellLocation.x - 2) + "px";
+            toRet.pointerEvents = "none";
+        }
+
+        return toRet;
+    }
+
     render() {
         return (
-            <div>
-                <table className="Level" cellPadding={0} cellSpacing={0}>
+            <div className="Level">
+                <table cellPadding={0} cellSpacing={0} style={this.getLevelTableStyle()}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
                 <div className="LevelEditorPanel">
@@ -168,6 +212,9 @@ class Level extends Component {
                                     onCellChange={(cell) => this.onCellChange(cell)}
                                     cell={this.state.selectedCell}
                                     onLoadComplete={(level) => this.onLoadComplete(level)} />
+                </div>
+                <div className="LevelPlayer" style={this.getPlayerStyle()}>
+                    <Player gender={Player.MR_PAC_MAN} stepNumber={this.state.stepNumber} />
                 </div>
             </div>
         );

@@ -5,7 +5,7 @@ import Dot from "./Dot";
 
 class Cell {
 
-    constructor(id) {
+    constructor(id, spawnChangedCallback=null) {
         this._id = id;
         this._solidBorder = new Border();
         this._partialBorder = new Border();
@@ -23,10 +23,11 @@ class Cell {
         let tempArray = this._id.split("_");
         this._x = parseInt(tempArray[1], 10);
         this._y = parseInt(tempArray[0], 10);
+        this._spawnChangedCallback = spawnChangedCallback;
     }
 
     clone(theId, direction="none") {
-        let toRet = new Cell(theId);
+        let toRet = new Cell(theId, this._spawnChangedCallback);
         toRet._solidBorder = this._solidBorder.clone(direction);
         toRet._partialBorder = this._partialBorder.clone(direction);
         toRet._dotType = this._dotType;
@@ -42,6 +43,40 @@ class Cell {
         this._isGhostRedSpawn = false;
     }
 
+    getSpawnValue() {
+        if (this._isPlayerSpawn) {
+            return "player";
+        }
+
+        if (this._isGhostBlueSpawn) {
+            return "ghostBlue";
+        }
+
+        if (this._isGhostRedSpawn) {
+            return "ghostRed";
+        }
+
+        if (this._isGhostOrangeSpawn) {
+            return "ghostOrange";
+        }
+
+        if (this._isGhostPinkSpawn) {
+            return "ghostPink";
+        }
+
+        return "none";
+    }
+
+    raiseSpawnChangedEvent() {
+        if (this._spawnChangedCallback) {
+            let currentSpawnValue = this.getSpawnValue();
+            this._spawnChangedCallback({
+                cell: this,
+                spawnValue: currentSpawnValue
+            });
+        }
+    }
+
     get isPlayerSpawn() {
         return this._isPlayerSpawn;
     }
@@ -52,6 +87,8 @@ class Cell {
         }
 
         this._isPlayerSpawn = value;
+
+        this.raiseSpawnChangedEvent();
     }
 
     get isGhostRedSpawn() {
@@ -64,6 +101,8 @@ class Cell {
         }
 
         this._isGhostRedSpawn = value;
+
+        this.raiseSpawnChangedEvent();
     }
 
     get isGhostPinkSpawn() {
@@ -76,6 +115,8 @@ class Cell {
         }
 
         this._isGhostPinkSpawn = value;
+
+        this.raiseSpawnChangedEvent();
     }
 
     get isGhostBlueSpawn() {
@@ -88,6 +129,8 @@ class Cell {
         }
 
         this._isGhostBlueSpawn = value;
+
+        this.raiseSpawnChangedEvent();
     }
 
     get isGhostOrangeSpawn() {
@@ -100,6 +143,8 @@ class Cell {
         }
 
         this._isGhostOrangeSpawn = value;
+
+        this.raiseSpawnChangedEvent();
     }
 
     get isActive() {

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import "./Entity.css";
 import "./images/PacManSprites.png";
+import PropTypes from 'prop-types';
 
 /** DESIGNATORS **/
 const mrs_pac_man = "mrs_pac_man";
@@ -250,5 +251,11 @@ class Entity extends Component {
     }
 
 }
+
+Entity.propTypes = {
+    designator: PropTypes.string.isRequired,
+    modifier: PropTypes.string.isRequired,
+    stepNumber: PropTypes.number.isRequired
+};
 
 export default Entity;

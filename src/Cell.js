@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import './Cell.css';
 import Dot from "./model/Dot";
 
+const default_cell_width = 24;
+const default_cell_height = 24;
+
 class Cell extends Component {
 
     constructor(props) {
@@ -10,9 +13,24 @@ class Cell extends Component {
         this.state = {hover: false};
     }
 
+    static _cellLocationCache = {};
+    static getCellLocation(cell) {
+        if (typeof(Cell._cellLocationCache[cell.id]) === 'undefined') {
+            Cell._cellLocationCache[cell.id] = document.getElementById(Cell.elementId(cell)).getBoundingClientRect();
+        }
+
+        return {
+            y: Cell._cellLocationCache[cell.id]["top"],
+            x: Cell._cellLocationCache[cell.id]["left"]
+        }
+    }
+
     get cellId() {
         return this.props.cell.id;
     }
+
+    static get DEFAULT_CELL_WIDTH() { return default_cell_width; }
+    static get DEFAULT_CELL_HEIGHT() { return default_cell_height; }
 
     componentDidMount() {
 
@@ -54,7 +72,7 @@ class Cell extends Component {
             toRet.borderBottom = "Solid 2px White";
         }
 
-        let width = 24;
+        let width = default_cell_width;
         if (this.props.cell.solidBorder.left || this.props.cell.partialBorder.left) {
             width -= 2;
         }
@@ -62,7 +80,7 @@ class Cell extends Component {
             width -= 2;
         }
 
-        let height = 24;
+        let height = default_cell_height;
         if (this.props.cell.solidBorder.top || this.props.cell.partialBorder.top) {
             height -= 2;
         }
@@ -100,9 +118,14 @@ class Cell extends Component {
         this.setState({hover: false});
     }
 
+    static elementId(cell) {
+        return "cell_" + cell.id;
+    }
+
     render() {
         return (
-            <td className={this.getClassName()}
+            <td id={Cell.elementId(this.props.cell)}
+                className={this.getClassName()}
                 data-cell_id={this.cellId}
                 key={this.cellId}
                 style={this.style()}

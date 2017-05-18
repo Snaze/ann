@@ -4,6 +4,7 @@ import Dot from "./model/Dot";
 import KeyEventer from "./utils/KeyEventer";
 import BorderType from "./model/BorderType";
 import Entity from "./Entity";
+import Cell from "./Cell";
 
 
 class ContextMenu extends Component {
@@ -170,6 +171,23 @@ class ContextMenu extends Component {
 
         this.props.onChange(this.props.cell);
     }
+
+    // // (x={this.cellLocationX}, y={this.cellLocationY})
+    // get cellLocationX() {
+    //     if (this.props.cell !== null) {
+    //         return Cell.getCellLocation(this.props.cell).x;
+    //     }
+    //
+    //     return -1;
+    // }
+    //
+    // get cellLocationY() {
+    //     if (this.props.cell !== null) {
+    //         return Cell.getCellLocation(this.props.cell).y;
+    //     }
+    //
+    //     return -1;
+    // }
 
     render() {
         return (
