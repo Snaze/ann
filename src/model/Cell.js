@@ -11,6 +11,11 @@ class Cell {
         this._partialBorder = new Border();
 
         this._dotType = Dot.NONE;
+        this._selected = false;
+
+        let tempArray = this._id.split("_");
+        this._x = parseInt(tempArray[1]);
+        this._y = parseInt(tempArray[0]);
     }
 
     clone(theId, direction="none") {
@@ -18,8 +23,17 @@ class Cell {
         toRet._solidBorder = this._solidBorder.clone(direction);
         toRet._partialBorder = this._partialBorder.clone(direction);
         toRet._dotType = this._dotType;
+        toRet._selected = this._selected;
         return toRet;
     }
+
+    get x() { return this._x; }
+
+    get y() { return this._y; }
+
+    get selected() { return this._selected; }
+
+    set selected(value) { this._selected = value; }
 
     get solidBorder() {
         return this._solidBorder;

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import "./LevelEditPanel.css";
 import Level from "./model/Level";
+import ContextMenu from "./ContextMenu";
 
 class LevelEditPanel extends Component {
 
@@ -68,53 +69,65 @@ class LevelEditPanel extends Component {
 
     render() {
         return (
-            <table className="LevelEditPanel" onClick={(e) => this.onButtonClick(e)}>
-            <tbody>
-                <tr>
-                    <td>
-                        <button id="btnSubRow" className="LevelEditButton">-</button>
-                    </td>
-                    <td>
-                        {this.props.height} Row{this.props.height !== 1 ? "s" : "" }
-                    </td>
-                    <td>
-                        <button id="btnAddRow" className="LevelEditButton">+</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <button id="btnSubCol" className="LevelEditButton">-</button>
-                    </td>
-                    <td>
-                        {this.props.width} Col{this.props.width !== 1 ? "s" : "" }
-                    </td>
-                    <td>
-                        <button id="btnAddCol" className="LevelEditButton">+</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={3}>
-                        <button id="btnLoad" className="LevelEditButton">Load</button>
-                        <button id="btnSave" className="LevelEditButton">Save</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={3}>
-                        <button id="btnMirrorHorizontal" className="LevelEditButton">Mirror Horizontal</button>
-                        <button id="btnMirrorVertical" className="LevelEditButton">Mirror Vertical</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={3}>
+            <table>
+                <tbody>
+                    <tr>
+                        <td style={{verticalAlign: "top"}}>
+                            <ContextMenu cell={this.props.cell} isContextMode={false}
+                                         onChange={(cell) => this.props.onCellChange(cell)} />
+                        </td>
+                        <td>
+                            <table className="LevelEditPanel" onClick={(e) => this.onButtonClick(e)}>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <button id="btnSubRow" className="LevelEditButton">-</button>
+                                    </td>
+                                    <td>
+                                        {this.props.height} Row{this.props.height !== 1 ? "s" : "" }
+                                    </td>
+                                    <td>
+                                        <button id="btnAddRow" className="LevelEditButton">+</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <button id="btnSubCol" className="LevelEditButton">-</button>
+                                    </td>
+                                    <td>
+                                        {this.props.width} Col{this.props.width !== 1 ? "s" : "" }
+                                    </td>
+                                    <td>
+                                        <button id="btnAddCol" className="LevelEditButton">+</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={3}>
+                                        <button id="btnLoad" className="LevelEditButton">Load</button>
+                                        <button id="btnSave" className="LevelEditButton">Save</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={3}>
+                                        <button id="btnMirrorHorizontal" className="LevelEditButton">Mirror Horizontal</button>
+                                        <button id="btnMirrorVertical" className="LevelEditButton">Mirror Vertical</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colSpan={3}>
                         <textarea id="txtData"
                                   rows="16"
                                   cols="30"
                                   value={this.state.textAreaValue}
                                   onChange={(e) => this.onTextAreaChange(e)} />
-                    </td>
-                </tr>
-            </tbody>
-        </table>);
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>);
     };
 }
 

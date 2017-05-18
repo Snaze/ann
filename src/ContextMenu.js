@@ -222,7 +222,8 @@ class ContextMenu extends Component {
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft" colSpan={2}>
                             <input type="button" value="OK" className="ContextMenuButton"
-                                   onClick={(e) => this.props.onDismiss(e)} />
+                                   onClick={(e) => this.props.onDismiss(e)}
+                                    style={{display: this.props.isContextMode ? "inline" : "none"}} />
                         </td>
                     </tr>
                 </tbody>

@@ -2,3 +2,14 @@
     background-color: Black;
     color: White;
 }
+
+.CellBigDot {
+    background: url(./images/BigDot.png) no-repeat;
+    background-size: 96% 96%;
+}
+
+.CellLittleDot {
+    background: url(./images/LittleDot.png) no-repeat;
+    background-size: 96% 96%;
+}
+

@@ -23,6 +23,7 @@ class Cell extends Component {
     }
 
     style() {
+        //TODO: Pull this out into CSS
         let toRet = {
             borderLeft : this.props.cell.solidBorder.left ? "Solid 2px #1f1ff2": "none",
             borderRight : this.props.cell.solidBorder.right ? "Solid 2px #1f1ff2": "none",
@@ -32,6 +33,10 @@ class Cell extends Component {
             textAlign : "center",
             backgroundColor: this.state.hover ? "#AED6F1" : "Black"
         };
+
+        if (this.props.cell.selected) {
+            toRet.backgroundColor = "#AED6F1";
+        }
 
         if (toRet.borderLeft === "none" && this.props.cell.partialBorder.left) {
             toRet.borderLeft = "Solid 2px White";
@@ -71,16 +76,16 @@ class Cell extends Component {
         return toRet;
     }
 
-    getDot() {
+    getClassName() {
         if (this.props.cell.dotType === Dot.LITTLE) {
-            return (<span>.</span>);
+            return "Cell CellLittleDot";
         }
 
         if (this.props.cell.dotType === Dot.BIG) {
-            return (<span>O</span>);
+            return "Cell CellBigDot";
         }
 
-        return <span></span>;
+        return "Cell";
     }
 
     onMouseEnter(e) {
@@ -93,14 +98,14 @@ class Cell extends Component {
 
     render() {
         return (
-            <td className="Cell"
+            <td className={this.getClassName()}
                 data-cell_id={this.cellId}
                 key={this.cellId}
                 style={this.style()}
                 onMouseEnter={(e) => this.onMouseEnter(e)}
                 onMouseLeave={(e) => this.onMouseLeave(e)}
                 onClick={(e) => this.props.onClick(e)}>
-                {this.getDot()}
+
             </td>
         );
     }

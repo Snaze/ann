@@ -6,6 +6,7 @@ import BorderType from "./model/BorderType";
 import {default as CellModel} from "./model/Cell";
 import ContextMenu from "./ContextMenu";
 import LevelEditPanel from "./LevelEditPanel";
+import KeyEventer from "./utils/KeyEventer";
 
 class Level extends Component {
     constructor(props) {
@@ -13,22 +14,69 @@ class Level extends Component {
 
         this.state = {
             level: new LevelModel(),
-
-            contextMenu: {
-                display: "none",
-                position: "absolute",
-                top: "0px",
-                left: "0px",
-                activeCell: new CellModel("-1_-1")
-            }
+            selectedCell: new CellModel("-1_-1")
         };
+
+        this._keyEventer = new KeyEventer();
     }
 
     componentDidMount() {
-
+        this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
     }
 
     componentWillUnmount() {
+        this._keyEventer.unBindEvents();
+    }
+
+    onKeyDown(key) {
+        if (this.state.selectedCell === null) {
+            return;
+        }
+
+        let currentCell = this.state.selectedCell;
+        let newSelectedCell = null;
+
+        switch (key) {
+            case "ArrowDown":
+                if ((currentCell.y + 1) < this.state.level.height) {
+                    currentCell.selected = false;
+                    newSelectedCell = this.state.level.gameMatrix[currentCell.y + 1][currentCell.x];
+                    newSelectedCell.selected = true;
+                }
+                break;
+            case "ArrowUp":
+                if ((currentCell.y - 1) >= 0) {
+                    currentCell.selected = false;
+                    newSelectedCell = this.state.level.gameMatrix[currentCell.y - 1][currentCell.x];
+                    newSelectedCell.selected = true;
+                }
+                break;
+            case "ArrowLeft":
+                if ((currentCell.x - 1) >= 0) {
+                    currentCell.selected = false;
+                    newSelectedCell = this.state.level.gameMatrix[currentCell.y][currentCell.x - 1];
+                    newSelectedCell.selected = true;
+                }
+                break;
+            case "ArrowRight":
+                if ((currentCell.x + 1) < this.state.level.width) {
+                    currentCell.selected = false;
+                    newSelectedCell = this.state.level.gameMatrix[currentCell.y][currentCell.x + 1];
+                    newSelectedCell.selected = true;
+                }
+                break;
+            default:
+                return;
+        }
+
+        if (newSelectedCell) {
+            this.setState({
+                selectedCell: newSelectedCell
+            });
+        }
+    }
+
+    onKeyUp(key) {
 
     }
 
@@ -44,53 +92,24 @@ class Level extends Component {
             throw new Error("Mismatched cell Ids");
         }
 
-        let newState = {
-            contextMenu: {
-                display: "inline",
-                position: "absolute",
-                top: e.pageY + "px",
-                left: e.pageX + "px",
-                activeCell: cellModel
-            }
-        };
-
-        this.setState(newState);
-    }
-
-    contextMenuDismiss(e) {
-        let cellId = this.state.contextMenu.activeCell.id;
-        let theArray = cellId.split("_");
-        let y = theArray[0];
-        let x = theArray[1];
-
-        let cellModel = this.state.level.gameMatrix[y][x];
-        if (cellModel.id !== cellId) {
-            throw new Error("Mismatched cell Ids");
+        if (this.state.selectedCell !== null) {
+            let theSelectedCell = this.state.selectedCell;
+            theSelectedCell.selected = false;
         }
 
+        cellModel.selected = true;
+
         let newState = {
-            contextMenu: {
-                display: "none",
-                position: "absolute",
-                top: "0px",
-                left: "0px",
-                activeCell: cellModel
-            }
+            selectedCell: cellModel
         };
 
         this.setState(newState);
     }
 
-    onContextMenuChange(activeCell) {
+    onCellChange(selectedCell) {
 
         this.setState({
-            contextMenu: {
-                display: this.state.contextMenu.display,
-                position: this.state.contextMenu.position,
-                top: this.state.contextMenu.top,
-                left: this.state.contextMenu.left,
-                activeCell: activeCell
-            }
+            selectedCell: selectedCell
         });
     }
 
@@ -118,15 +137,6 @@ class Level extends Component {
         return toRet;
     }
 
-    contextMenuStyle() {
-        return {
-            display: this.state.contextMenu.display,
-            position: this.state.contextMenu.position,
-            left: this.state.contextMenu.left,
-            top: this.state.contextMenu.top
-        };
-    }
-
     onLevelEditPanelUpdate(theLevel) {
         this.setState({
             level: theLevel
@@ -139,16 +149,13 @@ class Level extends Component {
                 <table className="Level" cellPadding={0} cellSpacing={0}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
-                <div style={this.contextMenuStyle()}>
-                    <ContextMenu onDismiss={(e) => this.contextMenuDismiss(e)}
-                                 onChange={(e) => this.onContextMenuChange(e)}
-                                 cell={this.state.contextMenu.activeCell} />
-                </div>
                 <div className="LevelEditorPanel">
                     <LevelEditPanel width={this.state.level.width}
                                     height={this.state.level.height}
                                     level={this.state.level}
-                                    onUpdate={(l) => this.onLevelEditPanelUpdate(l)} />
+                                    onUpdate={(l) => this.onLevelEditPanelUpdate(l)}
+                                    onCellChange={(cell) => this.onCellChange(cell)}
+                                    cell={this.state.selectedCell}/>
                 </div>
             </div>
         );
