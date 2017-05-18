@@ -2,9 +2,7 @@ import { default as LevelModel } from "./model/Level";
 import React, { Component } from 'react';
 import './Level.css';
 import Cell from "./Cell";
-import BorderType from "./model/BorderType";
 import {default as CellModel} from "./model/Cell";
-import ContextMenu from "./ContextMenu";
 import LevelEditPanel from "./LevelEditPanel";
 import KeyEventer from "./utils/KeyEventer";
 
@@ -22,6 +20,10 @@ class Level extends Component {
 
     componentDidMount() {
         this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
+        let theSelectedCell = this.state.level.gameMatrix[0][0];
+        this.setState({
+            selectedCell: theSelectedCell
+        });
     }
 
     componentWillUnmount() {
@@ -143,6 +145,15 @@ class Level extends Component {
         });
     }
 
+    onLoadComplete(level) {
+        level.gameMatrix[0][0].selected = true;
+
+        this.setState({
+            level: level,
+            selectedCell: level.gameMatrix[0][0]
+        });
+    }
+
     render() {
         return (
             <div>
@@ -155,7 +166,8 @@ class Level extends Component {
                                     level={this.state.level}
                                     onUpdate={(l) => this.onLevelEditPanelUpdate(l)}
                                     onCellChange={(cell) => this.onCellChange(cell)}
-                                    cell={this.state.selectedCell}/>
+                                    cell={this.state.selectedCell}
+                                    onLoadComplete={(level) => this.onLoadComplete(level)} />
                 </div>
             </div>
         );

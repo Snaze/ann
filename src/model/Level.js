@@ -33,6 +33,11 @@ class Level {
         let toRet = new Level(width, height);
         let currentCell = null;
         let currentDataCell = null;
+        let conditionalAssign = function(property) {
+            if (typeof(currentDataCell[property]) !== 'undefined') {
+                currentCell[property] = currentDataCell[property];
+            }
+        };
 
         for (let y = 0; y < height; y++) {
 
@@ -49,6 +54,13 @@ class Level {
                 currentCell.setPartialBorder("top", currentDataCell._partialBorder._top);
                 currentCell.setPartialBorder("right", currentDataCell._partialBorder._right);
                 currentCell.setPartialBorder("bottom", currentDataCell._partialBorder._bottom);
+
+                conditionalAssign("_isPlayerSpawn");
+                conditionalAssign("_isGhostRedSpawn");
+                conditionalAssign("_isGhostPinkSpawn");
+                conditionalAssign("_isGhostBlueSpawn");
+                conditionalAssign("_isGhostOrangeSpawn");
+                conditionalAssign("_isActive");
 
                 currentCell.dotType = currentDataCell._dotType;
             }

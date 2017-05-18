@@ -1,15 +1,64 @@
 import React, { Component } from 'react';
 import "./ContextMenu.css";
 import Dot from "./model/Dot";
+import KeyEventer from "./utils/KeyEventer";
+import BorderType from "./model/BorderType";
 
 
 class ContextMenu extends Component {
 
-    componentDidMount() {
+    constructor(props) {
+        super(props);
 
+        this._keyEventer = new KeyEventer();
+    }
+
+    componentDidMount() {
+        this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
     }
 
     componentWillUnmount() {
+        this._keyEventer.unBindEvents();
+    }
+
+    onKeyDown (key) {
+        switch (key) {
+            case "ArrowDown":
+            case "ArrowUp":
+            case "ArrowLeft":
+            case "ArrowRight":
+                break;
+            case "w":
+            case "W":
+                this.props.cell.toggleBorder(BorderType.TOP);
+                break;
+            case "a":
+            case "A":
+                this.props.cell.toggleBorder(BorderType.LEFT);
+                break;
+            case "s":
+            case "S":
+                this.props.cell.toggleBorder(BorderType.BOTTOM);
+                break;
+            case "d":
+            case "D":
+                this.props.cell.toggleBorder(BorderType.RIGHT);
+                break;
+            case "x":
+            case "X":
+                this.props.cell.toggleIsActive();
+                break;
+            case " ":
+                this.props.cell.toggleDot();
+                break;
+            default:
+                return; // Quit when this doesn't handle the key event.
+        }
+
+        this.props.onChange(this.props.cell);
+    }
+
+    onKeyUp (key) {
 
     }
 
@@ -81,6 +130,9 @@ class ContextMenu extends Component {
                     this.props.cell.dotType = Dot.NONE;
                 }
                 break;
+            case "isActive":
+                this.props.cell.isActive = checked;
+                break;
             default:
                 throw new Error("Unknown element name");
         }
@@ -107,7 +159,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Border Left
+                            Border Left (a)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -118,7 +170,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Border Right
+                            Border Right (d)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -129,7 +181,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Border Top
+                            Border Top (w)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -140,7 +192,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Border Bottom
+                            Border Bottom (s)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -156,7 +208,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Partial Border Left
+                            Partial Border Left (a)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -167,7 +219,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Partial Border Right
+                            Partial Border Right (d)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -178,7 +230,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Partial Border Top
+                            Partial Border Top (w)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -189,7 +241,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Partial Border Bottom
+                            Partial Border Bottom (s)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -205,7 +257,7 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Dot Big
+                            Dot Big (space)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -216,7 +268,23 @@ class ContextMenu extends Component {
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Dot Little
+                            Dot Little (space)
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft" colSpan={2}>
+                            <hr/>
+                        </td>
+                    </tr>
+                    <tr className="ContextMenuRow">
+                        <td className="ContextMenuCellLeft">
+                            <input type="checkbox"
+                                   data-element="isActive"
+                                   checked={this.props.cell.isActive}
+                                   onChange={(e) => this.onChange(e)} />
+                        </td>
+                        <td className="ContextMenuCellRight">
+                            Active (x)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">

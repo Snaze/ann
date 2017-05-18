@@ -13,9 +13,16 @@ class Cell {
         this._dotType = Dot.NONE;
         this._selected = false;
 
+        this._isPlayerSpawn = false;
+        this._isGhostRedSpawn = false;
+        this._isGhostPinkSpawn = false;
+        this._isGhostBlueSpawn = false;
+        this._isGhostOrangeSpawn = false;
+        this._isActive = true;
+
         let tempArray = this._id.split("_");
-        this._x = parseInt(tempArray[1]);
-        this._y = parseInt(tempArray[0]);
+        this._x = parseInt(tempArray[1], 10);
+        this._y = parseInt(tempArray[0], 10);
     }
 
     clone(theId, direction="none") {
@@ -25,6 +32,54 @@ class Cell {
         toRet._dotType = this._dotType;
         toRet._selected = this._selected;
         return toRet;
+    }
+
+    get isPlayerSpawn() {
+        return this._isPlayerSpawn;
+    }
+
+    set isPlayerSpawn(value) {
+        this._isPlayerSpawn = value;
+    }
+
+    get isGhostRedSpawn() {
+        return this._isGhostRedSpawn;
+    }
+
+    set isGhostRedSpawn(value) {
+        this._isGhostRedSpawn = value;
+    }
+
+    get isGhostPinkSpawn() {
+        return this._isGhostPinkSpawn;
+    }
+
+    set isGhostPinkSpawn(value) {
+        this._isGhostPinkSpawn = value;
+    }
+
+    get isGhostBlueSpawn() {
+        return this._isGhostBlueSpawn;
+    }
+
+    set isGhostBlueSpawn(value) {
+        this._isGhostBlueSpawn = value;
+    }
+
+    get isGhostOrangeSpawn() {
+        return this._isGhostOrangeSpawn;
+    }
+
+    set isGhostOrangeSpawn(value) {
+        this._isGhostOrangeSpawn = value;
+    }
+
+    get isActive() {
+        return this._isActive;
+    }
+
+    set isActive(value) {
+        this._isActive = value;
     }
 
     get x() { return this._x; }
@@ -94,6 +149,37 @@ class Cell {
         }
 
         this._dotType = value;
+    }
+
+    toggleBorder(borderType) {
+        if (!BorderType.isValid(borderType)) {
+            throw new Error("Invalid border type");
+        }
+
+        if (!this._solidBorder[borderType] && !this._partialBorder[borderType]) {
+            this._solidBorder[borderType] = true;
+            this._partialBorder[borderType] = false;
+        } else if (this._solidBorder[borderType] && !this._partialBorder[borderType]) {
+            this._solidBorder[borderType] = false;
+            this._partialBorder[borderType] = true;
+        } else if (!this._solidBorder[borderType] && this._partialBorder[borderType]) {
+            this._solidBorder[borderType] = false;
+            this._partialBorder[borderType] = false;
+        }
+    }
+
+    toggleIsActive() {
+        this.isActive = !this.isActive;
+    }
+
+    toggleDot() {
+        if (this._dotType === Dot.NONE) {
+            this._dotType = Dot.LITTLE;
+        } else if (this._dotType === Dot.LITTLE) {
+            this._dotType = Dot.BIG;
+        } else if (this._dotType === Dot.BIG) {
+            this._dotType = Dot.NONE;
+        }
     }
 }
 

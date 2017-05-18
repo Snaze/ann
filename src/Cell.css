@@ -13,3 +13,7 @@
     background-size: 96% 96%;
 }
 
+.CellInActive {
+    background: url(./images/red-x.png) no-repeat;
+    background-size: 96% 96%;
+}

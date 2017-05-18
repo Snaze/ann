@@ -77,6 +77,10 @@ class Cell extends Component {
     }
 
     getClassName() {
+        if (!this.props.cell.isActive) {
+            return "Cell CellInActive"
+        }
+
         if (this.props.cell.dotType === Dot.LITTLE) {
             return "Cell CellLittleDot";
         }

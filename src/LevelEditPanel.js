@@ -36,7 +36,7 @@ class LevelEditPanel extends Component {
             case "btnLoad":
                 theLevel = Level.fromJSON(JSON.parse(this.state.textAreaValue));
 
-                this.props.onUpdate(theLevel);
+                this.props.onLoadComplete(theLevel);
                 break;
             case "btnSave":
                 let newTextAreaValue = JSON.stringify(theLevel);
@@ -73,10 +73,6 @@ class LevelEditPanel extends Component {
                 <tbody>
                     <tr>
                         <td style={{verticalAlign: "top"}}>
-                            <ContextMenu cell={this.props.cell} isContextMode={false}
-                                         onChange={(cell) => this.props.onCellChange(cell)} />
-                        </td>
-                        <td>
                             <table className="LevelEditPanel" onClick={(e) => this.onButtonClick(e)}>
                                 <tbody>
                                 <tr>
@@ -124,6 +120,10 @@ class LevelEditPanel extends Component {
                                 </tr>
                                 </tbody>
                             </table>
+                        </td>
+                        <td style={{verticalAlign: "top"}}>
+                            <ContextMenu cell={this.props.cell} isContextMode={false}
+                                         onChange={(cell) => this.props.onCellChange(cell)} />
                         </td>
                     </tr>
                 </tbody>

@@ -239,10 +239,6 @@ class Entity extends Component {
 
     static get MODIFIER_NO_MODIFIER() { return no_modifier; }
 
-    constructor(props) {
-        super(props);
-    }
-
     currentClassName() {
         let frames = frame_mappings[this.props.designator][this.props.modifier];
         let frameNumber = this.props.stepNumber % frames.length;
