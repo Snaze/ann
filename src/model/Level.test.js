@@ -1,6 +1,7 @@
 import Level from "./Level";
 import Cell from "./Cell";
 import BorderType from "./BorderType";
+import _ from "../../node_modules/lodash/lodash";
 
 it('addRow works', () => {
     let theLevel = new Level();
@@ -142,7 +143,7 @@ it("fromJSON works", () => {
     // TODO: Perform better checks in here
 });
 
-it ("mirrorHorizontally", () => {
+it("mirrorHorizontally", () => {
     let theLevel = new Level(1, 1);
 
     theLevel.gameMatrix[0][0].setSolidBorder(BorderType.LEFT, true);
@@ -156,4 +157,47 @@ it ("mirrorHorizontally", () => {
     expect(theLevel.gameMatrix[0][1].getSolidBorder(BorderType.TOP)).toBe(true);
     expect(theLevel.gameMatrix[0][1].getSolidBorder(BorderType.RIGHT)).toBe(true);
     expect(theLevel.gameMatrix[0][1].getSolidBorder(BorderType.BOTTOM)).toBe(true);
+});
+
+it("spawnChangedCallback works correctly", () => {
+
+    // SETUP
+    let theLevel = new Level(10, 1);
+    theLevel.gameMatrix[0][0]._isPlayerSpawn = true;
+    theLevel.gameMatrix[0][1]._isGhostRedSpawn = true;
+    theLevel.gameMatrix[0][2]._isGhostBlueSpawn = true;
+    theLevel.gameMatrix[0][3]._isGhostOrangeSpawn = true;
+    theLevel.gameMatrix[0][4]._isGhostPinkSpawn = true;
+    theLevel.spawnIndices.player = [0, 0];
+    theLevel.spawnIndices.ghostRed = [0, 1];
+    theLevel.spawnIndices.ghostBlue = [0, 2];
+    theLevel.spawnIndices.ghostOrange = [0, 3];
+    theLevel.spawnIndices.ghostPink = [0, 4];
+
+    // CALL
+    theLevel.gameMatrix[0][5].isPlayerSpawn = true;
+    theLevel.gameMatrix[0][6].isGhostRedSpawn = true;
+    theLevel.gameMatrix[0][7].isGhostBlueSpawn = true;
+    theLevel.gameMatrix[0][8].isGhostOrangeSpawn = true;
+    theLevel.gameMatrix[0][9].isGhostPinkSpawn = true;
+
+    // ASSERT
+    expect(theLevel.gameMatrix[0][0].isPlayerSpawn).toBe(false);
+    expect(theLevel.gameMatrix[0][1].isGhostRedSpawn).toBe(false);
+    expect(theLevel.gameMatrix[0][2].isGhostBlueSpawn).toBe(false);
+    expect(theLevel.gameMatrix[0][3].isGhostOrangeSpawn).toBe(false);
+    expect(theLevel.gameMatrix[0][4].isGhostPinkSpawn).toBe(false);
+
+    expect(theLevel.gameMatrix[0][5].isPlayerSpawn).toBe(true);
+    expect(theLevel.gameMatrix[0][6].isGhostRedSpawn).toBe(true);
+    expect(theLevel.gameMatrix[0][7].isGhostBlueSpawn).toBe(true);
+    expect(theLevel.gameMatrix[0][8].isGhostOrangeSpawn).toBe(true);
+    expect(theLevel.gameMatrix[0][9].isGhostPinkSpawn).toBe(true);
+
+    expect(_.isEqual(theLevel.spawnIndices.player, [0, 5])).toBe(true);
+    expect(_.isEqual(theLevel.spawnIndices.ghostRed, [0, 6])).toBe(true);
+    expect(_.isEqual(theLevel.spawnIndices.ghostBlue, [0, 7])).toBe(true);
+    expect(_.isEqual(theLevel.spawnIndices.ghostOrange, [0, 8])).toBe(true);
+    expect(_.isEqual(theLevel.spawnIndices.ghostPink, [0, 9])).toBe(true);
+
 });

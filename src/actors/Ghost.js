@@ -3,10 +3,12 @@ import Entity from "../Entity";
 import Direction from "../utils/Direction";
 import PropTypes from 'prop-types';
 
-class Player extends Component {
+class Ghost extends Component {
 
-    static get MR_PAC_MAN() { return Entity.DESIGNATOR_PAC_MAN; }
-    static get MRS_PAC_MAN() { return Entity.DESIGNATOR_MRS_PAC_MAN; }
+    static get RED() { return Entity.DESIGNATOR_RED_GHOST; }
+    static get BLUE() { return Entity.DESIGNATOR_BLUE_GHOST; }
+    static get PINK() { return Entity.DESIGNATOR_PINK_GHOST; }
+    static get ORANGE() { return Entity.DESIGNATOR_ORANGE_GHOST; }
 
     constructor(props) {
         super(props);
@@ -18,15 +20,15 @@ class Player extends Component {
     }
 
     render() {
-        return (<Entity designator={this.props.gender || Player.MR_PAC_MAN}
+        return (<Entity designator={this.props.color}
                        modifier={this.state.direction}
                        stepNumber={this.props.stepNumber} />);
     }
 }
 
-Player.propTypes = {
-    gender: PropTypes.string.isRequired,
+Ghost.propTypes = {
+    color: PropTypes.string.isRequired,
     stepNumber: PropTypes.number.isRequired
 };
 
-export default Player;
+export default Ghost;

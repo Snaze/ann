@@ -23,11 +23,11 @@ class Cell {
         let tempArray = this._id.split("_");
         this._x = parseInt(tempArray[1], 10);
         this._y = parseInt(tempArray[0], 10);
-        this._spawnChangedCallback = spawnChangedCallback;
+        this.spawnChangedCallback = spawnChangedCallback;
     }
 
     clone(theId, direction="none") {
-        let toRet = new Cell(theId, this._spawnChangedCallback);
+        let toRet = new Cell(theId, this.spawnChangedCallback);
         toRet._solidBorder = this._solidBorder.clone(direction);
         toRet._partialBorder = this._partialBorder.clone(direction);
         toRet._dotType = this._dotType;
@@ -68,9 +68,9 @@ class Cell {
     }
 
     raiseSpawnChangedEvent() {
-        if (this._spawnChangedCallback) {
+        if (this.spawnChangedCallback) {
             let currentSpawnValue = this.getSpawnValue();
-            this._spawnChangedCallback({
+            this.spawnChangedCallback({
                 cell: this,
                 spawnValue: currentSpawnValue
             });

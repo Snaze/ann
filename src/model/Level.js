@@ -1,4 +1,5 @@
 import Cell from "./Cell";
+import _ from "../../node_modules/lodash/lodash";
 
 const DEFAULT_WIDTH = 26;
 const DEFAULT_HEIGHT = 26;
@@ -20,7 +21,7 @@ class Level {
             (e) => this._spawnChangedCallback(e));
     }
 
-    static constructGameMatrix(width, height, spawnChangedCallback) {
+    static constructGameMatrix(width, height, callback) {
         let toRet = [];
 
         for (let y = 0; y < height; y++) {
@@ -28,7 +29,7 @@ class Level {
 
             for (let x = 0; x < width; x++) {
                 let currentId = y + "_" + x;
-                toRet[y][x] = new Cell(currentId, spawnChangedCallback);
+                toRet[y][x] = new Cell(currentId, callback);
             }
         }
 
@@ -96,28 +97,6 @@ class Level {
                 this._spawnIndices[prop][0] === y &&
                 this._spawnIndices[prop][1] === x) {
 
-                // let toResetY = this._spawnIndices[prop][0];
-                // let toResetX = this._spawnIndices[prop][1];
-                // let toReset = this.gameMatrix[toResetY][toResetX];
-                //
-                // switch (prop) {
-                //     case "player":
-                //         toReset.isPlayerSpawn = false;
-                //         break;
-                //     case "ghostBlue":
-                //         toReset.isGhostBlueSpawn = false;
-                //         break;
-                //     case "ghostRed":
-                //         toReset.isGhostRedSpawn = false;
-                //         break;
-                //     case "ghostPink":
-                //         toReset.isGhostPinkSpawn = false;
-                //         break;
-                //     case "ghostOrange":
-                //         toReset.isGhostOrangeSpawn = false;
-                //         break;
-                // }
-
                 this._spawnIndices[prop] = [-1, -1];
             }
         }
@@ -125,6 +104,7 @@ class Level {
 
     _spawnChangedCallback(e) {
         let cell = e.cell;
+        let cellIndexArray = [cell.y, cell.x];
         let spawnValue = e.spawnValue;
 
         switch (spawnValue) {
@@ -134,6 +114,12 @@ class Level {
             case "ghostOrange":
             case "ghostPink":
                 this._removeSpawnValueIfFound(cell);
+                if (!_.isEqual(this._spawnIndices[spawnValue], [-1, -1]) &&
+                    !_.isEqual(this._spawnIndices[spawnValue], cellIndexArray)) {
+                    let otherCellIndexArray = this._spawnIndices[spawnValue];
+                    let otherCell = this.gameMatrix[otherCellIndexArray[0]][otherCellIndexArray[1]];
+                    otherCell.setAllSpawnValuesFalse();
+                }
                 this._spawnIndices[spawnValue] = [cell.y, cell.x];
                 break;
             case "none":
