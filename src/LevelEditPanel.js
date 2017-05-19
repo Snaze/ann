@@ -69,7 +69,7 @@ class LevelEditPanel extends Component {
 
     render() {
         return (
-            <table>
+            <table className="LevelEditPanelMasterTable">
                 <tbody>
                     <tr>
                         <td style={{verticalAlign: "top"}}>

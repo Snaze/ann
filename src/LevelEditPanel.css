@@ -7,6 +7,7 @@
     color: White;
     font-family: Arial;
     border: Solid 2px Orange;
+    z-index: 9999; /* TODO: Make this z-index work with the Entitys */
 }
 
 .LevelEditButtons {
@@ -16,4 +17,8 @@
 .LevelEditButton {
     width: 64px;
     margin: auto;
+}
+
+.LevelEditPanelMasterTable {
+    z-index: 9999;
 }

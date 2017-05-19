@@ -1,6 +1,7 @@
 .Entity {
     background: url(./images/PacManSprites.png) no-repeat;
     background-size: 478px 175px;
+    z-index: 100;
 }
 
 .RowEntity {

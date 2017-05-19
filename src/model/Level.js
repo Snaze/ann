@@ -49,11 +49,6 @@ class Level {
             }
         };
 
-        if (typeof(jsonObject._spawnIndices) !== 'undefined') {
-            this._spawnIndices = jsonObject._spawnIndices;
-        }
-
-
         for (let y = 0; y < height; y++) {
 
             for (let x = 0; x < width; x++) {
@@ -79,6 +74,10 @@ class Level {
 
                 currentCell.dotType = currentDataCell._dotType;
             }
+        }
+
+        if (typeof(jsonObject._spawnIndices) !== 'undefined') {
+            toRet._spawnIndices = jsonObject._spawnIndices;
         }
 
         return toRet;
