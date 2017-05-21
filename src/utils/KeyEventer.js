@@ -1,5 +1,5 @@
 
-
+// TODO: refactor this to use the Eventer class
 class KeyEventer {
     constructor() {
         this._bindingElement = null;

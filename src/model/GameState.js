@@ -1,5 +1,6 @@
 let _singleton = Symbol();
 
+// TODO: Rename this class.  I think this name doesn't make sense anymore.
 class GameState {
 
     constructor(singletonToken) {

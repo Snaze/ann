@@ -1,6 +1,7 @@
 import Border from "./Border";
 import BorderType from "./BorderType";
 import Dot from "./Dot";
+import Eventer from "../utils/Eventer";
 
 
 class Cell {
@@ -24,6 +25,22 @@ class Cell {
         this._x = parseInt(tempArray[1], 10);
         this._y = parseInt(tempArray[0], 10);
         this.spawnChangedCallback = spawnChangedCallback;
+        this._eventer = new Eventer();
+    }
+
+    addOnChangeCallback(callback) {
+        this._eventer.addCallback(callback);
+    }
+
+    removeOnChangeCallback(callback) {
+        this._eventer.removeCallback(callback);
+    }
+
+    raiseOnChangeCallbacks(source) {
+        this._eventer.raiseEvent({
+            cell: this,
+            source: source
+        });
     }
 
     clone(theId, direction="none") {
@@ -41,6 +58,8 @@ class Cell {
         this._isGhostOrangeSpawn = false;
         this._isGhostPinkSpawn = false;
         this._isGhostRedSpawn = false;
+
+        this.raiseOnChangeCallbacks("setAllSpawnValuesFalse");
     }
 
     getSpawnValue() {
@@ -89,6 +108,7 @@ class Cell {
         this._isPlayerSpawn = value;
 
         this.raiseSpawnChangedEvent();
+        this.raiseOnChangeCallbacks("isPlayerSpawn");
     }
 
     get isGhostRedSpawn() {
@@ -103,6 +123,7 @@ class Cell {
         this._isGhostRedSpawn = value;
 
         this.raiseSpawnChangedEvent();
+        this.raiseOnChangeCallbacks("isGhostRedSpawn");
     }
 
     get isGhostPinkSpawn() {
@@ -117,6 +138,7 @@ class Cell {
         this._isGhostPinkSpawn = value;
 
         this.raiseSpawnChangedEvent();
+        this.raiseOnChangeCallbacks("isGhostPinkSpawn");
     }
 
     get isGhostBlueSpawn() {
@@ -131,6 +153,7 @@ class Cell {
         this._isGhostBlueSpawn = value;
 
         this.raiseSpawnChangedEvent();
+        this.raiseOnChangeCallbacks("isGhostBlueSpawn");
     }
 
     get isGhostOrangeSpawn() {
@@ -145,6 +168,7 @@ class Cell {
         this._isGhostOrangeSpawn = value;
 
         this.raiseSpawnChangedEvent();
+        this.raiseOnChangeCallbacks("isGhostOrangeSpawn");
     }
 
     get isActive() {
@@ -153,6 +177,7 @@ class Cell {
 
     set isActive(value) {
         this._isActive = value;
+        this.raiseOnChangeCallbacks("isActive");
     }
 
     get x() { return this._x; }
@@ -161,7 +186,11 @@ class Cell {
 
     get selected() { return this._selected; }
 
-    set selected(value) { this._selected = value; }
+    set selected(value) {
+        this._selected = value;
+
+        this.raiseOnChangeCallbacks("selected");
+    }
 
     get solidBorder() {
         return this._solidBorder;
@@ -175,7 +204,15 @@ class Cell {
         return this.id === otherCell.id &&
                 this._solidBorder.equals(otherCell._solidBorder) &&
                 this._partialBorder.equals(otherCell._partialBorder) &&
-                this.dotType === otherCell.dotType;
+                this.dotType === otherCell.dotType &&
+                this._selected === otherCell._selected &&
+                this._isPlayerSpawn === otherCell._isPlayerSpawn &&
+                this._isGhostRedSpawn === otherCell._isGhostRedSpawn &&
+                this._isGhostPinkSpawn === otherCell._isGhostPinkSpawn &&
+                this._isGhostBlueSpawn === otherCell._isGhostBlueSpawn &&
+                this._isActive === otherCell._isActive &&
+                this._x === otherCell._x &&
+                this._y === otherCell._y;
     }
 
     setSolidBorder(borderType, value) {
@@ -185,6 +222,7 @@ class Cell {
         }
 
         this._solidBorder[borderType] = !!value;
+        this.raiseOnChangeCallbacks("setSolidBorder");
     }
 
     getSolidBorder(borderType) {
@@ -203,6 +241,7 @@ class Cell {
         }
 
         this._partialBorder[borderType] = !!value;
+        this.raiseOnChangeCallbacks("setPartialBorder");
     }
 
     getPartialBorder(borderType) {
@@ -222,6 +261,7 @@ class Cell {
         }
 
         this._dotType = value;
+        this.raiseOnChangeCallbacks("dotType");
     }
 
     toggleBorder(borderType) {
@@ -239,10 +279,13 @@ class Cell {
             this._solidBorder[borderType] = false;
             this._partialBorder[borderType] = false;
         }
+
+        this.raiseOnChangeCallbacks("toggleBorder");
     }
 
     toggleIsActive() {
-        this.isActive = !this.isActive;
+        this._isActive = !this._isActive;
+        this.raiseOnChangeCallbacks("toggleIsActive");
     }
 
     toggleDot() {
@@ -253,6 +296,8 @@ class Cell {
         } else if (this._dotType === Dot.BIG) {
             this._dotType = Dot.NONE;
         }
+
+        this.raiseOnChangeCallbacks("toggleDot");
     }
 }
 

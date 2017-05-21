@@ -8,83 +8,69 @@ import KeyEventer from "./utils/KeyEventer";
 import GameState from "./model/GameState";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
+import PropTypes from 'prop-types';
 
 class Level extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            level: new LevelModel(),
-            selectedCell: new CellModel("-1_-1"),
-            stepNumber: 0
-        };
-
         this._keyEventer = new KeyEventer();
-        this._gameState = GameState.instance;
-        this._theHandler = null;
     }
 
     componentDidMount() {
         this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
-        let theSelectedCell = this.state.level.gameMatrix[0][0];
-        this.setState({
-            selectedCell: theSelectedCell
-        });
-        this._theHandler = (e) => this.tickHandler(e);
-        this._gameState.start(250, this._theHandler);
     }
 
     componentWillUnmount() {
         this._keyEventer.unBindEvents();
-        this._gameState.stop(this._theHandler);
     }
 
-    tickHandler(stepNumber) {
-        this.setState({
-            stepNumber: stepNumber
-        });
+    get level() {
+        return this.props.level;
     }
 
+    /** KEY EVENTER EVENTS - START **/
     onKeyDown(key) {
-        if (this.state.selectedCell === null) {
+        if (this.props.selectedCell === null) {
             return;
         }
 
-        let currentCell = this.state.selectedCell;
+        let currentCell = this.props.selectedCell;
         let newSelectedCell = null;
 
         switch (key) {
             case "ArrowDown":
-                if ((currentCell.y + 1) < this.state.level.height) {
+                if ((currentCell.y + 1) < this.props.level.height) {
                     currentCell.selected = false;
-                    newSelectedCell = this.state.level.gameMatrix[currentCell.y + 1][currentCell.x];
+                    newSelectedCell = this.props.level.gameMatrix[currentCell.y + 1][currentCell.x];
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowUp":
                 if ((currentCell.y - 1) >= 0) {
                     currentCell.selected = false;
-                    newSelectedCell = this.state.level.gameMatrix[currentCell.y - 1][currentCell.x];
+                    newSelectedCell = this.props.level.gameMatrix[currentCell.y - 1][currentCell.x];
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowLeft":
                 if ((currentCell.x - 1) >= 0) {
                     currentCell.selected = false;
-                    newSelectedCell = this.state.level.gameMatrix[currentCell.y][currentCell.x - 1];
+                    newSelectedCell = this.props.level.gameMatrix[currentCell.y][currentCell.x - 1];
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowRight":
-                if ((currentCell.x + 1) < this.state.level.width) {
+                if ((currentCell.x + 1) < this.props.level.width) {
                     currentCell.selected = false;
-                    newSelectedCell = this.state.level.gameMatrix[currentCell.y][currentCell.x + 1];
+                    newSelectedCell = this.props.level.gameMatrix[currentCell.y][currentCell.x + 1];
                     newSelectedCell.selected = true;
                 }
                 break;
             default:
                 return;
         }
+
 
         if (newSelectedCell) {
             this.setState({
@@ -96,6 +82,7 @@ class Level extends Component {
     onKeyUp(key) {
 
     }
+    /** KEY EVENTER EVENTS - END **/
 
     cellOnClick(e) {
 
@@ -103,7 +90,7 @@ class Level extends Component {
         let theArray = cellId.split("_");
         let y = theArray[0];
         let x = theArray[1];
-        let cellModel = this.state.level.getCell(x, y);
+        let cellModel = this.props.level.getCell(x, y);
 
         if (cellModel.id !== cellId) {
             throw new Error("Mismatched cell Ids");
@@ -116,11 +103,11 @@ class Level extends Component {
 
         cellModel.selected = true;
 
-        let newState = {
-            selectedCell: cellModel
-        };
-
-        this.setState(newState);
+        // let newState = {
+        //     selectedCell: cellModel
+        // };
+        //
+        // this.setState(newState);
     }
 
     onCellChange(selectedCell) {
@@ -163,39 +150,18 @@ class Level extends Component {
     onLoadComplete(level) {
         level.gameMatrix[0][0].selected = true;
 
-        this.setState({
-            level: level,
-            selectedCell: level.gameMatrix[0][0]
-        });
+        // this.forceUpdate();
+        // this.setState({
+        //     level: level,
+        //     selectedCell: level.gameMatrix[0][0]
+        // });
     }
 
     getLevelTableStyle() {
         return {
-            width: Cell.DEFAULT_CELL_WIDTH * this.state.level.width,
-            height: Cell.DEFAULT_CELL_HEIGHT * this.state.level.height,
+            width: Cell.DEFAULT_CELL_WIDTH * this.level.width,
+            height: Cell.DEFAULT_CELL_HEIGHT * this.level.height,
         }
-    }
-
-    getEntityStyle(spawnIndices) {
-        let toRet = {
-            display: "none"
-        };
-
-        let yIndex = spawnIndices[0];
-        let xIndex = spawnIndices[1];
-
-        if ((yIndex > -1) && (xIndex > -1)) {
-            let cellModel = this.state.level.gameMatrix[yIndex][xIndex];
-            let cellLocation = Cell.getCellLocation(cellModel);
-
-            toRet.display = "block";
-            toRet.position = "absolute";
-            toRet.top =  (cellLocation.y - 2) + "px";
-            toRet.left = (cellLocation.x - 2) + "px";
-            toRet.pointerEvents = "none";
-        }
-
-        return toRet;
     }
 
     render() {
@@ -204,33 +170,14 @@ class Level extends Component {
                 <table cellPadding={0} cellSpacing={0} style={this.getLevelTableStyle()}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
-                <div className="LevelEditorPanel">
-                    <LevelEditPanel width={this.state.level.width}
-                                    height={this.state.level.height}
-                                    level={this.state.level}
-                                    onUpdate={(l) => this.onLevelEditPanelUpdate(l)}
-                                    onCellChange={(cell) => this.onCellChange(cell)}
-                                    cell={this.state.selectedCell}
-                                    onLoadComplete={(level) => this.onLoadComplete(level)} />
-                </div>
-                <div className="LevelPlayer" style={this.getEntityStyle(this.state.level.spawnIndices.player)}>
-                    <Player gender={Player.MR_PAC_MAN} stepNumber={this.state.stepNumber} />
-                </div>
-                <div className="LevelGhostRed" style={this.getEntityStyle(this.state.level.spawnIndices.ghostRed)}>
-                    <Ghost color={Ghost.RED} stepNumber={this.state.stepNumber} />
-                </div>
-                <div className="LevelGhostBlue" style={this.getEntityStyle(this.state.level.spawnIndices.ghostBlue)}>
-                    <Ghost color={Ghost.BLUE} stepNumber={this.state.stepNumber} />
-                </div>
-                <div className="LevelGhostPink" style={this.getEntityStyle(this.state.level.spawnIndices.ghostPink)}>
-                    <Ghost color={Ghost.PINK} stepNumber={this.state.stepNumber} />
-                </div>
-                <div className="LevelGhostOrange" style={this.getEntityStyle(this.state.level.spawnIndices.ghostOrange)}>
-                    <Ghost color={Ghost.ORANGE} stepNumber={this.state.stepNumber} />
-                </div>
             </div>
         );
     }
 }
+
+Level.propTypes = {
+    level: PropTypes.instanceOf(LevelModel).isRequired,
+    selectedCell: PropTypes.instanceOf(CellModel)
+};
 
 export default Level;

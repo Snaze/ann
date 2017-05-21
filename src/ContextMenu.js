@@ -26,6 +26,7 @@ class ContextMenu extends Component {
 
     componentDidMount() {
         this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
+        // TODO: Consolidate this with the GameState class
         this._interval = setInterval((e) => this.intervalTick(e), 250);
     }
 

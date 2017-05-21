@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import './Cell.css';
 import Dot from "./model/Dot";
+import PropTypes from "prop-types";
+import {default as CellModel} from "./model/Cell";
+import {default as LocationModel} from "./model/Location";
 
 const default_cell_width = 24;
 const default_cell_height = 24;
@@ -11,18 +14,23 @@ class Cell extends Component {
         super(props);
 
         this.state = {hover: false};
+        this._updateCallback = null;
     }
 
     static _cellLocationCache = {};
     static getCellLocation(cell) {
         if (typeof(Cell._cellLocationCache[cell.id]) === 'undefined') {
-            Cell._cellLocationCache[cell.id] = document.getElementById(Cell.elementId(cell)).getBoundingClientRect();
+            let theCellDOMElement = document.getElementById(Cell.elementId(cell));
+            if (theCellDOMElement) {
+                let clientRect = theCellDOMElement.getBoundingClientRect();
+                Cell._cellLocationCache[cell.id] = new LocationModel(Cell._cellLocationCache[cell.id]["left"],
+                                                                     Cell._cellLocationCache[cell.id]["top"]);
+            } else {
+                return new LocationModel(-1, -1);
+            }
         }
 
-        return {
-            y: Cell._cellLocationCache[cell.id]["top"],
-            x: Cell._cellLocationCache[cell.id]["left"]
-        }
+        return Cell._cellLocationCache[cell.id];
     }
 
     get cellId() {
@@ -32,12 +40,32 @@ class Cell extends Component {
     static get DEFAULT_CELL_WIDTH() { return default_cell_width; }
     static get DEFAULT_CELL_HEIGHT() { return default_cell_height; }
 
-    componentDidMount() {
+    shouldComponentUpdate(nextProps, nextState) {
+        let stateDifferent = nextState.hover !== this.state.hover;
+        let propsDifferent = nextProps.cell.equals(this.props.cell);
 
+        return stateDifferent || propsDifferent;
+    }
+
+    componentDidMount() {
+        this._updateCallback = (e) => this.cellUpdated(e);
     }
 
     componentWillUnmount() {
+        this.props.cell.removeOnChangeCallback(this._updateCallback);
+    }
 
+    componentWillReceiveProps(nextProps) {
+        if (typeof(this.props.cell) === "undefined") {
+            nextProps.cell.addOnChangeCallback(this._updateCallback);
+        } else if (this.props.cell !== nextProps.cell) {
+            this.props.cell.removeOnChangeCallback(this._updateCallback);
+            nextProps.cell.addOnChangeCallback(this._updateCallback);
+        }
+    }
+
+    cellUpdated(data) {
+        this.forceUpdate();
     }
 
     style() {
@@ -137,5 +165,10 @@ class Cell extends Component {
         );
     }
 }
+
+Cell.propTypes = {
+    cell: PropTypes.instanceOf(CellModel).isRequired,
+    onClick: PropTypes.func
+};
 
 export default Cell;
