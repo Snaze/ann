@@ -63,8 +63,8 @@ it("getCellById works", () => {
 
 it("fromJSON works", () => {
     let jsonObject = {
-        "_currentWidth": 2,
-        "_currentHeight": 2,
+        "_width": 2,
+        "_height": 2,
         "_gameMatrix": [
             [
                 {
@@ -163,16 +163,17 @@ it("spawnChangedCallback works correctly", () => {
 
     // SETUP
     let theLevel = new Level(10, 1);
-    theLevel.gameMatrix[0][0]._isPlayerSpawn = true;
-    theLevel.gameMatrix[0][1]._isGhostRedSpawn = true;
-    theLevel.gameMatrix[0][2]._isGhostBlueSpawn = true;
-    theLevel.gameMatrix[0][3]._isGhostOrangeSpawn = true;
-    theLevel.gameMatrix[0][4]._isGhostPinkSpawn = true;
-    theLevel.spawnIndices.player = [0, 0];
-    theLevel.spawnIndices.ghostRed = [0, 1];
-    theLevel.spawnIndices.ghostBlue = [0, 2];
-    theLevel.spawnIndices.ghostOrange = [0, 3];
-    theLevel.spawnIndices.ghostPink = [0, 4];
+    theLevel.gameMatrix[0][0].isPlayerSpawn = true;
+    theLevel.gameMatrix[0][1].isGhostRedSpawn = true;
+    theLevel.gameMatrix[0][2].isGhostBlueSpawn = true;
+    theLevel.gameMatrix[0][3].isGhostOrangeSpawn = true;
+    theLevel.gameMatrix[0][4].isGhostPinkSpawn = true;
+
+    expect(theLevel.playerSpawnLocation.isEqualTo(0, 0)).toBe(true);
+    expect(theLevel.ghostRedLocation.isEqualTo(1, 0)).toBe(true);
+    expect(theLevel.ghostBlueLocation.isEqualTo(2, 0)).toBe(true);
+    expect(theLevel.ghostOrangeLocation.isEqualTo(3, 0)).toBe(true);
+    expect(theLevel.ghostPinkLocation.isEqualTo(4, 0)).toBe(true);
 
     // CALL
     theLevel.gameMatrix[0][5].isPlayerSpawn = true;
@@ -194,10 +195,10 @@ it("spawnChangedCallback works correctly", () => {
     expect(theLevel.gameMatrix[0][8].isGhostOrangeSpawn).toBe(true);
     expect(theLevel.gameMatrix[0][9].isGhostPinkSpawn).toBe(true);
 
-    expect(_.isEqual(theLevel.spawnIndices.player, [0, 5])).toBe(true);
-    expect(_.isEqual(theLevel.spawnIndices.ghostRed, [0, 6])).toBe(true);
-    expect(_.isEqual(theLevel.spawnIndices.ghostBlue, [0, 7])).toBe(true);
-    expect(_.isEqual(theLevel.spawnIndices.ghostOrange, [0, 8])).toBe(true);
-    expect(_.isEqual(theLevel.spawnIndices.ghostPink, [0, 9])).toBe(true);
+    expect(theLevel.playerSpawnLocation.isEqualTo(5, 0)).toBe(true);
+    expect(theLevel.ghostRedLocation.isEqualTo(6, 0)).toBe(true);
+    expect(theLevel.ghostBlueLocation.isEqualTo(7, 0)).toBe(true);
+    expect(theLevel.ghostOrangeLocation.isEqualTo(8, 0)).toBe(true);
+    expect(theLevel.ghostPinkLocation.isEqualTo(9, 0)).toBe(true);
 
 });

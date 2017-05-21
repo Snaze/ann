@@ -13,6 +13,10 @@ class DataSourceBase {
         this._eventer.removeCallback(callback);
     }
 
+    removeAllCallbacks() {
+        this._eventer.removeAllCallbacks();
+    }
+
     _raiseOnChangeCallbacks(source) {
         this._eventer.raiseEvent({
             object: this,

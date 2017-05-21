@@ -6,6 +6,23 @@ class Location {
         this._y = y;
     }
 
+    // Perhaps this class should be immutable.
+    // Let's roll with this and see how it turns out.
+    set(x, y) {
+        this._x = x;
+        this._y = y;
+    }
+
+    setWithLocation(otherLocation) {
+        this._x = otherLocation._x;
+        this._y = otherLocation._y;
+    }
+
+    reset() {
+        this._x = -1;
+        this._y = -1;
+    }
+
     get x() {
         return this._x;
     }
@@ -44,6 +61,14 @@ class Location {
         }
 
         return new Location(indexArray[0], indexArray[1]);
+    }
+
+    equals(otherLocation) {
+        return (this._x === otherLocation._x) && (this._y === otherLocation._y);
+    }
+
+    isEqualTo(x, y) {
+        return (this._x === x) && (this._y === y);
     }
 }
 

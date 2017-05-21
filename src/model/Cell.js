@@ -1,15 +1,20 @@
 import Border from "./Border";
 import BorderType from "./BorderType";
 import Dot from "./Dot";
-import Eventer from "../utils/Eventer";
+import DataSourceBase from "./DataSourceBase";
+import Location from "./Location";
 
 
-class Cell {
+class Cell extends DataSourceBase {
 
-    constructor(id, spawnChangedCallback=null) {
+    constructor(id) {
+        super();
+
         this._id = id;
         this._solidBorder = new Border();
+        this._solidBorder.addOnChangeCallback((e) => this._solidBorderCallback(e));
         this._partialBorder = new Border();
+        this._partialBorder.addOnChangeCallback((e) => this._partialBorderCallback(e));
 
         this._dotType = Dot.NONE;
         this._selected = false;
@@ -22,44 +27,52 @@ class Cell {
         this._isActive = true;
 
         let tempArray = this._id.split("_");
-        this._x = parseInt(tempArray[1], 10);
-        this._y = parseInt(tempArray[0], 10);
-        this.spawnChangedCallback = spawnChangedCallback;
-        this._eventer = new Eventer();
+        this._location = new Location(parseInt(tempArray[1], 10), parseInt(tempArray[0], 10));
     }
 
-    addOnChangeCallback(callback) {
-        this._eventer.addCallback(callback);
+    removeAllCallbacks() {
+        super.removeAllCallbacks();
+
+        this._solidBorder.removeAllCallbacks();
+        this._partialBorder.removeAllCallbacks();
     }
 
-    removeOnChangeCallback(callback) {
-        this._eventer.removeCallback(callback);
+    _solidBorderCallback(e) {
+        this._raiseOnChangeCallbacks("_solidBorder." + e.source);
     }
 
-    raiseOnChangeCallbacks(source) {
-        this._eventer.raiseEvent({
-            cell: this,
-            source: source
-        });
+    _partialBorderCallback(e) {
+        this._raiseOnChangeCallbacks("_partialBorder." + e.source);
     }
 
     clone(theId, direction="none") {
-        let toRet = new Cell(theId, this.spawnChangedCallback);
+        let toRet = new Cell(theId);
+
         toRet._solidBorder = this._solidBorder.clone(direction);
         toRet._partialBorder = this._partialBorder.clone(direction);
         toRet._dotType = this._dotType;
         toRet._selected = this._selected;
+        toRet._isPlayerSpawn = this._isPlayerSpawn;
+        toRet._isGhostRedSpawn = this._isGhostRedSpawn;
+        toRet._isGhostPinkSpawn = this._isGhostPinkSpawn;
+        toRet._isGhostBlueSpawn = this._isGhostBlueSpawn;
+        toRet._isGhostOrangeSpawn = this._isGhostOrangeSpawn;
+        toRet._isActive = this._isActive;
+        toRet._x = this._x;
+        toRet._y = this._y;
+
+        // I'LL LEAVE IT AS THE RESPONSIBLITY OF THE CALLER TO RE-ASSIGN
+        // THE EVENT HANDLERS
+
         return toRet;
     }
 
     setAllSpawnValuesFalse() {
-        this._isPlayerSpawn = false;
-        this._isGhostBlueSpawn = false;
-        this._isGhostOrangeSpawn = false;
-        this._isGhostPinkSpawn = false;
-        this._isGhostRedSpawn = false;
-
-        this.raiseOnChangeCallbacks("setAllSpawnValuesFalse");
+        this._setValueAndRaiseOnChange("_isPlayerSpawn", false);
+        this._setValueAndRaiseOnChange("_isGhostBlueSpawn", false);
+        this._setValueAndRaiseOnChange("_isGhostOrangeSpawn", false);
+        this._setValueAndRaiseOnChange("_isGhostPinkSpawn", false);
+        this._setValueAndRaiseOnChange("_isGhostRedSpawn", false);
     }
 
     getSpawnValue() {
@@ -86,16 +99,6 @@ class Cell {
         return "none";
     }
 
-    raiseSpawnChangedEvent() {
-        if (this.spawnChangedCallback) {
-            let currentSpawnValue = this.getSpawnValue();
-            this.spawnChangedCallback({
-                cell: this,
-                spawnValue: currentSpawnValue
-            });
-        }
-    }
-
     get isPlayerSpawn() {
         return this._isPlayerSpawn;
     }
@@ -105,10 +108,7 @@ class Cell {
             this.setAllSpawnValuesFalse();
         }
 
-        this._isPlayerSpawn = value;
-
-        this.raiseSpawnChangedEvent();
-        this.raiseOnChangeCallbacks("isPlayerSpawn");
+        this._setValueAndRaiseOnChange("_isPlayerSpawn", value);
     }
 
     get isGhostRedSpawn() {
@@ -120,10 +120,7 @@ class Cell {
             this.setAllSpawnValuesFalse();
         }
 
-        this._isGhostRedSpawn = value;
-
-        this.raiseSpawnChangedEvent();
-        this.raiseOnChangeCallbacks("isGhostRedSpawn");
+        this._setValueAndRaiseOnChange("_isGhostRedSpawn", value);
     }
 
     get isGhostPinkSpawn() {
@@ -135,10 +132,7 @@ class Cell {
             this.setAllSpawnValuesFalse();
         }
 
-        this._isGhostPinkSpawn = value;
-
-        this.raiseSpawnChangedEvent();
-        this.raiseOnChangeCallbacks("isGhostPinkSpawn");
+        this._setValueAndRaiseOnChange("_isGhostPinkSpawn", value);
     }
 
     get isGhostBlueSpawn() {
@@ -150,10 +144,7 @@ class Cell {
             this.setAllSpawnValuesFalse();
         }
 
-        this._isGhostBlueSpawn = value;
-
-        this.raiseSpawnChangedEvent();
-        this.raiseOnChangeCallbacks("isGhostBlueSpawn");
+        this._setValueAndRaiseOnChange("_isGhostBlueSpawn", value);
     }
 
     get isGhostOrangeSpawn() {
@@ -165,10 +156,7 @@ class Cell {
             this.setAllSpawnValuesFalse();
         }
 
-        this._isGhostOrangeSpawn = value;
-
-        this.raiseSpawnChangedEvent();
-        this.raiseOnChangeCallbacks("isGhostOrangeSpawn");
+        this._setValueAndRaiseOnChange("_isGhostOrangeSpawn", value);
     }
 
     get isActive() {
@@ -176,20 +164,13 @@ class Cell {
     }
 
     set isActive(value) {
-        this._isActive = value;
-        this.raiseOnChangeCallbacks("isActive");
+        this._setValueAndRaiseOnChange("_isActive", value);
     }
-
-    get x() { return this._x; }
-
-    get y() { return this._y; }
 
     get selected() { return this._selected; }
 
     set selected(value) {
-        this._selected = value;
-
-        this.raiseOnChangeCallbacks("selected");
+        this._setValueAndRaiseOnChange("_selected", value);
     }
 
     get solidBorder() {
@@ -222,7 +203,6 @@ class Cell {
         }
 
         this._solidBorder[borderType] = !!value;
-        this.raiseOnChangeCallbacks("setSolidBorder");
     }
 
     getSolidBorder(borderType) {
@@ -241,7 +221,6 @@ class Cell {
         }
 
         this._partialBorder[borderType] = !!value;
-        this.raiseOnChangeCallbacks("setPartialBorder");
     }
 
     getPartialBorder(borderType) {
@@ -260,8 +239,7 @@ class Cell {
             throw new Error("Invalid Dot Type");
         }
 
-        this._dotType = value;
-        this.raiseOnChangeCallbacks("dotType");
+        this._setValueAndRaiseOnChange("_dotType", value);
     }
 
     toggleBorder(borderType) {
@@ -279,25 +257,24 @@ class Cell {
             this._solidBorder[borderType] = false;
             this._partialBorder[borderType] = false;
         }
-
-        this.raiseOnChangeCallbacks("toggleBorder");
     }
 
     toggleIsActive() {
-        this._isActive = !this._isActive;
-        this.raiseOnChangeCallbacks("toggleIsActive");
+        this.isActive = !this.isActive;
     }
 
     toggleDot() {
-        if (this._dotType === Dot.NONE) {
-            this._dotType = Dot.LITTLE;
+        if (this.dotType === Dot.NONE) {
+            this.dotType = Dot.LITTLE;
         } else if (this._dotType === Dot.LITTLE) {
-            this._dotType = Dot.BIG;
+            this.dotType = Dot.BIG;
         } else if (this._dotType === Dot.BIG) {
-            this._dotType = Dot.NONE;
+            this.dotType = Dot.NONE;
         }
+    }
 
-        this.raiseOnChangeCallbacks("toggleDot");
+    get location() {
+        return this._location;
     }
 }
 

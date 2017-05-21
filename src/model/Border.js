@@ -1,6 +1,10 @@
+import DataSourceBase from "./DataSourceBase";
 
-class Border {
+
+class Border extends DataSourceBase {
     constructor(left=false, top=false, right=false, bottom=false) {
+        super();
+
         this._left = left;
         this._top = top;
         this._right = right;
@@ -23,16 +27,24 @@ class Border {
         throw new Error("invalid direction found");
     }
 
-    set left (value) {this._left = value;}
+    set left (value) {
+        this._setValueAndRaiseOnChange("_left", value);
+    }
     get left () {return this._left}
 
-    set top (value) {this._top = value;}
+    set top (value) {
+        this._setValueAndRaiseOnChange("_top", value);
+    }
     get top () {return this._top}
 
-    set right (value) {this._right = value;}
+    set right (value) {
+        this._setValueAndRaiseOnChange("_right", value);
+    }
     get right () {return this._right}
 
-    set bottom (value) {this._bottom = value;}
+    set bottom (value) {
+        this._setValueAndRaiseOnChange("_bottom", value);
+    }
     get bottom () {return this._bottom}
 
     equals(otherBorder) {

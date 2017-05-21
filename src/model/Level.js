@@ -1,7 +1,8 @@
 import Cell from "./Cell";
 import _ from "../../node_modules/lodash/lodash";
 import BorderType from "./BorderType";
-import Eventer from "../utils/Eventer";
+import DataSourceBase from "./DataSourceBase";
+import {default as LocationModel} from "./Location";
 
 const DEFAULT_WIDTH = 26;
 const DEFAULT_HEIGHT = 26;
@@ -18,7 +19,7 @@ const valid_spawn_indices_name = [
     spawn_indices_ghostPink
 ];
 
-class Level {
+class Level extends DataSourceBase {
     static get SPAWN_INDICES_PLAYER() { return spawn_indices_player; }
     static get SPAWN_INDICES_GHOST_RED() { return spawn_indices_ghostRed; }
     static get SPAWN_INDICES_GHOST_BLUE() { return spawn_indices_ghostBlue; }
@@ -26,41 +27,25 @@ class Level {
     static get SPAWN_INDICES_GHOST_PINK() { return spawn_indices_ghostPink; }
 
     constructor(width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT) {
-        this._currentWidth = width;
-        this._currentHeight = height;
-        // TODO: refactor these indices to use the Location object
-        this._spawnIndices = {
-            player: [-1, -1], // Y, X
-            ghostRed: [-1, -1], // Y, X
-            ghostBlue: [-1, -1], // Y, X
-            ghostOrange: [-1, -1], // Y, X
-            ghostPink: [-1, -1] // Y, X
-        };
+        super();
 
-        this._eventer = new Eventer();
-        this._gameMatrix = Level.constructGameMatrix(this._currentWidth,
-            this._currentHeight,
-            (e) => this._spawnChangedCallback(e));
+        this._width = width;
+        this._height = height;
+        this._cellChangedCallbackRef = (e) => this.cellChangedCallback(e);
+
+        this._playerSpawnLocation = new LocationModel(-1, -1);
+        this._ghostRedLocation = new LocationModel(-1, -1);
+        this._ghostBlueLocation = new LocationModel(-1, -1);
+        this._ghostOrangeLocation = new LocationModel(-1, -1);
+        this._ghostPinkLocation = new LocationModel(-1, -1);
+
+        this._gameMatrix = Level.constructGameMatrix(this._width, this._height, this._cellChangedCallbackRef);
         this._selectedCell = this._gameMatrix[0][0];
-
+        this._width = width;
+        this._height = height;
     }
 
-    addOnChangeCallback(callback) {
-        this._eventer.addCallback(callback);
-    }
-
-    removeOnChangeCallback(callback) {
-        this._eventer.removeCallback(callback);
-    }
-
-    raiseOnChangeCallbacks(source) {
-        this._eventer.raiseEvent({
-            cell: this,
-            source: source
-        });
-    }
-
-    static constructGameMatrix(width, height, callback) {
+    static constructGameMatrix(width, height, cellChangedCallbackRef) {
         let toRet = [];
 
         for (let y = 0; y < height; y++) {
@@ -68,17 +53,29 @@ class Level {
 
             for (let x = 0; x < width; x++) {
                 let currentId = y + "_" + x;
-                toRet[y][x] = new Cell(currentId, callback);
+                let currentCell = new Cell(currentId);
+                currentCell.addOnChangeCallback(cellChangedCallbackRef);
+                toRet[y][x] = currentCell;
             }
         }
 
         return toRet;
     }
 
+    removeAllCallbacks() {
+        super.removeAllCallbacks();
+
+        this.gameMatrix.forEach(function(row) {
+            row.forEach(function(cell) {
+                cell.removeAllCallbacks();
+            })
+        })
+    }
+
     static fromJSON(jsonObject) {
         // let jsonObject = JSON.parse(json);
-        let width = jsonObject._currentWidth;
-        let height = jsonObject._currentHeight;
+        let width = jsonObject._width;
+        let height = jsonObject._height;
         let toRet = new Level(width, height);
         let currentCell = null;
         let currentDataCell = null;
@@ -122,68 +119,63 @@ class Level {
         return toRet;
     }
 
-    get spawnIndices() {
-        return this._spawnIndices;
-    }
-
-    getSpawnIndices(spawnIndicesName) {
-        if (valid_spawn_indices_name.indexOf(spawnIndicesName) < 0) {
-            throw new Error("Invalid spawn indices name: " + spawnIndicesName);
-        }
-
-        return this._spawnIndices[spawnIndicesName];
-    }
-
-    _removeSpawnValueIfFound(cell) {
-        let toRet = false;
-
-        let y = cell.y;
-        let x = cell.x;
-
-        for (let prop in this._spawnIndices) {
-            if (this._spawnIndices.hasOwnProperty(prop) &&
-                this._spawnIndices[prop][0] === y &&
-                this._spawnIndices[prop][1] === x) {
-
-                this._spawnIndices[prop] = [-1, -1];
-                toRet = true;
+    _toggleLocationIfUsed(theLocation) {
+        let self = this;
+        let resetIfEqual = function (theLocationName, propName) {
+            if (self[theLocationName].equals(theLocation)) {
+                self.gameMatrix[theLocation.y][theLocation.x][propName] = false;
+                self[theLocationName].reset();
             }
-        }
+        };
 
-        return toRet;
+        resetIfEqual("_playerSpawnLocation", "_isPlayerSpawn");
+        resetIfEqual("_ghostBlueLocation", "_isGhostBlueSpawn");
+        resetIfEqual("_ghostRedLocation", "_isGhostRedSpawn");
+        resetIfEqual("_ghostPinkLocation", "_isGhostPinkSpawn");
+        resetIfEqual("_ghostOrangeLocation", "_isGhostOrangeSpawn");
     }
 
-    _spawnChangedCallback(e) {
-        let cell = e.cell;
-        let cellIndexArray = [cell.y, cell.x];
-        let spawnValue = e.spawnValue;
+    cellChangedCallback(e) {
 
-        switch (spawnValue) {
-            case "player":
-            case "ghostBlue":
-            case "ghostRed":
-            case "ghostOrange":
-            case "ghostPink":
-                this._removeSpawnValueIfFound(cell);
-                if (!_.isEqual(this._spawnIndices[spawnValue], [-1, -1]) &&
-                    !_.isEqual(this._spawnIndices[spawnValue], cellIndexArray)) {
-                    let otherCellIndexArray = this._spawnIndices[spawnValue];
-                    let otherCell = this.gameMatrix[otherCellIndexArray[0]][otherCellIndexArray[1]];
-                    otherCell.setAllSpawnValuesFalse();
+        let self = this;
+        let toggleSpawn = function (theObject,
+                                    thePrivateProperty,
+                                    existingSpawnLocation) {
+            let newSpawnLocation = theObject.location;
+            self._toggleLocationIfUsed(newSpawnLocation);
+            if (theObject[thePrivateProperty]) {
+                if (existingSpawnLocation.isValid) {
+                    self.gameMatrix[existingSpawnLocation.y][existingSpawnLocation.x][thePrivateProperty] = false;
                 }
-                this._spawnIndices[spawnValue] = [cell.y, cell.x];
-                this.raiseOnChangeCallbacks("_spawnChangedCallback");
+                existingSpawnLocation.setWithLocation(newSpawnLocation);
+            }
+        };
+
+        switch (e.source) {
+            case "_isPlayerSpawn":
+                toggleSpawn(e.object, "_isPlayerSpawn", this.playerSpawnLocation);
+                this._raiseOnChangeCallbacks("playerSpawnLocation");
                 break;
-            case "none":
-                if (this._removeSpawnValueIfFound(cell)) {
-                    this.raiseOnChangeCallbacks("_spawnChangedCallback");
-                }
+            case "_isGhostRedSpawn":
+                toggleSpawn(e.object, "_isGhostRedSpawn", this.ghostRedLocation);
+                this._raiseOnChangeCallbacks("ghostRedLocation");
+                break;
+            case "_isGhostPinkSpawn":
+                toggleSpawn(e.object, "_isGhostPinkSpawn", this.ghostPinkLocation);
+                this._raiseOnChangeCallbacks("ghostPinkLocation");
+                break;
+            case "_isGhostBlueSpawn":
+                toggleSpawn(e.object, "_isGhostBlueSpawn", this.ghostBlueLocation);
+                this._raiseOnChangeCallbacks("ghostBlueLocation");
+                break;
+            case "_isGhostOrangeSpawn":
+                toggleSpawn(e.object, "_isGhostOrangeSpawn", this.ghostOrangeLocation);
+                this._raiseOnChangeCallbacks("ghostOrangeLocation");
                 break;
             default:
-                throw new Error("Unknown spawnValue found");
+                // nothing to do
+                break;
         }
-
-        // console.log("Spawn Changed " + JSON.stringify(this._spawnIndices));
     }
 
     mirrorHorizontally() {
@@ -192,44 +184,44 @@ class Level {
         let currentCell = null;
         let currentClonedCell = null;
 
-        for (let y = 0; y < this._currentHeight; y++) {
+        for (let y = 0; y < this.height; y++) {
 
-            currentNewXIndex = this._currentWidth;
+            currentNewXIndex = this.width;
 
-            for (let x = (this._currentWidth - 1); x >= 0; x--) {
+            for (let x = (this.width - 1); x >= 0; x--) {
 
                 currentCell = this.gameMatrix[y][x];
                 currentClonedCell = currentCell.clone(y + "_" + currentNewXIndex, "horizontal");
+                currentClonedCell.addOnChangeCallback(this._cellChangedCallbackRef);
                 this.gameMatrix[y][currentNewXIndex++] = currentClonedCell;
             }
         }
 
-        this._currentWidth = currentNewXIndex;
-        this.raiseOnChangeCallbacks("mirrorHorizontally");
+        this.width = currentNewXIndex;
     }
 
     mirrorVertically() {
 
-        let currentNewYIndex = this._currentHeight;
+        let currentNewYIndex = this._height;
         let currentCell = null;
         let currentClonedCell = null;
 
-        for (let y = (this._currentHeight - 1); y >= 0; y--) {
+        for (let y = (this._height - 1); y >= 0; y--) {
 
             this.gameMatrix[currentNewYIndex] = [];
 
-            for (let x = 0; x < this._currentWidth; x++) {
+            for (let x = 0; x < this._width; x++) {
 
                 currentCell = this.gameMatrix[y][x];
                 currentClonedCell = currentCell.clone(currentNewYIndex + "_" + x, "vertical");
+                currentClonedCell.addOnChangeCallback(this._cellChangedCallbackRef);
                 this.gameMatrix[currentNewYIndex][x] = currentClonedCell;
             }
 
             currentNewYIndex++;
         }
 
-        this._currentHeight = currentNewYIndex;
-        this.raiseOnChangeCallbacks("mirrorVertically");
+        this.height = currentNewYIndex;
     }
 
     get gameMatrix() { return this._gameMatrix; }
@@ -246,56 +238,90 @@ class Level {
         return this._gameMatrix[y][x];
     }
 
-    get width() { return this._currentWidth; }
-    get height() { return this._currentHeight; }
+    get width() { return this._width; }
+
+    set width(value) {
+        this._setValueAndRaiseOnChange("_width", value);
+    }
+
+    get height() { return this._height; }
+
+    set height(value) {
+        this._setValueAndRaiseOnChange("_height", value);
+    }
 
     addRow() {
-        this._gameMatrix[this._currentHeight] = [];
+        this.gameMatrix[this._height] = [];
 
-        for (let x = 0; x < this._currentWidth; x++) {
-            let currentId = this._currentHeight + "_" + x;
-            this._gameMatrix[this._currentHeight][x] = new Cell(currentId, (e) => this._spawnChangedCallback(e));
+        for (let x = 0; x < this.width; x++) {
+            let currentId = this.height + "_" + x;
+            let currentCell = new Cell(currentId);
+            currentCell.addOnChangeCallback(this._cellChangedCallbackRef);
+            this.gameMatrix[this.height][x] = currentCell;
         }
 
-        this._currentHeight++;
-        this.raiseOnChangeCallbacks("addRow");
+        this._setValueAndRaiseOnChange("_height", this.height + 1);
     }
 
     removeRow() {
-        this._currentHeight--;
-        this._gameMatrix.pop();
-        this.raiseOnChangeCallbacks("removeRow");
+        let currentRow = this._gameMatrix.pop();
+        currentRow.forEach(function (cell) {
+           cell.removeAllCallbacks();
+        });
+        this._setValueAndRaiseOnChange("_height", this.height - 1);
     }
 
     addColumn() {
-        for (let y = 0; y < this._currentHeight; y++) {
-            let currentId = y + "_" + this._currentWidth;
-            this._gameMatrix[y][this._currentWidth] = new Cell(currentId, (e) => this._spawnChangedCallback(e));
+        for (let y = 0; y < this.height; y++) {
+            let currentId = y + "_" + this.width;
+            let currentCell = new Cell(currentId);
+            currentCell.addOnChangeCallback(this._cellChangedCallbackRef);
+            this.gameMatrix[y][this.width] = currentCell;
         }
 
-        this._currentWidth++;
-
-        this.raiseOnChangeCallbacks("addColumn");
+        this._setValueAndRaiseOnChange("_width", this.width + 1);
     }
 
     removeColumn() {
-        this._currentWidth--;
 
-        for (let y = 0; y < this._currentHeight; y++) {
-            this._gameMatrix[y].pop();
+        for (let y = 0; y < this.height; y++) {
+            let currentCell = this.gameMatrix[y].pop();
+            currentCell.removeAllCallbacks();
         }
 
-        this.raiseOnChangeCallbacks("removeColumn");
+        this._setValueAndRaiseOnChange("width", this.width - 1);
     }
 
     get selectedCell() {
         return this._selectedCell;
     }
 
-    setSelectedCellByIndex(x, y) {
-        this._selectedCell = this._gameMatrix[y][x];
+    set selectedCell(value) {
+        this._setValueAndRaiseOnChange("_selectedCell", value);
+    }
 
-        this.raiseOnChangeCallbacks("setSelectedCellByIndex");
+    setSelectedCellByIndex(x, y) {
+        this.selectedCell = this.gameMatrix[y][x];
+    }
+
+    get playerSpawnLocation() {
+        return this._playerSpawnLocation;
+    }
+
+    get ghostRedLocation() {
+        return this._ghostRedLocation;
+    }
+
+    get ghostBlueLocation() {
+        return this._ghostBlueLocation;
+    }
+
+    get ghostOrangeLocation() {
+        return this._ghostOrangeLocation;
+    }
+
+    get ghostPinkLocation() {
+        return this._ghostPinkLocation;
     }
 }
 

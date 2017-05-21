@@ -17,6 +17,10 @@ class Eventer {
         }
     }
 
+    removeAllCallbacks() {
+        this._callbacks = [];
+    }
+
     raiseEvent(data=null) {
         if (data === null) {
             data = {};
