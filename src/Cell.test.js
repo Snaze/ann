@@ -10,5 +10,5 @@ it('renders without crashing', () => {
     table.appendChild(theRow);
     let cell = new CellModel("1");
 
-    ReactDOM.render(<Cell cell={cell} />, theRow);
+    ReactDOM.render(<Cell dataSource={cell} />, theRow);
 });

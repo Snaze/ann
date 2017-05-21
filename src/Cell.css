@@ -1,7 +1,58 @@
 .Cell {
-    background-color: Black;
     color: White;
+    vertical-align : middle;
+    text-align: center;
+    width: 24px;
+    height: 24px;
 }
+
+/** SELECTION **/
+
+.CellNotSelected {
+    /*background-color: Black;*/
+}
+
+.CellSelected {
+    background-color: #AED6F1;
+}
+
+/** SOLID **/
+
+.CellSolidLeftBorder {
+    border-left: Solid 2px #1f1ff2;
+}
+
+.CellSolidTopBorder {
+    border-top: Solid 2px #1f1ff2;
+}
+
+.CellSolidRightBorder {
+    border-right: Solid 2px #1f1ff2;
+}
+
+.CellSolidBottomBorder {
+    border-bottom: Solid 2px #1f1ff2;
+}
+
+/** PARTIAL **/
+
+.CellPartialLeftBorder {
+    border-left: Solid 2px white;
+}
+
+.CellPartialTopBorder {
+    border-top: Solid 2px white;
+}
+
+.CellPartialRightBorder {
+    border-right: Solid 2px white;
+}
+
+.CellPartialBottomBorder {
+    border-bottom: Solid 2px white;
+}
+
+/** DOTS **/
 
 .CellBigDot {
     background: url(./images/BigDot.png) no-repeat;
@@ -13,7 +64,9 @@
     background-size: 96% 96%;
 }
 
+/** INACTIVE **/
+
 .CellInActive {
     background: url(./images/red-x.png) no-repeat;
-    background-size: 96% 96%;
+    background-size: 99% 99%;
 }
