@@ -81,7 +81,7 @@ class Cell extends DataSourceComponent {
             toRet += "CellLittleDot ";
         }
 
-        if (!this.cell.isActive) {
+        if (!this.cell.isActive && this.cell.editMode) {
             toRet += "CellInActive ";
         }
 

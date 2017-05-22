@@ -28,6 +28,7 @@ class Cell extends DataSourceBase {
 
         let tempArray = this._id.split("_");
         this._location = new Location(parseInt(tempArray[1], 10), parseInt(tempArray[0], 10));
+        this._editMode = false;
     }
 
     removeAllCallbacks() {
@@ -257,6 +258,14 @@ class Cell extends DataSourceBase {
 
     get y() {
         return this._location.y;
+    }
+
+    get editMode() {
+        return this._editMode;
+    }
+
+    set editMode(value) {
+        this._setValueAndRaiseOnChange("_editMode", value);
     }
 }
 

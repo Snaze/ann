@@ -33,6 +33,8 @@ class Game extends DataSourceBase {
     }
 
     set editMode(value) {
+        this.level.editMode = value;
+
         this._setValueAndRaiseOnChange("_editMode", value);
     }
 

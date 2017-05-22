@@ -27,6 +27,7 @@ class Level extends DataSourceBase {
         this._selectedCell = this._gameMatrix[0][0];
         this._width = width;
         this._height = height;
+        this._editMode = false;
     }
 
     static constructGameMatrix(width, height, cellChangedCallbackRef) {
@@ -352,6 +353,20 @@ class Level extends DataSourceBase {
     //
     //     return this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x];
     // }
+
+    get editMode() {
+        return this._editMode;
+    }
+
+    set editMode(value) {
+        this.gameMatrix.forEach(function (row) {
+            row.forEach(function (cell) {
+                cell.editMode = value;
+            });
+        });
+
+        this._setValueAndRaiseOnChange("_editMode", value);
+    }
 }
 
 export default Level;
