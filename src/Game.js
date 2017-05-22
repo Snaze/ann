@@ -28,30 +28,23 @@ class Game extends DataSourceComponent {
     render() {
         return (<div className="Game">
             <div className="GameLevel">
-                <Level dataSource={this.level} />
+                <Level dataSource={this.level}/>
             </div>
             <div className={this.game.editMode ? "GameLevelEditorPanel" : "GameLevelEditorPanelHide"}>
-                <table>
-                    <tbody>
-                        <tr style={{verticalAlign: "top"}}>
-                            <td>
-                                <div className="ButtonToggleEdit"
-                                     onClick={(e) => this.buttonToggleEdit_Click(e)}>
-                                    <div className="ButtonToggleEditText">
-                                        {this.game.editMode ? "Play!" : "Edit!"}
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <LevelEditPanel dataSource={this.level}
-                                                onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)} />
-                            </td>
-                            <td>
-                                <ContextMenu dataSource={this.level} />
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div className="ButtonToggleEdit"
+                     onClick={(e) => this.buttonToggleEdit_Click(e)}>
+                    <div className="ButtonToggleEditText">
+                        {this.game.editMode ? "Play!" : "Edit!"}
+                    </div>
+                </div>
+                <div className="GamePanel">
+                    <LevelEditPanel dataSource={this.level}
+                                    onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)}/>
+                </div>
+                <div className="GamePanel">
+                    <ContextMenu dataSource={this.level}/>
+                </div>
+
             </div>
         </div>);
     }

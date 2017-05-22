@@ -7,11 +7,19 @@
 
 }
 
+.GamePanel {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 2px;
+}
+
 .GameLevelEditorPanel {
-    position: absolute;
+    text-align: left;
+    display: inline-block;
+    position: fixed;
     top: 0;
-    right: -444px;
-    float: right;
+    width: 500px;
+    right: -500px;
     animation: GameLevelEditorPanelShowAnimation 1s forwards;
     -webkit-animation: GameLevelEditorPanelShowAnimation 1s forwards;
 }
@@ -23,17 +31,20 @@
 }
 
 .GameLevelEditorPanelHide {
-    position: absolute;
+    text-align: left;
+    display: inline-block;
+    position: fixed;
     top: 0;
     right: 0;
-    float: right;
+    width: 500px;
+    /*float: right;*/
     animation: GameLevelEditorPanelHideAnimation 1s forwards;
     -webkit-animation: GameLevelEditorPanelHideAnimation 1s forwards;
 }
 
 @keyframes GameLevelEditorPanelHideAnimation {
     100% {
-        right: -444px;
+        right: -500px;
     }
 }
 
@@ -48,6 +59,8 @@
     border: Solid 2px Orange;
     width: 32px;
     height: 200px;
+    position: absolute;
+    left: -38px;
 }
 
 .ButtonToggleEdit:hover {

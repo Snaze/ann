@@ -8,6 +8,7 @@
     font-family: Arial;
     border: Solid 2px Orange;
     z-index: 9999; /* TODO: Make this z-index work with the Entitys */
+    text-align: center;
 }
 
 .LevelEditButtons {
