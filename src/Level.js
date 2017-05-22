@@ -5,7 +5,7 @@ import Cell from "./Cell";
 import {default as CellModel} from "./model/Cell";
 import LevelEditPanel from "./LevelEditPanel";
 import KeyEventer from "./utils/KeyEventer";
-import GameState from "./model/GameState";
+import GameState from "./model/GameTimer";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import PropTypes from 'prop-types';
@@ -117,12 +117,46 @@ class Level extends DataSourceComponent {
         return toRet;
     }
 
+    getEntityStyle(spawnLocation) {
+        let toRet = {
+            display: "none"
+        };
+
+        if (spawnLocation.isValid) {
+            let cellModel = this.level.gameMatrix[spawnLocation.y][spawnLocation.x];
+            let cellLocation = Cell.getCellLocation(cellModel);
+
+            toRet.display = "block";
+            toRet.position = "absolute";
+            toRet.top =  (cellLocation.y - 2) + "px";
+            toRet.left = (cellLocation.x - 2) + "px";
+            toRet.pointerEvents = "none";
+        }
+
+        return toRet;
+    }
+
     render() {
         return (
             <div className="Level">
                 <table cellPadding={0} cellSpacing={0}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
+                <div className="LevelPlayer" style={this.getEntityStyle(this.level.playerSpawnLocation)}>
+                    <Player gender={Player.MR_PAC_MAN} />
+                </div>
+                <div className="LevelGhostRed" style={this.getEntityStyle(this.state.level.spawnIndices.ghostRed)}>
+                    <Ghost color={Ghost.RED} stepNumber={this.state.stepNumber} />
+                </div>
+                <div className="LevelGhostBlue" style={this.getEntityStyle(this.state.level.spawnIndices.ghostBlue)}>
+                    <Ghost color={Ghost.BLUE} stepNumber={this.state.stepNumber} />
+                </div>
+                <div className="LevelGhostPink" style={this.getEntityStyle(this.state.level.spawnIndices.ghostPink)}>
+                    <Ghost color={Ghost.PINK} stepNumber={this.state.stepNumber} />
+                </div>
+                <div className="LevelGhostOrange" style={this.getEntityStyle(this.state.level.spawnIndices.ghostOrange)}>
+                    <Ghost color={Ghost.ORANGE} stepNumber={this.state.stepNumber} />
+                </div>
             </div>
         );
     }

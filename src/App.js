@@ -11,6 +11,7 @@ import {default as GameModel} from "./model/Game";
 import Dummy from "./tests/Dummy";
 import {default as DummyModel} from "./model/Dummy";
 import PropChangeTest from "./tests/PropChangeTest";
+import GameTimerTest from "./tests/GameTimerTest";
 
 class App extends Component {
 
@@ -27,8 +28,7 @@ class App extends Component {
     render() {
         return (
             <div className="App" style={{backgroundColor: "Gray"}}>
-                {/*<Game game={this.state.game} />*/}
-                <PropChangeTest  />
+                <GameTimerTest />
             </div>
         );
     }

@@ -5,7 +5,7 @@ import Level from "./Level";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import LevelEditPanel from "./LevelEditPanel";
-import GameState from "./model/GameState";
+import GameState from "./model/GameTimer";
 import Cell from "./Cell";
 import {default as LevelModel} from "./model/Level";
 

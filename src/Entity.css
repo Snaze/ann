@@ -23,6 +23,21 @@
     background-position: -58px -2px;
 }
 
+/*@keyframes MrsPacManRightAnimation {*/
+    /*0%   {background-position: -2px -2px;}*/
+    /*25%  {background-position: -30px -2px;}*/
+    /*50%  {background-position: -58px -2px;}*/
+    /*75%  {background-position: -30px -2px;}*/
+    /*100%   {background-position: -2px -2px;}*/
+/*}*/
+
+/*.MrsPacManRight {*/
+    /*-webkit-animation: MrsPacManRightAnimation 1s steps(5) infinite; !* Safari 4+ *!*/
+    /*-moz-animation:    MrsPacManRightAnimation 1s steps(5) infinite; !* Fx 5+ *!*/
+    /*-o-animation:      MrsPacManRightAnimation 1s steps(5) infinite; !* Opera 12+ *!*/
+    /*animation:         MrsPacManRightAnimation 1s steps(5) infinite; !* IE 10+, Fx 29+ *!*/
+/*}*/
+
 .MrsPacManLeftOpen {
     background-position: -2px -2px;
     -moz-transform: scaleX(-1);
