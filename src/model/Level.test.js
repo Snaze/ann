@@ -1,7 +1,7 @@
 import Level from "./Level";
 import Cell from "./Cell";
 import BorderType from "./BorderType";
-import _ from "../../node_modules/lodash/lodash";
+import Location from "./Location";
 
 it('addRow works', () => {
     let theLevel = new Level();
@@ -200,5 +200,61 @@ it("spawnChangedCallback works correctly", () => {
     expect(theLevel.ghostBlueLocation.isEqualTo(7, 0)).toBe(true);
     expect(theLevel.ghostOrangeLocation.isEqualTo(8, 0)).toBe(true);
     expect(theLevel.ghostPinkLocation.isEqualTo(9, 0)).toBe(true);
+
+});
+
+it("selected change works correctly", () => {
+
+    // SETUP
+    let theLevel = new Level(3, 1);
+
+    // CALL
+    theLevel.gameMatrix[0][0].selected = true;
+    theLevel.gameMatrix[0][1].selected = false;
+    theLevel.gameMatrix[0][2].selected = false;
+
+    // ASSERT
+    expect(theLevel.gameMatrix[0][0].selected).toBe(true);
+    expect(theLevel.gameMatrix[0][1].selected).toBe(false);
+    expect(theLevel.gameMatrix[0][2].selected).toBe(false);
+    expect(theLevel.selectedLocation.isEqualTo(0, 0)).toBe(true);
+
+
+    // CALL
+    theLevel.gameMatrix[0][2].selected = true;
+
+    // ASSERT
+    expect(theLevel.gameMatrix[0][0].selected).toBe(false);
+    expect(theLevel.gameMatrix[0][1].selected).toBe(false);
+    expect(theLevel.gameMatrix[0][2].selected).toBe(true);
+    expect(theLevel.selectedLocation.isEqualTo(2, 0)).toBe(true);
+
+});
+
+it("setSelectedLocation", () => {
+
+    // SETUP
+    let theLevel = new Level(3, 1);
+
+    // CALL
+    theLevel.gameMatrix[0][0].selected = true;
+    theLevel.gameMatrix[0][1].selected = false;
+    theLevel.gameMatrix[0][2].selected = false;
+
+    // ASSERT
+    expect(theLevel.gameMatrix[0][0].selected).toBe(true);
+    expect(theLevel.gameMatrix[0][1].selected).toBe(false);
+    expect(theLevel.gameMatrix[0][2].selected).toBe(false);
+    expect(theLevel.selectedLocation.isEqualTo(0, 0)).toBe(true);
+
+
+    // CALL
+    theLevel.setSelectedLocation(new Location(2, 0));
+
+    // ASSERT
+    expect(theLevel.gameMatrix[0][0].selected).toBe(false);
+    expect(theLevel.gameMatrix[0][1].selected).toBe(false);
+    expect(theLevel.gameMatrix[0][2].selected).toBe(true);
+    expect(theLevel.selectedLocation.isEqualTo(2, 0)).toBe(true);
 
 });

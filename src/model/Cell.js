@@ -58,8 +58,7 @@ class Cell extends DataSourceBase {
         toRet._isGhostBlueSpawn = this._isGhostBlueSpawn;
         toRet._isGhostOrangeSpawn = this._isGhostOrangeSpawn;
         toRet._isActive = this._isActive;
-        toRet._x = this._x;
-        toRet._y = this._y;
+        toRet._location = this._location.clone();
 
         // I'LL LEAVE IT AS THE RESPONSIBLITY OF THE CALLER TO RE-ASSIGN
         // THE EVENT HANDLERS
@@ -192,8 +191,7 @@ class Cell extends DataSourceBase {
                 this._isGhostPinkSpawn === otherCell._isGhostPinkSpawn &&
                 this._isGhostBlueSpawn === otherCell._isGhostBlueSpawn &&
                 this._isActive === otherCell._isActive &&
-                this._x === otherCell._x &&
-                this._y === otherCell._y;
+                this._location.equals(otherCell.location);
     }
 
     setSolidBorder(borderType, value) {
@@ -275,6 +273,14 @@ class Cell extends DataSourceBase {
 
     get location() {
         return this._location;
+    }
+
+    get x() {
+        return this._location.x;
+    }
+
+    get y() {
+        return this._location.y;
     }
 }
 

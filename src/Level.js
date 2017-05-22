@@ -9,8 +9,9 @@ import GameState from "./model/GameState";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import PropTypes from 'prop-types';
+import DataSourceComponent from "./DataSourceComponent";
 
-class Level extends Component {
+class Level extends DataSourceComponent {
     constructor(props) {
         super(props);
 
@@ -26,56 +27,49 @@ class Level extends Component {
     }
 
     get level() {
-        return this.props.level;
+        return this.dataSource;
     }
 
     /** KEY EVENTER EVENTS - START **/
     onKeyDown(key) {
-        if (this.props.selectedCell === null) {
+        if (this.level.selectedCell === null) {
             return;
         }
 
-        let currentCell = this.props.selectedCell;
+        let currentCell = this.level.selectedCell;
         let newSelectedCell = null;
 
         switch (key) {
             case "ArrowDown":
-                if ((currentCell.y + 1) < this.props.level.height) {
+                if ((currentCell.y + 1) < this.level.height) {
                     currentCell.selected = false;
-                    newSelectedCell = this.props.level.gameMatrix[currentCell.y + 1][currentCell.x];
+                    newSelectedCell = this.level.gameMatrix[currentCell.y + 1][currentCell.x];
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowUp":
                 if ((currentCell.y - 1) >= 0) {
                     currentCell.selected = false;
-                    newSelectedCell = this.props.level.gameMatrix[currentCell.y - 1][currentCell.x];
+                    newSelectedCell = this.level.gameMatrix[currentCell.y - 1][currentCell.x];
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowLeft":
                 if ((currentCell.x - 1) >= 0) {
                     currentCell.selected = false;
-                    newSelectedCell = this.props.level.gameMatrix[currentCell.y][currentCell.x - 1];
+                    newSelectedCell = this.level.gameMatrix[currentCell.y][currentCell.x - 1];
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowRight":
-                if ((currentCell.x + 1) < this.props.level.width) {
+                if ((currentCell.x + 1) < this.level.width) {
                     currentCell.selected = false;
-                    newSelectedCell = this.props.level.gameMatrix[currentCell.y][currentCell.x + 1];
+                    newSelectedCell = this.level.gameMatrix[currentCell.y][currentCell.x + 1];
                     newSelectedCell.selected = true;
                 }
                 break;
             default:
                 return;
-        }
-
-
-        if (newSelectedCell) {
-            this.setState({
-                selectedCell: newSelectedCell
-            });
         }
     }
 
@@ -90,40 +84,22 @@ class Level extends Component {
         let theArray = cellId.split("_");
         let y = theArray[0];
         let x = theArray[1];
-        let cellModel = this.props.level.getCell(x, y);
+        let cellModel = this.level.getCell(x, y);
 
         if (cellModel.id !== cellId) {
             throw new Error("Mismatched cell Ids");
         }
 
-        if (this.state.selectedCell !== null) {
-            let theSelectedCell = this.state.selectedCell;
-            theSelectedCell.selected = false;
-        }
-
-        cellModel.selected = true;
-
-        // let newState = {
-        //     selectedCell: cellModel
-        // };
-        //
-        // this.setState(newState);
-    }
-
-    onCellChange(selectedCell) {
-
-        this.setState({
-            selectedCell: selectedCell
-        });
+        this.level.setSelectedLocation(cellModel.location);
     }
 
     renderCells(rowIndex) {
         let toRet = [];
 
-        for (let colIndex = 0; colIndex < this.state.level.gameMatrix[rowIndex].length; colIndex++) {
-            let currentCell = this.state.level.gameMatrix[rowIndex][colIndex];
+        for (let colIndex = 0; colIndex < this.level.gameMatrix[rowIndex].length; colIndex++) {
+            let currentCell = this.level.gameMatrix[rowIndex][colIndex];
             toRet.push(<Cell key={"Cell_" + currentCell.id}
-                             cell={currentCell}
+                             dataSource={currentCell}
                              onClick={(e) => this.cellOnClick(e)} />);
         }
 
@@ -133,7 +109,7 @@ class Level extends Component {
     renderRows() {
         let toRet = [];
 
-        for (let rowIndex = 0; rowIndex < this.state.level.gameMatrix.length; rowIndex++) {
+        for (let rowIndex = 0; rowIndex < this.level.gameMatrix.length; rowIndex++) {
             let key = "Level_row_" + rowIndex;
             toRet.push(<tr key={key}>{this.renderCells(rowIndex)}</tr>);
         }
@@ -141,33 +117,10 @@ class Level extends Component {
         return toRet;
     }
 
-    onLevelEditPanelUpdate(theLevel) {
-        this.setState({
-            level: theLevel
-        });
-    }
-
-    onLoadComplete(level) {
-        level.gameMatrix[0][0].selected = true;
-
-        // this.forceUpdate();
-        // this.setState({
-        //     level: level,
-        //     selectedCell: level.gameMatrix[0][0]
-        // });
-    }
-
-    getLevelTableStyle() {
-        return {
-            width: Cell.DEFAULT_CELL_WIDTH * this.level.width,
-            height: Cell.DEFAULT_CELL_HEIGHT * this.level.height,
-        }
-    }
-
     render() {
         return (
             <div className="Level">
-                <table cellPadding={0} cellSpacing={0} style={this.getLevelTableStyle()}>
+                <table cellPadding={0} cellSpacing={0}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
             </div>
@@ -176,8 +129,7 @@ class Level extends Component {
 }
 
 Level.propTypes = {
-    level: PropTypes.instanceOf(LevelModel).isRequired,
-    selectedCell: PropTypes.instanceOf(CellModel)
+    dataSource: PropTypes.object.isRequired
 };
 
 export default Level;

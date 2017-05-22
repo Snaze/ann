@@ -38,6 +38,7 @@ class Level extends DataSourceBase {
         this._ghostBlueLocation = new LocationModel(-1, -1);
         this._ghostOrangeLocation = new LocationModel(-1, -1);
         this._ghostPinkLocation = new LocationModel(-1, -1);
+        this._selectedLocation = new LocationModel(-1, -1);
 
         this._gameMatrix = Level.constructGameMatrix(this._width, this._height, this._cellChangedCallbackRef);
         this._selectedCell = this._gameMatrix[0][0];
@@ -171,6 +172,18 @@ class Level extends DataSourceBase {
             case "_isGhostOrangeSpawn":
                 toggleSpawn(e.object, "_isGhostOrangeSpawn", this.ghostOrangeLocation);
                 this._raiseOnChangeCallbacks("ghostOrangeLocation");
+                break;
+            case "_selected":
+                if (e.object.selected) {
+                    if (this._selectedLocation.isValid) {
+                        this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x].selected = false;
+                    }
+                    this._selectedLocation.setWithLocation(e.object.location);
+                } else if (this._selectedLocation.equals(e.object.location) && !e.object.selected) {
+                    this._selectedLocation.reset();
+                } else {
+                    throw new Error("Im not sure how you would get here");
+                }
                 break;
             default:
                 // nothing to do
@@ -322,6 +335,28 @@ class Level extends DataSourceBase {
 
     get ghostPinkLocation() {
         return this._ghostPinkLocation;
+    }
+
+    get selectedLocation() {
+        return this._selectedLocation;
+    }
+
+    setSelectedLocation(theLocation) {
+        if (this._selectedLocation.isValid) {
+            this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x].selected = false;
+        }
+
+        this._selectedLocation.setWithLocation(theLocation);
+        this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x].selected = true;
+        this._raiseOnChangeCallbacks("_selectedLocation");
+    }
+
+    get selectedCell() {
+        if (!this._selectedLocation.isValid) {
+            return null;
+        }
+
+        return this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x];
     }
 }
 

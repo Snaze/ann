@@ -51,7 +51,8 @@ class Cell extends DataSourceComponent {
     }
 
     onClick(e) {
-        this.props.onClick(e);
+
+        this.cell.selected = true;
     }
 
     static elementId(cell) {
@@ -60,12 +61,6 @@ class Cell extends DataSourceComponent {
 
     get className() {
         let toRet = "Cell ";
-
-        if (this.state.hover) {
-            toRet += "CellSelected ";
-        } else {
-            toRet += "CellNotSelected ";
-        }
 
         let self = this;
         let assignBorders = function (propName, solidClassName, partialClassName) {
@@ -89,6 +84,12 @@ class Cell extends DataSourceComponent {
 
         if (!this.cell.isActive) {
             toRet += "CellInActive ";
+        }
+
+        if (this.state.hover || this.cell.selected) {
+            toRet += "CellSelected ";
+        } else {
+            toRet += "CellNotSelected ";
         }
 
         return toRet;

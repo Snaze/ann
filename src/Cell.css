@@ -2,14 +2,14 @@
     color: White;
     vertical-align : middle;
     text-align: center;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
 /** SELECTION **/
 
 .CellNotSelected {
-    /*background-color: Black;*/
+    background-color: Black;
 }
 
 .CellSelected {
@@ -55,18 +55,18 @@
 /** DOTS **/
 
 .CellBigDot {
-    background: url(./images/BigDot.png) no-repeat;
+    background-image: url(./images/BigDot.png);
     background-size: 96% 96%;
 }
 
 .CellLittleDot {
-    background: url(./images/LittleDot.png) no-repeat;
+    background-image: url(./images/LittleDot.png);
     background-size: 96% 96%;
 }
 
 /** INACTIVE **/
 
 .CellInActive {
-    background: url(./images/red-x.png) no-repeat;
-    background-size: 99% 99%;
+    background-image: url(./images/red-x.png);
+    background-size: 96% 96%;
 }

@@ -9,8 +9,14 @@ import './index.css';
 //   document.getElementById('root')
 // );
 
-import CellTest from "./tests/CellTest";
+// import CellTest from "./tests/CellTest";
+// ReactDOM.render(
+//   <CellTest />,
+//   document.getElementById('root')
+// );
+
+import LevelTest from "./tests/LevelTest";
 ReactDOM.render(
-  <CellTest />,
-  document.getElementById('root')
+    <LevelTest />,
+    document.getElementById('root')
 );

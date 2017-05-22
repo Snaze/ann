@@ -6,6 +6,10 @@ class Location {
         this._y = y;
     }
 
+    clone() {
+        return new Location(this.x, this.y);
+    }
+
     // Perhaps this class should be immutable.
     // Let's roll with this and see how it turns out.
     set(x, y) {
