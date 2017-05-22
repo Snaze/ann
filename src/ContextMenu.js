@@ -1,41 +1,42 @@
-import React, { Component } from 'react';
+import React from 'react';
 import "./ContextMenu.css";
 import Dot from "./model/Dot";
 import KeyEventer from "./utils/KeyEventer";
 import BorderType from "./model/BorderType";
-import Entity from "./Entity";
+import DataSourceComponent from "./DataSourceComponent";
+import Player from "./actors/Player";
+import Ghost from "./actors/Ghost";
+import {default as LevelModel} from "./model/Level";
+import PropTypes from 'prop-types';
 
 
-class ContextMenu extends Component {
+class ContextMenu extends DataSourceComponent {
 
     constructor(props) {
         super(props);
 
         this._keyEventer = new KeyEventer();
-        this.state = {
-            stepNumber: 0
-        };
-        this._interval = null;
-    }
-
-    intervalTick(e) {
-        this.setState({
-           stepNumber: (this.state.stepNumber + 1)
-        });
+        // this.debug = true;
     }
 
     componentDidMount() {
+        super.componentDidMount();
+
         this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
-        // TODO: Consolidate this with the GameState class
-        this._interval = setInterval((e) => this.intervalTick(e), 250);
     }
 
     componentWillUnmount() {
+        super.componentWillUnmount();
+
         this._keyEventer.unBindEvents();
-        if (this._interval !== null) {
-            clearInterval(this._interval);
-            this._interval = null;
-        }
+    }
+
+    get level() {
+        return this.dataSource;
+    }
+
+    get cell() {
+        return this.level.selectedCell;
     }
 
     onKeyDown (key) {
@@ -47,32 +48,31 @@ class ContextMenu extends Component {
                 break;
             case "w":
             case "W":
-                this.props.cell.toggleBorder(BorderType.TOP);
+                this.cell.toggleBorder(BorderType.TOP);
                 break;
             case "a":
             case "A":
-                this.props.cell.toggleBorder(BorderType.LEFT);
+                this.cell.toggleBorder(BorderType.LEFT);
                 break;
             case "s":
             case "S":
-                this.props.cell.toggleBorder(BorderType.BOTTOM);
+                this.cell.toggleBorder(BorderType.BOTTOM);
                 break;
             case "d":
             case "D":
-                this.props.cell.toggleBorder(BorderType.RIGHT);
+                this.cell.toggleBorder(BorderType.RIGHT);
                 break;
             case "x":
             case "X":
-                this.props.cell.toggleIsActive();
+                this.cell.toggleIsActive();
                 break;
-            case " ":
-                this.props.cell.toggleDot();
+            case "Q":
+            case "q":
+                this.cell.toggleDot();
                 break;
             default:
                 return; // Quit when this doesn't handle the key event.
         }
-
-        this.props.onChange(this.props.cell);
     }
 
     onKeyUp (key) {
@@ -86,90 +86,88 @@ class ContextMenu extends Component {
 
         switch (element) {
             case "borderLeft":
-                this.props.cell.solidBorder.left = checked;
+                this.cell.solidBorder.left = checked;
                 if (checked) {
-                    this.props.cell.partialBorder.left = false;
+                    this.cell.partialBorder.left = false;
                 }
                 break;
             case "borderRight":
-                this.props.cell.solidBorder.right = checked;
+                this.cell.solidBorder.right = checked;
                 if (checked) {
-                    this.props.cell.partialBorder.right = false;
+                    this.cell.partialBorder.right = false;
                 }
                 break;
             case "borderTop":
-                this.props.cell.solidBorder.top = checked;
+                this.cell.solidBorder.top = checked;
                 if (checked) {
-                    this.props.cell.partialBorder.top = false;
+                    this.cell.partialBorder.top = false;
                 }
                 break;
             case "borderBottom":
-                this.props.cell.solidBorder.bottom = checked;
+                this.cell.solidBorder.bottom = checked;
                 if (checked) {
-                    this.props.cell.partialBorder.bottom = false;
+                    this.cell.partialBorder.bottom = false;
                 }
                 break;
             case "partialBorderLeft":
-                this.props.cell.partialBorder.left = checked;
+                this.cell.partialBorder.left = checked;
                 if (checked) {
-                    this.props.cell.solidBorder.left = false;
+                    this.cell.solidBorder.left = false;
                 }
                 break;
             case "partialBorderRight":
-                this.props.cell.partialBorder.right = checked;
+                this.cell.partialBorder.right = checked;
                 if (checked) {
-                    this.props.cell.solidBorder.right = false;
+                    this.cell.solidBorder.right = false;
                 }
                 break;
             case "partialBorderTop":
-                this.props.cell.partialBorder.top = checked;
+                this.cell.partialBorder.top = checked;
                 if (checked) {
-                    this.props.cell.solidBorder.top = false;
+                    this.cell.solidBorder.top = false;
                 }
                 break;
             case "partialBorderBottom":
-                this.props.cell.partialBorder.bottom = checked;
+                this.cell.partialBorder.bottom = checked;
                 if (checked) {
-                    this.props.cell.solidBorder.bottom = false;
+                    this.cell.solidBorder.bottom = false;
                 }
                 break;
             case "bigDot":
                 if (checked) {
-                    this.props.cell.dotType = Dot.BIG;
+                    this.cell.dotType = Dot.BIG;
                 } else {
-                    this.props.cell.dotType = Dot.NONE;
+                    this.cell.dotType = Dot.NONE;
                 }
                 break;
             case "littleDot":
                 if (checked) {
-                    this.props.cell.dotType = Dot.LITTLE;
+                    this.cell.dotType = Dot.LITTLE;
                 } else {
-                    this.props.cell.dotType = Dot.NONE;
+                    this.cell.dotType = Dot.NONE;
                 }
                 break;
             case "isActive":
-                this.props.cell.isActive = checked;
+                this.cell.isActive = checked;
                 break;
             case "isPlayerSpawn":
-                this.props.cell.isPlayerSpawn = checked;
+                this.cell.isPlayerSpawn = checked;
                 break;
             case "isGhostRedSpawn":
-                this.props.cell.isGhostRedSpawn = checked;
+                this.cell.isGhostRedSpawn = checked;
                 break;
             case "isGhostPinkSpawn":
-                this.props.cell.isGhostPinkSpawn = checked;
+                this.cell.isGhostPinkSpawn = checked;
                 break;
             case "isGhostBlueSpawn":
-                this.props.cell.isGhostBlueSpawn = checked;
+                this.cell.isGhostBlueSpawn = checked;
                 break;
             case "isGhostOrangeSpawn":
-                this.props.cell.isGhostOrangeSpawn = checked;
+                this.cell.isGhostOrangeSpawn = checked;
                 break;
             default:
                 throw new Error("Unknown element name");
         }
-
-        this.props.onChange(this.props.cell);
     }
 
     render() {
@@ -178,7 +176,7 @@ class ContextMenu extends Component {
                 <thead>
                     <tr>
                         <th colSpan={2} className="ContextMenuHeader">
-                            Cell {this.props.cell.id}
+                            Cell {this.cell.id}
                         </th>
                     </tr>
                 </thead>
@@ -187,7 +185,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="borderLeft"
-                                   checked={this.props.cell.solidBorder.left}
+                                   checked={this.cell.solidBorder.left}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -198,7 +196,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="borderRight"
-                                   checked={this.props.cell.solidBorder.right}
+                                   checked={this.cell.solidBorder.right}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -209,7 +207,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="borderTop"
-                                   checked={this.props.cell.solidBorder.top}
+                                   checked={this.cell.solidBorder.top}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -220,7 +218,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="borderBottom"
-                                   checked={this.props.cell.solidBorder.bottom}
+                                   checked={this.cell.solidBorder.bottom}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -236,7 +234,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="partialBorderLeft"
-                                   checked={this.props.cell.partialBorder.left}
+                                   checked={this.cell.partialBorder.left}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -247,7 +245,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="partialBorderRight"
-                                   checked={this.props.cell.partialBorder.right}
+                                   checked={this.cell.partialBorder.right}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -258,7 +256,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="partialBorderTop"
-                                   checked={this.props.cell.partialBorder.top}
+                                   checked={this.cell.partialBorder.top}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -269,7 +267,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="partialBorderBottom"
-                                   checked={this.props.cell.partialBorder.bottom}
+                                   checked={this.cell.partialBorder.bottom}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -285,22 +283,22 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="bigDot"
-                                   checked={this.props.cell.dotType === Dot.BIG}
+                                   checked={this.cell.dotType === Dot.BIG}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Dot Big (space)
+                            Dot Big (q)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="littleDot"
-                                   checked={this.props.cell.dotType === Dot.LITTLE}
+                                   checked={this.cell.dotType === Dot.LITTLE}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
-                            Dot Little (space)
+                            Dot Little (q)
                         </td>
                     </tr>
                     <tr className="ContextMenuRow">
@@ -312,7 +310,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="isActive"
-                                   checked={this.props.cell.isActive}
+                                   checked={this.cell.isActive}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -328,7 +326,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="isPlayerSpawn"
-                                   checked={this.props.cell.isPlayerSpawn}
+                                   checked={this.cell.isPlayerSpawn}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -339,9 +337,7 @@ class ContextMenu extends Component {
                                         Player Spawn
                                     </td>
                                     <td>
-                                        <Entity designator={Entity.DESIGNATOR_PAC_MAN}
-                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
-                                                stepNumber={this.state.stepNumber} />
+                                        <Player gender={Player.MR_PAC_MAN} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -357,7 +353,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="isGhostRedSpawn"
-                                   checked={this.props.cell.isGhostRedSpawn}
+                                   checked={this.cell.isGhostRedSpawn}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -368,9 +364,7 @@ class ContextMenu extends Component {
                                         Red Ghost Spawn
                                     </td>
                                     <td>
-                                        <Entity designator={Entity.DESIGNATOR_RED_GHOST}
-                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
-                                                stepNumber={this.state.stepNumber} />
+                                        <Ghost color={Ghost.RED} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -381,7 +375,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="isGhostPinkSpawn"
-                                   checked={this.props.cell.isGhostPinkSpawn}
+                                   checked={this.cell.isGhostPinkSpawn}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -392,9 +386,7 @@ class ContextMenu extends Component {
                                         Pink Ghost Spawn
                                     </td>
                                     <td>
-                                        <Entity designator={Entity.DESIGNATOR_PINK_GHOST}
-                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
-                                                stepNumber={this.state.stepNumber} />
+                                        <Ghost color={Ghost.PINK} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -405,7 +397,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="isGhostBlueSpawn"
-                                   checked={this.props.cell.isGhostBlueSpawn}
+                                   checked={this.cell.isGhostBlueSpawn}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -416,9 +408,7 @@ class ContextMenu extends Component {
                                         Blue Ghost Spawn
                                     </td>
                                     <td>
-                                        <Entity designator={Entity.DESIGNATOR_BLUE_GHOST}
-                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
-                                                stepNumber={this.state.stepNumber} />
+                                        <Ghost color={Ghost.BLUE} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -429,7 +419,7 @@ class ContextMenu extends Component {
                         <td className="ContextMenuCellLeft">
                             <input type="checkbox"
                                    data-element="isGhostOrangeSpawn"
-                                   checked={this.props.cell.isGhostOrangeSpawn}
+                                   checked={this.cell.isGhostOrangeSpawn}
                                    onChange={(e) => this.onChange(e)} />
                         </td>
                         <td className="ContextMenuCellRight">
@@ -440,20 +430,11 @@ class ContextMenu extends Component {
                                         Orange Ghost Spawn
                                     </td>
                                     <td>
-                                        <Entity designator={Entity.DESIGNATOR_ORANGE_GHOST}
-                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
-                                                stepNumber={this.state.stepNumber} />
+                                        <Ghost color={Ghost.ORANGE} />
                                     </td>
                                 </tr>
                                 </tbody>
                             </table>
-                        </td>
-                    </tr>
-                    <tr className="ContextMenuRow">
-                        <td className="ContextMenuCellLeft" colSpan={2}>
-                            <input type="button" value="OK" className="ContextMenuButton"
-                                   onClick={(e) => this.props.onDismiss(e)}
-                                    style={{display: this.props.isContextMode ? "inline" : "none"}} />
                         </td>
                     </tr>
                 </tbody>
@@ -461,5 +442,9 @@ class ContextMenu extends Component {
         );
     }
 }
+
+ContextMenu.propTypes = {
+    dataSource: PropTypes.instanceOf(LevelModel).isRequired,
+};
 
 export default ContextMenu;

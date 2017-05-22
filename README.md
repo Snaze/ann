@@ -429,8 +429,8 @@ Then in `package.json`, add the following lines to `scripts`:
 
 ```diff
    "scripts": {
-+    "build-css": "node-sass src/ -o src/",
-+    "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",
++    "build-css": "node-sass src/ -q src/",
++    "watch-css": "npm run build-css && node-sass src/ -q src/ --watch --recursive",
      "start": "react-scripts start",
      "build": "react-scripts build",
      "test": "react-scripts test --env=jsdom",
@@ -454,8 +454,8 @@ Then we can change `start` and `build` scripts to include the CSS preprocessor c
 
 ```diff
    "scripts": {
-     "build-css": "node-sass src/ -o src/",
-     "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",
+     "build-css": "node-sass src/ -q src/",
+     "watch-css": "npm run build-css && node-sass src/ -q src/ --watch --recursive",
 -    "start": "react-scripts start",
 -    "build": "react-scripts build",
 +    "start-js": "react-scripts start",
@@ -1611,7 +1611,7 @@ There are also reports that *uninstalling* Watchman fixes the issue. So if nothi
 
 ### `npm run build` silently fails
 
-It is reported that `npm run build` can fail on machines with no swap space, which is common in cloud environments. If [the symptoms are matching](https://github.com/facebookincubator/create-react-app/issues/1133#issuecomment-264612171), consider adding some swap space to the machine you’re building on, or build the project locally.
+It is reported that `npm run build` can fail on machines with no swap q, which is common in cloud environments. If [the symptoms are matching](https://github.com/facebookincubator/create-react-app/issues/1133#issuecomment-264612171), consider adding some swap q to the machine you’re building on, or build the project locally.
 
 ### `npm run build` fails on Heroku
 

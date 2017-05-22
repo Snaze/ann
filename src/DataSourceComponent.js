@@ -9,16 +9,45 @@ class DataSourceComponent extends Component {
         this.state = {
             dataSource: props.dataSource
         };
+        this._propsToIgnore = [];
+        this._debug = false;
     }
 
     _dataSourceUpdated(e) {
+        // Is this wise to put here?
+        // TODO: Refactor this in componentShouldUpdate method
+        let theIndex = this._propsToIgnore.indexOf(e.source);
+        if (theIndex >= 0) {
+            return;
+        }
+
         this.setState({
             dataSource: e.object
         });
+
+        this.log("_dataSourceUpdated from " + e.source);
+    }
+
+    log(toLog) {
+        if (this.debug) {
+            console.log(toLog);
+        }
+    }
+
+    get debug() {
+        return this._debug;
+    }
+
+    set debug(value) {
+        this._debug = value;
     }
 
     get dataSource() {
         return this.state.dataSource;
+    }
+
+    get propsToIgnore() {
+        return this._propsToIgnore;
     }
 
     componentDidMount() {

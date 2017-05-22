@@ -96,9 +96,18 @@ class Level extends DataSourceBase {
             }
         }
 
-        if (typeof(jsonObject._spawnIndices) !== 'undefined') {
-            toRet._spawnIndices = jsonObject._spawnIndices;
-        }
+        let conditionalAssignLocation = function (jsonObject, propName) {
+            if (typeof(jsonObject[propName]) !== 'undefined') {
+                toRet[propName] = new LocationModel(jsonObject[propName]._x, jsonObject[propName]._y);
+            }
+        };
+
+        conditionalAssignLocation(jsonObject, "_playerSpawnLocation");
+        conditionalAssignLocation(jsonObject, "_ghostRedLocation");
+        conditionalAssignLocation(jsonObject, "_ghostBlueLocation");
+        conditionalAssignLocation(jsonObject, "_ghostOrangeLocation");
+        conditionalAssignLocation(jsonObject, "_ghostPinkLocation");
+        conditionalAssignLocation(jsonObject, "_selectedLocation");
 
         return toRet;
     }
@@ -162,6 +171,7 @@ class Level extends DataSourceBase {
                         this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x].selected = false;
                     }
                     this._selectedLocation.setWithLocation(e.object.location);
+                    this.selectedCell = e.object;
                 } else if (this._selectedLocation.equals(e.object.location) && !e.object.selected) {
                     this._selectedLocation.reset();
                 } else {

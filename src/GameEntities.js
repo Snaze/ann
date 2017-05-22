@@ -1,7 +1,7 @@
 import React from 'react';
 import "./GameEntities.css";
 import {default as LevelModel} from "./model/Level";
-import {default as CellModel} from "./model/Level";
+import Cell from "./Cell";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import DataSourceComponent from "./DataSourceComponent";
@@ -16,7 +16,7 @@ class GameEntities extends DataSourceComponent {
 
         if (spawnLocation.isValid) {
             let cellModel = this.level.gameMatrix[spawnLocation.y][spawnLocation.x];
-            let cellLocation = CellModel.getCellLocation(cellModel);
+            let cellLocation = Cell.getCellLocation(cellModel);
 
             toRet.display = "block";
             toRet.position = "absolute";
@@ -30,6 +30,12 @@ class GameEntities extends DataSourceComponent {
 
     get level() {
         return this.dataSource;
+    }
+
+    componentDidMount() {
+        // I put this here so all the players don't end up in the top left
+        // of the screen
+        this.forceUpdate();
     }
 
     render() {

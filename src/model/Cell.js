@@ -66,36 +66,12 @@ class Cell extends DataSourceBase {
         return toRet;
     }
 
-    setAllSpawnValuesFalse() {
-        this._setValueAndRaiseOnChange("_isPlayerSpawn", false);
-        this._setValueAndRaiseOnChange("_isGhostBlueSpawn", false);
-        this._setValueAndRaiseOnChange("_isGhostOrangeSpawn", false);
-        this._setValueAndRaiseOnChange("_isGhostPinkSpawn", false);
-        this._setValueAndRaiseOnChange("_isGhostRedSpawn", false);
-    }
-
-    getSpawnValue() {
-        if (this._isPlayerSpawn) {
-            return "player";
-        }
-
-        if (this._isGhostBlueSpawn) {
-            return "ghostBlue";
-        }
-
-        if (this._isGhostRedSpawn) {
-            return "ghostRed";
-        }
-
-        if (this._isGhostOrangeSpawn) {
-            return "ghostOrange";
-        }
-
-        if (this._isGhostPinkSpawn) {
-            return "ghostPink";
-        }
-
-        return "none";
+    _setAllSpawnValuesFalse() {
+        this._isPlayerSpawn = false;
+        this._isGhostBlueSpawn = false;
+        this._isGhostOrangeSpawn = false;
+        this._isGhostPinkSpawn = false;
+        this._isGhostRedSpawn = false;
     }
 
     get isPlayerSpawn() {
@@ -104,7 +80,7 @@ class Cell extends DataSourceBase {
 
     set isPlayerSpawn(value) {
         if (value) {
-            this.setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse();
         }
 
         this._setValueAndRaiseOnChange("_isPlayerSpawn", value);
@@ -116,7 +92,7 @@ class Cell extends DataSourceBase {
 
     set isGhostRedSpawn(value) {
         if (value) {
-            this.setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse();
         }
 
         this._setValueAndRaiseOnChange("_isGhostRedSpawn", value);
@@ -128,7 +104,7 @@ class Cell extends DataSourceBase {
 
     set isGhostPinkSpawn(value) {
         if (value) {
-            this.setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse();
         }
 
         this._setValueAndRaiseOnChange("_isGhostPinkSpawn", value);
@@ -140,7 +116,7 @@ class Cell extends DataSourceBase {
 
     set isGhostBlueSpawn(value) {
         if (value) {
-            this.setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse();
         }
 
         this._setValueAndRaiseOnChange("_isGhostBlueSpawn", value);
@@ -152,7 +128,7 @@ class Cell extends DataSourceBase {
 
     set isGhostOrangeSpawn(value) {
         if (value) {
-            this.setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse();
         }
 
         this._setValueAndRaiseOnChange("_isGhostOrangeSpawn", value);

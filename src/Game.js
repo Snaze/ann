@@ -5,6 +5,7 @@ import Level from "./Level";
 import LevelEditPanel from "./LevelEditPanel";
 import DataSourceComponent from "./DataSourceComponent";
 import "./Game.css";
+import ContextMenu from "./ContextMenu";
 
 class Game extends DataSourceComponent {
 
@@ -26,8 +27,19 @@ class Game extends DataSourceComponent {
                 <Level dataSource={this.level} />
             </div>
             <div className="GameLevelEditorPanel">
-                <LevelEditPanel dataSource={this.level}
-                                onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)} />
+                <table>
+                    <tbody>
+                        <tr style={{verticalAlign: "top"}}>
+                            <td>
+                                <LevelEditPanel dataSource={this.level}
+                                                onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)} />
+                            </td>
+                            <td>
+                                <ContextMenu dataSource={this.level} />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>);
     }

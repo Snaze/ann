@@ -11,7 +11,7 @@ class KeyEventer {
         this._a = false;
         this._s = false;
         this._d = false;
-        this._space = false;
+        this._q = false;
         this._x = false;
         this._weBoundOnKeyDown = false;
         this._weBoundOnKeyUp = false;
@@ -58,8 +58,8 @@ class KeyEventer {
         return this._d;
     }
 
-    get space() {
-        return this._space;
+    get q() {
+        return this._q;
     }
 
     get x() {
@@ -146,8 +146,9 @@ class KeyEventer {
             case "X":
                 this._x = true;
                 break;
-            case " ":
-                this._space = true;
+            case "q":
+            case "Q":
+                this._q = true;
                 break;
             default:
                 return; // Quit when this doesn't handle the key event.
@@ -192,8 +193,9 @@ class KeyEventer {
             case "X":
                 this._x = false;
                 break;
-            case " ":
-                this._space = false;
+            case "q":
+            case "Q":
+                this._q = false;
                 break;
             default:
                 return; // Quit when this doesn't handle the key event.

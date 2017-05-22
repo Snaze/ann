@@ -11,6 +11,7 @@ class Level extends DataSourceComponent {
         super(props);
 
         this._keyEventer = new KeyEventer();
+        this.propsToIgnore.push("_selectedCell");
     }
 
     componentDidMount() {

@@ -1,7 +1,6 @@
 import React from 'react';
 import "./LevelEditPanel.css";
 import LevelModel from "./model/Level";
-import ContextMenu from "./ContextMenu";
 import DataSourceComponent from "./DataSourceComponent";
 import PropTypes from 'prop-types';
 
@@ -67,10 +66,6 @@ class LevelEditPanel extends DataSourceComponent {
 
     render() {
         return (
-            <table className="LevelEditPanelMasterTable">
-                <tbody>
-                <tr>
-                    <td style={{verticalAlign: "top"}}>
                         <table className="LevelEditPanel" onClick={(e) => this.onButtonClick(e)}>
                             <tbody>
                             <tr>
@@ -119,13 +114,7 @@ class LevelEditPanel extends DataSourceComponent {
                             </tr>
                             </tbody>
                         </table>
-                    </td>
-                    <td style={{verticalAlign: "top"}}>
-                        <ContextMenu cell={this.level.selectedCell} isContextMode={false}/>
-                    </td>
-                </tr>
-                </tbody>
-            </table>);
+                    );
     };
 }
 
