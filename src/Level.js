@@ -136,10 +136,17 @@ class Level extends DataSourceComponent {
         return toRet;
     }
 
+    get tableStyle() {
+        return {
+            width: (this.level.width * 24) + "px",
+            height: (this.level.height * 24) + "px",
+        };
+    }
+
     render() {
         return (
             <div className="Level">
-                <table cellPadding={0} cellSpacing={0}>
+                <table cellPadding={0} cellSpacing={0} style={this.tableStyle}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
                 <GameEntities dataSource={this.level} />

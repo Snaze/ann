@@ -21,15 +21,27 @@ class Game extends DataSourceComponent {
         this.game.level = theLevel;
     }
 
+    buttonToggleEdit_Click(e) {
+        this.game.editMode = !this.game.editMode;
+    }
+
     render() {
         return (<div className="Game">
             <div className="GameLevel">
                 <Level dataSource={this.level} />
             </div>
-            <div className="GameLevelEditorPanel">
+            <div className={this.game.editMode ? "GameLevelEditorPanel" : "GameLevelEditorPanelHide"}>
                 <table>
                     <tbody>
                         <tr style={{verticalAlign: "top"}}>
+                            <td>
+                                <div className="ButtonToggleEdit"
+                                     onClick={(e) => this.buttonToggleEdit_Click(e)}>
+                                    <div className="ButtonToggleEditText">
+                                        {this.game.editMode ? "Play!" : "Edit!"}
+                                    </div>
+                                </div>
+                            </td>
                             <td>
                                 <LevelEditPanel dataSource={this.level}
                                                 onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)} />
