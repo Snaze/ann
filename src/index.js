@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom';
 
 import './index.css';
 
-import App from './App';
-ReactDOM.render(
-  <App />,
-  document.getElementById('root')
-);
+// import App from './App';
+// ReactDOM.render(
+//   <App />,
+//   document.getElementById('root')
+// );
 
 // import CellTest from "./tests/CellTest";
 // ReactDOM.render(
@@ -15,8 +15,14 @@ ReactDOM.render(
 //   document.getElementById('root')
 // );
 
-// import LevelTest from "./tests/LevelTest";
+import LevelTest from "./tests/LevelTest";
+ReactDOM.render(
+    <LevelTest />,
+    document.getElementById('root')
+);
+
+// import EntityAnimationTest from "./tests/EntityAnimationTest";
 // ReactDOM.render(
-//     <LevelTest />,
-//     document.getElementById('root')
+//   <EntityAnimationTest />,
+//   document.getElementById('root')
 // );

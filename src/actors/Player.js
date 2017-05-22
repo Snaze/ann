@@ -19,14 +19,18 @@ class Player extends Component {
 
     render() {
         return (<Entity designator={this.props.gender || Player.MR_PAC_MAN}
-                       modifier={this.state.direction}
-                       stepNumber={this.props.stepNumber} />);
+                        modifier={this.state.direction}
+                        animating={this.props.animating} />);
     }
 }
 
 Player.propTypes = {
     gender: PropTypes.string.isRequired,
-    stepNumber: PropTypes.number.isRequired
+    animating: PropTypes.bool
+};
+
+Player.defaultProps = {
+    animating: true
 };
 
 export default Player;

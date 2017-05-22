@@ -5,38 +5,44 @@ import Level from "./Level";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import LevelEditPanel from "./LevelEditPanel";
-import GameState from "./model/GameTimer";
 import Cell from "./Cell";
 import {default as LevelModel} from "./model/Level";
+import DataSourceComponent from "./DataSourceComponent";
 
-class Game extends Component {
+class Game extends DataSourceComponent {
 
     constructor(props) {
         super(props);
 
-
-        this._gameState = GameState.instance;
-        this._theHandler = null;
     }
 
     get level() {
-        return this.props.game.level;
+        return this.game.level;
+    }
+
+    get game() {
+        return this.dataSource;
+    }
+
+    levelEditPanel_onLoadComplete(theLevel) {
+        this.game.level = theLevel;
     }
 
     render() {
         return (<div className="Game">
             <div className="GameLevel">
-                <Level level={this.level} />
+                <Level dataSource={this.level} />
             </div>
             <div className="GameLevelEditorPanel">
-                <LevelEditPanel level={this.level} />
+                <LevelEditPanel dataSource={this.level}
+                                onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)} />
             </div>
         </div>);
     }
 }
 
 Game.propTypes = {
-    game: PropTypes.instanceOf(GameModel).isRequired
+    dataSource: PropTypes.instanceOf(GameModel).isRequired
 };
 
 export default Game;

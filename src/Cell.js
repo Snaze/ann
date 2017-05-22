@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './Cell.css';
 import Dot from "./model/Dot";
 import PropTypes from "prop-types";
-import {default as CellModel} from "./model/Cell";
 import {default as LocationModel} from "./model/Location";
 import DataSourceComponent from "./DataSourceComponent";
 import BorderType from "./model/BorderType";

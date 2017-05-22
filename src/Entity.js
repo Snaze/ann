@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import "./Entity.css";
 import "./images/PacManSprites.png";
 import PropTypes from 'prop-types';
+import GameTimer from "./model/GameTimer";
 
 /** DESIGNATORS **/
 const mrs_pac_man = "mrs_pac_man";
@@ -54,6 +55,8 @@ const row_score_5000 = "row_score_5000";
 
 const no_modifier = "no_modifier";
 
+// TODO: You could have probably done all these animations in CSS
+// which would have been cleaner.  I'll plan on doing that in the future.
 const frame_mappings = {
     mrs_pac_man: {
         direction_left: [
@@ -240,9 +243,43 @@ class Entity extends Component {
 
     static get MODIFIER_NO_MODIFIER() { return no_modifier; }
 
+    constructor(props) {
+        super(props);
+        this._tickHandler = (e) => this.gameTimerTick(e);
+
+        this.state = {
+            stepNumber: 0
+        };
+    }
+
+    gameTimerTick(e) {
+
+        this.setState({
+            stepNumber: e[GameTimer.TIME_250MS]
+        });
+    }
+
+    componentWillReceiveProps(nextProps, oldProps) {
+        if (!this.props.animating && nextProps.animating) {
+            GameTimer.instance.addCallback(this._tickHandler);
+        } else if (this.props.animating && !nextProps.animating) {
+            GameTimer.instance.removeCallback(this._tickHandler);
+        }
+    }
+
+    componentDidMount() {
+        if (this.props.animating) {
+            GameTimer.instance.addCallback(this._tickHandler);
+        }
+    }
+
+    componentWillUnmount() {
+        GameTimer.instance.removeCallback(this._tickHandler);
+    }
+
     currentClassName() {
         let frames = frame_mappings[this.props.designator][this.props.modifier];
-        let frameNumber = this.props.stepNumber % frames.length;
+        let frameNumber = this.state.stepNumber % frames.length;
         return frames[frameNumber];
     }
 
@@ -255,7 +292,11 @@ class Entity extends Component {
 Entity.propTypes = {
     designator: PropTypes.string.isRequired,
     modifier: PropTypes.string.isRequired,
-    stepNumber: PropTypes.number.isRequired
+    animating: PropTypes.bool
+};
+
+Entity.defaultProps = {
+    animating: true
 };
 
 export default Entity;

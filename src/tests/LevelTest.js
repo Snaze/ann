@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import Level from "../Level";
-import {default as LevelModel} from "../model/Level";
 import LevelFactory from "../model/LevelFactory";
 
 class LevelTest extends Component {

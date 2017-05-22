@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import "./LevelEditPanel.css";
-import Level from "./model/Level";
+import LevelModel from "./model/Level";
 import ContextMenu from "./ContextMenu";
+import DataSourceComponent from "./DataSourceComponent";
+import PropTypes from 'prop-types';
 
-class LevelEditPanel extends Component {
+class LevelEditPanel extends DataSourceComponent {
 
     constructor(props) {
         super(props);
@@ -13,28 +15,28 @@ class LevelEditPanel extends Component {
         };
     }
 
+    get level() {
+        return this.dataSource;
+    }
+
     onButtonClick(e) {
-        let theLevel = this.props.level;
+        let theLevel = this.level;
 
         switch(e.target.id) {
             case "btnSubRow":
                 theLevel.removeRow();
-                this.props.onUpdate(theLevel);
                 break;
             case "btnAddRow":
                 theLevel.addRow();
-                this.props.onUpdate(theLevel);
                 break;
             case "btnSubCol":
                 theLevel.removeColumn();
-                this.props.onUpdate(theLevel);
                 break;
             case "btnAddCol":
                 theLevel.addColumn();
-                this.props.onUpdate(theLevel);
                 break;
             case "btnLoad":
-                theLevel = Level.fromJSON(JSON.parse(this.state.textAreaValue));
+                theLevel = LevelModel.fromJSON(JSON.parse(this.state.textAreaValue));
 
                 this.props.onLoadComplete(theLevel);
                 break;
@@ -49,11 +51,9 @@ class LevelEditPanel extends Component {
                 break;
             case "btnMirrorHorizontal":
                 theLevel.mirrorHorizontally();
-                this.props.onUpdate(theLevel);
                 break;
             case "btnMirrorVertical":
                 theLevel.mirrorVertically();
-                this.props.onUpdate(theLevel);
                 break;
             default:
                 throw new Error("Unknown ID");
@@ -122,13 +122,17 @@ class LevelEditPanel extends Component {
                             </table>
                         </td>
                         <td style={{verticalAlign: "top"}}>
-                            <ContextMenu cell={this.props.cell} isContextMode={false}
-                                         onChange={(cell) => this.props.onCellChange(cell)} />
+                            <ContextMenu cell={this.level.selectedCell} isContextMode={false} />
                         </td>
                     </tr>
                 </tbody>
             </table>);
     };
 }
+
+LevelEditPanel.propTypes = {
+    dataSource: PropTypes.instanceOf(LevelModel).isRequired,
+    onLoadComplete: PropTypes.func.isRequired
+};
 
 export default LevelEditPanel;

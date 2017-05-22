@@ -21,14 +21,18 @@ class Ghost extends Component {
 
     render() {
         return (<Entity designator={this.props.color}
-                       modifier={this.state.direction}
-                       stepNumber={this.props.stepNumber} />);
+                        modifier={this.state.direction}
+                        animating={this.props.animating} />);
     }
 }
 
 Ghost.propTypes = {
     color: PropTypes.string.isRequired,
-    stepNumber: PropTypes.number.isRequired
+    animating: PropTypes.bool
+};
+
+Ghost.defaultProps = {
+    animating: true
 };
 
 export default Ghost;

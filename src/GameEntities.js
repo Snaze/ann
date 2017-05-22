@@ -1,26 +1,22 @@
-import React, { Component } from 'react';
+import React from 'react';
 import "./GameEntities.css";
 import {default as LevelModel} from "./model/Level";
+import {default as CellModel} from "./model/Level";
+import Player from "./actors/Player";
+import Ghost from "./actors/Ghost";
+import DataSourceComponent from "./DataSourceComponent";
+import PropTypes from 'prop-types';
 
-class GameEntities extends Component {
-    constructor(props) {
-        super(props);
+class GameEntities extends DataSourceComponent {
 
-
-    }
-
-    getEntityStyle(spawnIndicesName) {
+    getEntityStyle(spawnLocation) {
         let toRet = {
             display: "none"
         };
 
-        let spawnIndices = this.level.getSpawnIndices(spawnIndicesName);
-        let yIndex = spawnIndices[0];
-        let xIndex = spawnIndices[1];
-
-        if ((yIndex > -1) && (xIndex > -1)) {
-            let cellModel = this.level.gameMatrix[yIndex][xIndex];
-            let cellLocation = Cell.getCellLocation(cellModel);
+        if (spawnLocation.isValid) {
+            let cellModel = this.level.gameMatrix[spawnLocation.y][spawnLocation.x];
+            let cellLocation = CellModel.getCellLocation(cellModel);
 
             toRet.display = "block";
             toRet.position = "absolute";
@@ -32,26 +28,34 @@ class GameEntities extends Component {
         return toRet;
     }
 
+    get level() {
+        return this.dataSource;
+    }
+
     render() {
         return (
             <div className="GameEntities">
-                <div className="GamePlayer" style={this.getEntityStyle(LevelModel.SPAWN_INDICES_PLAYER)}>
-                    <Player gender={Player.MR_PAC_MAN} stepNumber={this.state.stepNumber} />
+                <div className="GameEntitiesPlayer" style={this.getEntityStyle(this.level.playerSpawnLocation)}>
+                    <Player gender={Player.MR_PAC_MAN}  />
                 </div>
-                <div className="GameGhostRed" style={this.getEntityStyle(LevelModel.SPAWN_INDICES_GHOST_RED)}>
-                    <Ghost color={Ghost.RED} stepNumber={this.state.stepNumber} />
+                <div className="GameEntitiesGhostRed" style={this.getEntityStyle(this.level.ghostRedLocation)}>
+                    <Ghost color={Ghost.RED} />
                 </div>
-                <div className="GameGhostBlue" style={this.getEntityStyle(LevelModel.SPAWN_INDICES_GHOST_BLUE)}>
-                    <Ghost color={Ghost.BLUE} stepNumber={this.state.stepNumber} />
+                <div className="GameEntitiesGhostBlue" style={this.getEntityStyle(this.level.ghostBlueLocation)}>
+                    <Ghost color={Ghost.BLUE} />
                 </div>
-                <div className="GameGhostPink" style={this.getEntityStyle(LevelModel.SPAWN_INDICES_GHOST_PINK)}>
-                    <Ghost color={Ghost.PINK} stepNumber={this.state.stepNumber} />
+                <div className="GameEntitiesGhostPink" style={this.getEntityStyle(this.level.ghostPinkLocation)}>
+                    <Ghost color={Ghost.PINK} />
                 </div>
-                <div className="LevelGhostOrange" style={this.getEntityStyle(LevelModel.SPAWN_INDICES_GHOST_ORANGE)}>
-                    <Ghost color={Ghost.ORANGE} stepNumber={this.state.stepNumber} />
+                <div className="GameEntitiesGhostOrange" style={this.getEntityStyle(this.level.ghostOrangeLocation)}>
+                    <Ghost color={Ghost.ORANGE} />
                 </div>
             </div>);
     }
 }
+
+GameEntities.propTypes = {
+    dataSource: PropTypes.instanceOf(LevelModel).isRequired
+};
 
 export default GameEntities;

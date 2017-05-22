@@ -1,5 +1,5 @@
 import Eventer from "../utils/Eventer";
-import moment from "../../node_modules/moment/min/moment.min";
+import moment from "../../node_modules/moment/moment";
 
 let _singleton = Symbol();
 

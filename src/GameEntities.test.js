@@ -7,5 +7,5 @@ it ("Game Renders", () => {
     const div = document.createElement('div');
     let level = LevelFactory.createLevel("Level1");
 
-    ReactDOM.render(<GameEntities level={level} />, div);
+    ReactDOM.render(<GameEntities dataSource={level} />, div);
 });

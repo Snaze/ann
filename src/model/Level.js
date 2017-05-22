@@ -6,25 +6,8 @@ import {default as LocationModel} from "./Location";
 
 const DEFAULT_WIDTH = 26;
 const DEFAULT_HEIGHT = 26;
-const spawn_indices_player = "player";
-const spawn_indices_ghostRed = "ghostRed";
-const spawn_indices_ghostBlue = "ghostBlue";
-const spawn_indices_ghostOrange = "ghostOrange";
-const spawn_indices_ghostPink = "ghostPink";
-const valid_spawn_indices_name = [
-    spawn_indices_player,
-    spawn_indices_ghostRed,
-    spawn_indices_ghostBlue,
-    spawn_indices_ghostOrange,
-    spawn_indices_ghostPink
-];
 
 class Level extends DataSourceBase {
-    static get SPAWN_INDICES_PLAYER() { return spawn_indices_player; }
-    static get SPAWN_INDICES_GHOST_RED() { return spawn_indices_ghostRed; }
-    static get SPAWN_INDICES_GHOST_BLUE() { return spawn_indices_ghostBlue; }
-    static get SPAWN_INDICES_GHOST_ORANGE() { return spawn_indices_ghostOrange; }
-    static get SPAWN_INDICES_GHOST_PINK() { return spawn_indices_ghostPink; }
 
     constructor(width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT) {
         super();
@@ -347,17 +330,18 @@ class Level extends DataSourceBase {
         }
 
         this._selectedLocation.setWithLocation(theLocation);
-        this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x].selected = true;
+        this._selectedCell = this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x];
+        this._selectedCell._selected = true;
         this._raiseOnChangeCallbacks("_selectedLocation");
     }
 
-    get selectedCell() {
-        if (!this._selectedLocation.isValid) {
-            return null;
-        }
-
-        return this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x];
-    }
+    // get selectedCell() {
+    //     if (!this._selectedLocation.isValid) {
+    //         return null;
+    //     }
+    //
+    //     return this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x];
+    // }
 }
 
 export default Level;

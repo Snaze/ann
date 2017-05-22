@@ -1,15 +1,10 @@
-import { default as LevelModel } from "./model/Level";
-import React, { Component } from 'react';
+import React from 'react';
 import './Level.css';
 import Cell from "./Cell";
-import {default as CellModel} from "./model/Cell";
-import LevelEditPanel from "./LevelEditPanel";
 import KeyEventer from "./utils/KeyEventer";
-import GameState from "./model/GameTimer";
-import Player from "./actors/Player";
-import Ghost from "./actors/Ghost";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "./DataSourceComponent";
+import GameEntities from "./GameEntities";
 
 class Level extends DataSourceComponent {
     constructor(props) {
@@ -142,21 +137,7 @@ class Level extends DataSourceComponent {
                 <table cellPadding={0} cellSpacing={0}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
-                <div className="LevelPlayer" style={this.getEntityStyle(this.level.playerSpawnLocation)}>
-                    <Player gender={Player.MR_PAC_MAN} />
-                </div>
-                <div className="LevelGhostRed" style={this.getEntityStyle(this.state.level.spawnIndices.ghostRed)}>
-                    <Ghost color={Ghost.RED} stepNumber={this.state.stepNumber} />
-                </div>
-                <div className="LevelGhostBlue" style={this.getEntityStyle(this.state.level.spawnIndices.ghostBlue)}>
-                    <Ghost color={Ghost.BLUE} stepNumber={this.state.stepNumber} />
-                </div>
-                <div className="LevelGhostPink" style={this.getEntityStyle(this.state.level.spawnIndices.ghostPink)}>
-                    <Ghost color={Ghost.PINK} stepNumber={this.state.stepNumber} />
-                </div>
-                <div className="LevelGhostOrange" style={this.getEntityStyle(this.state.level.spawnIndices.ghostOrange)}>
-                    <Ghost color={Ghost.ORANGE} stepNumber={this.state.stepNumber} />
-                </div>
+                <GameEntities dataSource={this.level} />
             </div>
         );
     }

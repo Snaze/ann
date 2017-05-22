@@ -4,8 +4,8 @@ import Game from "./Game";
 import {default as GameModel} from "./model/Game";
 
 it ("Game Renders", () => {
-    const div = document.createElement('div');
     let game = new GameModel("Level1");
+    const div = document.createElement('div');
 
-    ReactDOM.render(<Game game={game} />, div);
+    ReactDOM.render(<Game dataSource={game} />, div);
 });
