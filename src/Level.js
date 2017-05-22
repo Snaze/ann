@@ -32,7 +32,7 @@ class Level extends DataSourceComponent {
 
     /** KEY EVENTER EVENTS - START **/
     onKeyDown(key) {
-        if (this.level.selectedCell === null) {
+        if ((this.level.selectedCell === null) || !this.level.editMode) {
             return;
         }
 
@@ -69,7 +69,7 @@ class Level extends DataSourceComponent {
                 }
                 break;
             default:
-                return;
+                break;
         }
     }
 

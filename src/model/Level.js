@@ -346,14 +346,6 @@ class Level extends DataSourceBase {
         this._raiseOnChangeCallbacks("_selectedLocation");
     }
 
-    // get selectedCell() {
-    //     if (!this._selectedLocation.isValid) {
-    //         return null;
-    //     }
-    //
-    //     return this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x];
-    // }
-
     get editMode() {
         return this._editMode;
     }
@@ -361,11 +353,13 @@ class Level extends DataSourceBase {
     set editMode(value) {
         this.gameMatrix.forEach(function (row) {
             row.forEach(function (cell) {
+                cell.selected = false;
                 cell.editMode = value;
             });
         });
 
         this._setValueAndRaiseOnChange("_editMode", value);
+        this.selectedCell = null;
     }
 }
 

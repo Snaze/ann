@@ -42,14 +42,25 @@ class Cell extends DataSourceComponent {
     }
 
     onMouseEnter(e) {
+        if (!this.cell.editMode) {
+            return;
+        }
+
         this.setState({hover: true});
     }
 
     onMouseLeave(e) {
+        if (!this.cell.editMode) {
+            return;
+        }
+
         this.setState({hover: false});
     }
 
     onClick(e) {
+        if (!this.cell.editMode) {
+            return;
+        }
 
         this.cell.selected = true;
     }

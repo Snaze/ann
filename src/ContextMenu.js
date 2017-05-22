@@ -40,6 +40,10 @@ class ContextMenu extends DataSourceComponent {
     }
 
     onKeyDown (key) {
+        if (!this.level.editMode) {
+            return;
+        }
+
         switch (key) {
             case "ArrowDown":
             case "ArrowUp":
