@@ -1,20 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {default as GameModel} from "./model/Game";
 import Level from "./Level";
-import Player from "./actors/Player";
-import Ghost from "./actors/Ghost";
 import LevelEditPanel from "./LevelEditPanel";
-import Cell from "./Cell";
-import {default as LevelModel} from "./model/Level";
 import DataSourceComponent from "./DataSourceComponent";
+import "./Game.css";
 
 class Game extends DataSourceComponent {
-
-    constructor(props) {
-        super(props);
-
-    }
 
     get level() {
         return this.game.level;

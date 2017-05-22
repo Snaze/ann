@@ -285,7 +285,7 @@ class Level extends DataSourceBase {
             currentCell.removeAllCallbacks();
         }
 
-        this._setValueAndRaiseOnChange("width", this.width - 1);
+        this._setValueAndRaiseOnChange("_width", this.width - 1);
     }
 
     get selectedCell() {

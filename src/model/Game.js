@@ -1,8 +1,4 @@
 import LevelFactory from "./LevelFactory";
-import Player from "./Player";
-import Ghost from "./Ghost";
-import Direction from "../utils/Direction";
-import Location from "./Location";
 import DataSourceBase from "./DataSourceBase";
 
 class Game extends DataSourceBase {

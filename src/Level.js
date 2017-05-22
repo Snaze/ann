@@ -14,10 +14,14 @@ class Level extends DataSourceComponent {
     }
 
     componentDidMount() {
+        super.componentDidMount();
+
         this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
     }
 
     componentWillUnmount() {
+        super.componentWillUnmount();
+
         this._keyEventer.unBindEvents();
     }
 
