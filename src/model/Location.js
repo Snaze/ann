@@ -1,7 +1,9 @@
+import DataSourceBase from "./DataSourceBase";
 
-
-class Location {
+class Location extends DataSourceBase {
     constructor(x, y) {
+        super();
+
         this._x = x;
         this._y = y;
     }
@@ -13,18 +15,18 @@ class Location {
     // Perhaps this class should be immutable.
     // Let's roll with this and see how it turns out.
     set(x, y) {
-        this._x = x;
-        this._y = y;
+        this.x = x;
+        this.y = y;
     }
 
     setWithLocation(otherLocation) {
-        this._x = otherLocation._x;
-        this._y = otherLocation._y;
+        this.x = otherLocation.x;
+        this.y = otherLocation.y;
     }
 
     reset() {
-        this._x = -1;
-        this._y = -1;
+        this.x = -1;
+        this.y = -1;
     }
 
     get x() {
@@ -32,7 +34,7 @@ class Location {
     }
 
     set x(value) {
-        this._x = value;
+        this._setValueAndRaiseOnChange("_x", value);
     }
 
     get y() {
@@ -40,23 +42,23 @@ class Location {
     }
 
     set y(value) {
-        this._y = value;
+        this._setValueAndRaiseOnChange("_y", value);
     }
 
     get isValid() {
-        return this._x >= 0 && this._y >= 0;
+        return this.x >= 0 && this.y >= 0;
     }
 
     toArray(yFirst=true) {
         if (yFirst) {
-            return [this._y, this._x];
+            return [this.y, this.x];
         }
 
-        return [this._x, this._y];
+        return [this.x, this.y];
     }
 
     toString() {
-        return "(" + this._x + ", " + this._y + ")";
+        return "(" + this.x + ", " + this.y + ")";
     }
 
     static fromIndexArray(indexArray, yFirst=true) {
@@ -68,11 +70,11 @@ class Location {
     }
 
     equals(otherLocation) {
-        return (this._x === otherLocation._x) && (this._y === otherLocation._y);
+        return (this.x === otherLocation.x) && (this.y === otherLocation.y);
     }
 
     isEqualTo(x, y) {
-        return (this._x === x) && (this._y === y);
+        return (this.x === x) && (this.y === y);
     }
 }
 

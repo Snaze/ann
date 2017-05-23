@@ -18,23 +18,25 @@ class Cell extends DataSourceComponent {
     }
 
     static _cellLocationCache = {};
-    static getCellLocation(cell) {
-        if (typeof(Cell._cellLocationCache[cell.id]) === 'undefined') {
-            let theCellDOMElement = document.getElementById(Cell.elementId(cell));
+    static getCellLocation(location) {
+        let cellId = Cell.elementIdByLocation(location);
+
+        if (typeof(Cell._cellLocationCache[cellId]) === 'undefined') {
+            let theCellDOMElement = document.getElementById(cellId);
             if (theCellDOMElement) {
                 let clientRect = theCellDOMElement.getBoundingClientRect();
                 let screenLocation = new LocationModel(clientRect["left"],
                                                                      clientRect["top"]);
 
                 // Using the private set so it doesn't kick off the update event
-                cell._screenLocation = screenLocation;
-                Cell._cellLocationCache[cell.id] = screenLocation;
+                // cell._screenLocation = screenLocation;
+                Cell._cellLocationCache[cellId] = screenLocation;
             } else {
                 return new LocationModel(-1, -1);
             }
         }
 
-        return Cell._cellLocationCache[cell.id];
+        return Cell._cellLocationCache[cellId];
     }
 
     get cell() {
@@ -71,6 +73,10 @@ class Cell extends DataSourceComponent {
 
     static elementId(cell) {
         return "cell_" + cell.id;
+    }
+
+    static elementIdByLocation(location) {
+        return "cell_" + location.y + "_" + location.x;
     }
 
     get className() {

@@ -258,3 +258,145 @@ it("setSelectedLocation", () => {
     expect(theLevel.selectedLocation.isEqualTo(2, 0)).toBe(true);
 
 });
+
+it ("test setSpawnValue - Simple switch cell", () => {
+    // SETUP
+    let theLevel = new Level();
+
+    theLevel._playerSpawnLocation.set(1, 1);
+    theLevel._player.location.set(1, 1);
+    theLevel.gameMatrix[1][1]._isPlayerSpawn = true;
+
+    // CALL
+    theLevel._setSpawnValue("_isPlayerSpawn", new Location(2, 2), true);
+
+    // ASSERT
+    expect(theLevel._playerSpawnLocation.isEqualTo(2, 2)).toBe(true);
+    expect(theLevel._player.location.isEqualTo(2, 2)).toBe(true);
+    expect(theLevel.gameMatrix[1][1]._isPlayerSpawn).toBe(false);
+    expect(theLevel.gameMatrix[2][2]._isPlayerSpawn).toBe(true);
+});
+
+it ("test setSpawnValue - Switch Spawn Type of Same Cell", () => {
+    // SETUP
+    let theLevel = new Level();
+
+    theLevel._playerSpawnLocation.set(1, 1);
+    theLevel._player.location.set(1, 1);
+    theLevel.gameMatrix[1][1]._isPlayerSpawn = true;
+
+    theLevel._ghostRedLocation.set(2, 2);
+    theLevel._ghostRed.location.set(2, 2);
+    theLevel.gameMatrix[2][2]._isGhostRedSpawn = true;
+
+    // CALL
+    theLevel._setSpawnValue("_isGhostRedSpawn", new Location(1, 1), true);
+
+    // ASSERT
+    expect(theLevel._playerSpawnLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel._player.location.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel.gameMatrix[1][1]._isPlayerSpawn).toBe(false);
+
+    expect(theLevel._ghostRedLocation.isEqualTo(1, 1)).toBe(true);
+    expect(theLevel._ghostRed.location.isEqualTo(1, 1)).toBe(true);
+    expect(theLevel.gameMatrix[1][1]._isGhostRedSpawn).toBe(true);
+    expect(theLevel.gameMatrix[2][2]._isGhostRedSpawn).toBe(false);
+});
+
+it ("test setSpawnValue - Simple Uncheck", () => {
+    // SETUP
+    let theLevel = new Level();
+
+    theLevel._playerSpawnLocation.set(1, 1);
+    theLevel._player.location.set(1, 1);
+    theLevel.gameMatrix[1][1]._isPlayerSpawn = true;
+
+    theLevel._ghostRedLocation.set(3, 3);
+    theLevel._ghostRed.location.set(3, 3);
+    theLevel.gameMatrix[3][3]._isGhostRedSpawn = true;
+
+    // CALL
+    theLevel._setSpawnValue("_isPlayerSpawn", new Location(2, 2), false);
+
+    // ASSERT
+    expect(theLevel._playerSpawnLocation.isEqualTo(2, 2)).toBe(false);
+    expect(theLevel._player.location.isEqualTo(2, 2)).toBe(false);
+    expect(theLevel.gameMatrix[1][1]._isPlayerSpawn).toBe(false);
+    expect(theLevel.gameMatrix[2][2]._isPlayerSpawn).toBe(false);
+
+    expect(theLevel._ghostRedLocation.isEqualTo(3, 3)).toBe(true);
+    expect(theLevel._ghostRed.location.isEqualTo(3, 3)).toBe(true);
+    expect(theLevel.gameMatrix[3][3]._isGhostRedSpawn).toBe(true);
+});
+
+it ("test removeSpawnLocation", () => {
+    // SETUP
+    let theLevel = new Level();
+
+    theLevel._playerSpawnLocation.set(1, 1);
+    theLevel._player.location.set(1, 1);
+    theLevel.gameMatrix[1][1]._isPlayerSpawn = true;
+    theLevel._ghostRedLocation.set(2, 2);
+    theLevel._ghostRed.location.set(2, 2);
+    theLevel.gameMatrix[2][2]._isGhostRedSpawn = true;
+    theLevel._ghostBlueLocation.set(3, 3);
+    theLevel._ghostBlue.location.set(3, 3);
+    theLevel.gameMatrix[3][3]._isGhostBlueSpawn = true;
+    theLevel._ghostPinkLocation.set(4, 4);
+    theLevel._ghostPink.location.set(4, 4);
+    theLevel.gameMatrix[4][4]._isGhostPinkSpawn = true;
+    theLevel._ghostOrangeLocation.set(5, 5);
+    theLevel._ghostOrange.location.set(5, 5);
+    theLevel.gameMatrix[5][5]._isGhostOrangeSpawn = true;
+
+    // CALL
+    theLevel._removeSpawnLocation(new Location(1, 1));
+
+    // ASSERT
+    expect(theLevel._playerSpawnLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel._player.location.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel.gameMatrix[1][1]._isPlayerSpawn).toBe(false);
+
+    expect(theLevel._ghostRedLocation.isEqualTo(2, 2)).toBe(true);
+    expect(theLevel._ghostRed.location.isEqualTo(2, 2)).toBe(true);
+    expect(theLevel.gameMatrix[2][2]._isGhostRedSpawn).toBe(true);
+
+    expect(theLevel._ghostBlueLocation.isEqualTo(3, 3)).toBe(true);
+    expect(theLevel._ghostBlue.location.isEqualTo(3, 3)).toBe(true);
+    expect(theLevel.gameMatrix[3][3]._isGhostBlueSpawn).toBe(true);
+
+    expect(theLevel._ghostPinkLocation.isEqualTo(4, 4)).toBe(true);
+    expect(theLevel._ghostPink.location.isEqualTo(4, 4)).toBe(true);
+    expect(theLevel.gameMatrix[4][4]._isGhostPinkSpawn).toBe(true);
+
+    expect(theLevel._ghostOrangeLocation.isEqualTo(5, 5)).toBe(true);
+    expect(theLevel._ghostOrange.location.isEqualTo(5, 5)).toBe(true);
+    expect(theLevel.gameMatrix[5][5]._isGhostOrangeSpawn).toBe(true);
+
+    // CALL AGAIN
+    theLevel._removeSpawnLocation(new Location(2, 2));
+    theLevel._removeSpawnLocation(new Location(3, 3));
+    theLevel._removeSpawnLocation(new Location(4, 4));
+    theLevel._removeSpawnLocation(new Location(5, 5));
+
+    // ASSERT
+    expect(theLevel._playerSpawnLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel._player.location.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel.gameMatrix[1][1]._isPlayerSpawn).toBe(false);
+
+    expect(theLevel._ghostRedLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel._ghostRed.location.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel.gameMatrix[2][2]._isGhostRedSpawn).toBe(false);
+
+    expect(theLevel._ghostBlueLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel._ghostBlue.location.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel.gameMatrix[3][3]._isGhostBlueSpawn).toBe(false);
+
+    expect(theLevel._ghostPinkLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel._ghostPink.location.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel.gameMatrix[4][4]._isGhostPinkSpawn).toBe(false);
+
+    expect(theLevel._ghostOrangeLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel._ghostOrange.location.isEqualTo(-1, -1)).toBe(true);
+    expect(theLevel.gameMatrix[5][5]._isGhostOrangeSpawn).toBe(false);
+});

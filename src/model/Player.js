@@ -30,9 +30,21 @@ class Player extends DataSourceBase {
             throw new Error ("Invalid gender");
         }
 
+        this._locationOnChangeCallbackRef = (e) => this._locationOnChangeCallback(e);
         this._direction = direction;
         this._location = location;
+        this._location.addOnChangeCallback(this._locationOnChangeCallbackRef);
         this._gender = gender;
+    }
+
+    removeAllCallbacks() {
+        super.removeAllCallbacks();
+
+        this._location.removeOnChangeCallback(this._locationOnChangeCallbackRef);
+    }
+
+    _locationOnChangeCallback(e) {
+        this._raiseOnChangeCallbacks("_location." + e.source);
     }
 
     get direction() {

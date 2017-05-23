@@ -37,6 +37,41 @@ class Level extends DataSourceBase {
         this._ghostBlue = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.BLUE);
         this._ghostPink = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.PINK);
         this._ghostOrange = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.ORANGE);
+
+        // TODO: Fix this.  This has a serious code smell
+        this._spawnPropertyMapping = {
+            "spawnToEntity": {
+                "_playerSpawnLocation": "player",
+                "_ghostRedLocation": "ghostRed",
+                "_ghostBlueLocation": "ghostBlue",
+                "_ghostPinkLocation": "ghostPink",
+                "_ghostOrangeLocation": "ghostOrange"
+            },
+            "entityToSpawn": {
+                "_player": "_playerSpawnLocation",
+                "_ghostRed": "_ghostRedLocation",
+                "_ghostBlue": "_ghostBlueLocation",
+                "_ghostPink": "_ghostPinkLocation",
+                "_ghostOrange": "_ghostOrangeLocation"
+            }
+        };
+
+        this._spawnPropertyToCellPropertyMapping = {
+            "levelToCell": {
+                "_playerSpawnLocation": "_isPlayerSpawn",
+                "_ghostRedLocation": "_isGhostRedSpawn",
+                "_ghostBlueLocation": "_isGhostBlueSpawn",
+                "_ghostPinkLocation": "_isGhostPinkSpawn",
+                "_ghostOrangeLocation": "_isGhostOrangeSpawn"
+            },
+            "cellToLevel": {
+                "_isPlayerSpawn": "_playerSpawnLocation",
+                "_isGhostRedSpawn": "_ghostRedLocation",
+                "_isGhostBlueSpawn": "_ghostBlueLocation",
+                "_isGhostPinkSpawn": "_ghostPinkLocation",
+                "_isGhostOrangeSpawn": "_ghostOrangeLocation"
+            }
+        };
     }
 
     static constructGameMatrix(width, height, cellChangedCallbackRef) {
@@ -119,6 +154,20 @@ class Level extends DataSourceBase {
         conditionalAssignLocation(jsonObject, "_ghostPinkLocation");
         conditionalAssignLocation(jsonObject, "_selectedLocation");
 
+        let conditionalAssignEntityLocation = function (jsonObject, jsonObjectProperty, toRetProperty) {
+            if (typeof(jsonObject[jsonObjectProperty]) !== "undefined") {
+                let x = jsonObject[jsonObjectProperty]._x;
+                let y = jsonObject[jsonObjectProperty]._y;
+                toRet[toRetProperty].location.set(x, y);
+            }
+        };
+
+        conditionalAssignEntityLocation(jsonObject, "_playerSpawnLocation", "_player");
+        conditionalAssignEntityLocation(jsonObject, "_ghostRedLocation", "_ghostRed");
+        conditionalAssignEntityLocation(jsonObject, "_ghostBlueLocation", "_ghostBlue");
+        conditionalAssignEntityLocation(jsonObject, "_ghostPinkLocation", "_ghostPink");
+        conditionalAssignEntityLocation(jsonObject, "_ghostOrangeLocation", "_ghostOrange");
+
         return toRet;
     }
 
@@ -138,57 +187,45 @@ class Level extends DataSourceBase {
         resetIfEqual("_ghostOrangeLocation", "_isGhostOrangeSpawn");
     }
 
-    cellChangedCallback(e) {
+    _removeSpawnLocation(newLocation) {
+        for (let spawnProp in this._spawnPropertyMapping.spawnToEntity) {
+            if (this.hasOwnProperty(spawnProp) &&
+                !newLocation.isEqualTo(-1, -1) &&
+                this[spawnProp].equals(newLocation)) {
 
-        let self = this;
-        let toggleSpawn = function (theObject,
-                                    thePrivateProperty,
-                                    existingSpawnLocation) {
-            let newSpawnLocation = theObject.location;
-            self._toggleLocationIfUsed(newSpawnLocation);
-            if (theObject[thePrivateProperty]) {
-                if (existingSpawnLocation.isValid) {
-                    self.gameMatrix[existingSpawnLocation.y][existingSpawnLocation.x][thePrivateProperty] = false;
-                }
-                existingSpawnLocation.setWithLocation(newSpawnLocation);
+                let oldLocation = this[spawnProp];
+                let cellProp = this._spawnPropertyToCellPropertyMapping.levelToCell[spawnProp];
+                this.gameMatrix[oldLocation.y][oldLocation.x][cellProp] = false;
+                this[spawnProp].set(-1, -1);
+                this[this._spawnPropertyMapping.spawnToEntity[spawnProp]].location.set(-1, -1);
             }
-        };
+        }
+    }
+
+    _setSpawnValue(cellSpawnField, newLocation, checked) {
+        let levelFieldName = this._spawnPropertyToCellPropertyMapping.cellToLevel[cellSpawnField];
+
+        if (!checked) {
+            this._removeSpawnLocation(this[levelFieldName]);
+        } else {
+            this._removeSpawnLocation(this[levelFieldName]);
+            this._removeSpawnLocation(newLocation);
+
+            this[levelFieldName].setWithLocation(newLocation);
+            this[this._spawnPropertyMapping.spawnToEntity[levelFieldName]].location.setWithLocation(newLocation);
+            this.gameMatrix[newLocation.y][newLocation.x][cellSpawnField] = true;
+        }
+    }
+
+    cellChangedCallback(e) {
 
         switch (e.source) {
             case "_isPlayerSpawn":
-                toggleSpawn(e.object, "_isPlayerSpawn", this.playerSpawnLocation);
-                this._raiseOnChangeCallbacks("playerSpawnLocation");
-                if (e.object[e.source]) {
-                    this._player.location.setWithLocation(this.playerSpawnLocation);
-                }
-                break;
             case "_isGhostRedSpawn":
-                toggleSpawn(e.object, "_isGhostRedSpawn", this.ghostRedLocation);
-                this._raiseOnChangeCallbacks("ghostRedLocation");
-                if (e.object[e.source]) {
-                    this._ghostRed.location.setWithLocation(this.ghostRedLocation);
-                }
-                break;
             case "_isGhostPinkSpawn":
-                toggleSpawn(e.object, "_isGhostPinkSpawn", this.ghostPinkLocation);
-                this._raiseOnChangeCallbacks("ghostPinkLocation");
-                if (e.object[e.source]) {
-                    this._ghostPink.location.setWithLocation(this.ghostPinkLocation);
-                }
-                break;
             case "_isGhostBlueSpawn":
-                toggleSpawn(e.object, "_isGhostBlueSpawn", this.ghostBlueLocation);
-                this._raiseOnChangeCallbacks("ghostBlueLocation");
-                if (e.object[e.source]) {
-                    this._ghostBlue.location.setWithLocation(this.ghostBlueLocation);
-                }
-                break;
             case "_isGhostOrangeSpawn":
-                toggleSpawn(e.object, "_isGhostOrangeSpawn", this.ghostOrangeLocation);
-                this._raiseOnChangeCallbacks("ghostOrangeLocation");
-                if (e.object[e.source]) {
-                    this._ghostOrange.location.setWithLocation(this.ghostOrangeLocation);
-                }
+                this._setSpawnValue(e.source, e.object.location, e.object[e.source]);
                 break;
             case "_selected":
                 if (e.object.selected) {

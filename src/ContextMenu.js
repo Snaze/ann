@@ -4,11 +4,9 @@ import Dot from "./model/Dot";
 import KeyEventer from "./utils/KeyEventer";
 import BorderType from "./model/BorderType";
 import DataSourceComponent from "./DataSourceComponent";
-import Player from "./actors/Player";
-import Ghost from "./actors/Ghost";
 import {default as CellModel} from "./model/Cell";
 import PropTypes from 'prop-types';
-
+import Entity from "./Entity";
 
 class ContextMenu extends DataSourceComponent {
 
@@ -16,7 +14,7 @@ class ContextMenu extends DataSourceComponent {
         super(props);
 
         this._keyEventer = new KeyEventer();
-        // this.debug = true;
+        this.state.dummyCell = new CellModel("-1_-1");
     }
 
     componentDidMount() {
@@ -32,6 +30,10 @@ class ContextMenu extends DataSourceComponent {
     }
 
     get cell() {
+        if (this.dataSource === null) {
+            return this.state.dummyCell;
+        }
+
         return this.dataSource;
     }
 
@@ -345,7 +347,9 @@ class ContextMenu extends DataSourceComponent {
                                         Player Spawn
                                     </td>
                                     <td>
-                                        <Player gender={Player.MR_PAC_MAN} />
+                                        <Entity designator={Entity.DESIGNATOR_PAC_MAN}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                animating={this.props.animating} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -372,7 +376,9 @@ class ContextMenu extends DataSourceComponent {
                                         Red Ghost Spawn
                                     </td>
                                     <td>
-                                        <Ghost color={Ghost.RED} />
+                                        <Entity designator={Entity.DESIGNATOR_RED_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                animating={this.props.animating} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -394,7 +400,9 @@ class ContextMenu extends DataSourceComponent {
                                         Pink Ghost Spawn
                                     </td>
                                     <td>
-                                        <Ghost color={Ghost.PINK} />
+                                        <Entity designator={Entity.DESIGNATOR_PINK_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                animating={this.props.animating} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -416,7 +424,9 @@ class ContextMenu extends DataSourceComponent {
                                         Blue Ghost Spawn
                                     </td>
                                     <td>
-                                        <Ghost color={Ghost.BLUE} />
+                                        <Entity designator={Entity.DESIGNATOR_BLUE_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                animating={this.props.animating} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -438,7 +448,9 @@ class ContextMenu extends DataSourceComponent {
                                         Orange Ghost Spawn
                                     </td>
                                     <td>
-                                        <Ghost color={Ghost.ORANGE} />
+                                        <Entity designator={Entity.DESIGNATOR_ORANGE_GHOST}
+                                                modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                                                animating={this.props.animating} />
                                     </td>
                                 </tr>
                                 </tbody>
@@ -452,7 +464,7 @@ class ContextMenu extends DataSourceComponent {
 }
 
 ContextMenu.propTypes = {
-    dataSource: PropTypes.instanceOf(CellModel).isRequired,
+    dataSource: PropTypes.instanceOf(CellModel),
     editMode: PropTypes.bool.isRequired
 };
 

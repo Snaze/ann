@@ -76,6 +76,7 @@ class Level extends DataSourceComponent {
     onKeyUp(key) {
 
     }
+
     /** KEY EVENTER EVENTS - END **/
 
     cellOnClick(e) {

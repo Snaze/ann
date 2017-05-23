@@ -66,8 +66,13 @@ class DataSourceComponent extends Component {
                 throw new Error("Swapped out datasources should be of the same type");
             }
 
-            this.props.dataSource.removeOnChangeCallback(this._callback);
-            nextProps.dataSource.addOnChangeCallback(this._callback);
+            if (this.props.dataSource !== null) {
+                this.props.dataSource.removeOnChangeCallback(this._callback);
+            }
+
+            if (nextProps.dataSource !== null) {
+                nextProps.dataSource.addOnChangeCallback(this._callback);
+            }
 
             this.setState({
                 dataSource: nextProps.dataSource
