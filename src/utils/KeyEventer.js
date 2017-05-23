@@ -19,6 +19,7 @@ class KeyEventer {
         this._onKeyUpCallback = null;
     }
 
+    // TODO: Should these really be static?
     static _onKeyDownCallbacks = null;
     static get onKeyDownCallbacks() {
         if (KeyEventer._onKeyDownCallbacks === null) {
@@ -28,6 +29,7 @@ class KeyEventer {
         return KeyEventer._onKeyDownCallbacks;
     }
 
+    // TODO: Should these really be static?
     static _onKeyUpCallbacks = null;
     static get onKeyUpCallbacks() {
         if (KeyEventer._onKeyUpCallbacks === null) {

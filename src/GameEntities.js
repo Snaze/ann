@@ -21,12 +21,12 @@ class GameEntities extends DataSourceComponent {
     render() {
         return (
             <div className="GameEntities">
-                <Player dataSource={this.level.player}  />
+                <Player dataSource={this.level.player} level={this.level} />
 
-                <Ghost dataSource={this.level.ghostRed} />
-                <Ghost dataSource={this.level.ghostBlue} />
-                <Ghost dataSource={this.level.ghostPink} />
-                <Ghost dataSource={this.level.ghostOrange} />
+                <Ghost dataSource={this.level.ghostRed} level={this.level} />
+                <Ghost dataSource={this.level.ghostBlue} level={this.level} />
+                <Ghost dataSource={this.level.ghostPink} level={this.level} />
+                <Ghost dataSource={this.level.ghostOrange} level={this.level} />
             </div>);
     }
 }
