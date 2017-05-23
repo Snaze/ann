@@ -19,7 +19,7 @@ class Player extends DataSourceBase {
         return valid_gender.indexOf(theGender) > -1;
     }
 
-    constructor(direction, location, gender, moveInDirectionCallback) {
+    constructor(direction, location, gender, moveInDirectionCallback, playerSpawnLocation) {
         super();
 
         if (!Direction.isValid(direction)) {
@@ -43,13 +43,11 @@ class Player extends DataSourceBase {
         this._moveInDirectionCallback = moveInDirectionCallback;
         this._timerCallbackHandle = (e) => this.timerCallback(e);
         GameTimer.instance.addCallback(this._timerCallbackHandle);
-        this._nextTimerTick = null;
         this._keyEventer = new KeyEventer();
-        // this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
         this._keyEventer.bindEvents(document.body, null, null);
         this._editMode = false;
         this._lastTick = moment();
-
+        this._spawnLocation = null;
     }
 
     timerCallback(e) {
@@ -99,6 +97,11 @@ class Player extends DataSourceBase {
 
     _locationOnChangeCallback(e) {
         this._raiseOnChangeCallbacks("_location." + e.source);
+
+        // TODO: FIXME this is kindof a hack
+        if ((this._spawnLocation === null) && e.object.isValid) {
+            this._spawnLocation = e.object.clone();
+        }
     }
 
     get direction() {
@@ -141,10 +144,21 @@ class Player extends DataSourceBase {
         this._setValueAndRaiseOnChange("_editMode", value);
 
         if (value) {
+            if ((this._spawnLocation !== null) && this._spawnLocation.isValid) {
+                this.location.setWithLocation(this._spawnLocation);
+            }
             GameTimer.instance.removeCallback(this._timerCallbackHandle);
         } else {
             GameTimer.instance.addCallback(this._timerCallbackHandle);
         }
+    }
+
+    get spawnLocation() {
+        return this._spawnLocation;
+    }
+
+    set spawnLocation(value) {
+        this._spawnLocation = value;
     }
 }
 

@@ -4,7 +4,6 @@ import Direction from "../utils/Direction";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "../DataSourceComponent";
 import {default as GhostModel} from "../model/Ghost";
-import {default as LevelModel} from "../model/Level";
 import Cell from "../Cell";
 
 class Ghost extends DataSourceComponent {
@@ -65,7 +64,6 @@ class Ghost extends DataSourceComponent {
 
 Ghost.propTypes = {
     dataSource: PropTypes.instanceOf(GhostModel).isRequired,
-    level: PropTypes.instanceOf(LevelModel).isRequired,
     animating: PropTypes.bool
 };
 

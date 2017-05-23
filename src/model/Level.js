@@ -33,7 +33,10 @@ class Level extends DataSourceBase {
         this._editMode = false;
 
         this._moveInDirectionHandle = (actor, direction) => this.moveInDirection(actor, direction);
-        this._player = new Player(Direction.LEFT, new LocationModel(-1, -1), Player.MR_PAC_MAN, this._moveInDirectionHandle);
+        this._player = new Player(Direction.LEFT,
+            new LocationModel(-1, -1),
+            Player.MR_PAC_MAN,
+            this._moveInDirectionHandle);
         this._ghostRed = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.RED);
         this._ghostBlue = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.BLUE);
         this._ghostPink = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.PINK);
