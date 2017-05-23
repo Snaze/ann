@@ -47,6 +47,7 @@ class Player extends DataSourceBase {
         this._keyEventer = new KeyEventer();
         // this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
         this._keyEventer.bindEvents(document.body, null, null);
+        this._editMode = false;
     }
 
     timerCallback(e) {
@@ -150,6 +151,20 @@ class Player extends DataSourceBase {
 
     set cellTransitionDuration(value) {
         this._setValueAndRaiseOnChange("_cellTransitionDuration", value);
+    }
+
+    get editMode() {
+        return this._editMode;
+    }
+
+    set editMode(value) {
+        this._setValueAndRaiseOnChange("_editMode", value);
+
+        if (value) {
+            GameTimer.instance.removeCallback(this._timerCallbackHandle);
+        } else {
+            GameTimer.instance.addCallback(this._timerCallbackHandle);
+        }
     }
 }
 

@@ -420,7 +420,7 @@ class Level extends DataSourceBase {
             });
         });
 
-        this.player._editMode = value;
+        this.player.editMode = value;
 
         this._setValueAndRaiseOnChange("_editMode", value);
         this.selectedCell = null;
