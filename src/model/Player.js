@@ -39,7 +39,7 @@ class Player extends DataSourceBase {
         this._location = location;
         this._location.addOnChangeCallback(this._locationOnChangeCallbackRef);
         this._gender = gender;
-        this._cellTransitionDuration = 0.5; // seconds
+        this._cellTransitionDuration = 0.25; // seconds
         this._moveInDirectionCallback = moveInDirectionCallback;
         this._timerCallbackHandle = (e) => this.timerCallback(e);
         GameTimer.instance.addCallback(this._timerCallbackHandle);
@@ -48,56 +48,36 @@ class Player extends DataSourceBase {
         // this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
         this._keyEventer.bindEvents(document.body, null, null);
         this._editMode = false;
+        this._lastTick = moment();
+
     }
 
     timerCallback(e) {
-        let newDirection = this.direction;
+        // console.log("timer tick");
 
-        if (this._keyEventer.lastArrowPressed !== null) {
-            if (this._keyEventer.lastArrowPressed === Direction.UP) {
-                newDirection = Direction.UP;
-            } else if (this._keyEventer.lastArrowPressed === Direction.DOWN) {
-                newDirection = Direction.DOWN;
-            } else if (this._keyEventer.lastArrowPressed === Direction.LEFT) {
-                newDirection = Direction.LEFT;
-            } else if (this._keyEventer.lastArrowPressed === Direction.RIGHT) {
-                newDirection = Direction.RIGHT;
+        let currentMoment = moment();
+        let lastTickPlusDuration = this._lastTick.clone().add(this._cellTransitionDuration, "s");
+
+        if (currentMoment.isAfter(lastTickPlusDuration)) {
+
+            let newDirection = this.direction;
+
+            if (this._keyEventer.lastArrowPressed !== null) {
+                if (this._keyEventer.lastArrowPressed === Direction.UP) {
+                    newDirection = Direction.UP;
+                } else if (this._keyEventer.lastArrowPressed === Direction.DOWN) {
+                    newDirection = Direction.DOWN;
+                } else if (this._keyEventer.lastArrowPressed === Direction.LEFT) {
+                    newDirection = Direction.LEFT;
+                } else if (this._keyEventer.lastArrowPressed === Direction.RIGHT) {
+                    newDirection = Direction.RIGHT;
+                }
             }
+
+            this.attemptToMoveInDirection(newDirection);
+            this._lastTick = moment();
         }
-
-        this.attemptToMoveInDirection(newDirection);
     }
-
-    /** KEY EVENTER EVENTS - START **/
-
-    // onKeyDown(key) {
-    //     if (this.editMode) {
-    //         return;
-    //     }
-    //
-    //     switch (key) {
-    //         case "ArrowDown":
-    //             this.attemptToMoveInDirection(Direction.DOWN);
-    //             break;
-    //         case "ArrowUp":
-    //             this.attemptToMoveInDirection(Direction.UP);
-    //             break;
-    //         case "ArrowLeft":
-    //             this.attemptToMoveInDirection(Direction.LEFT);
-    //             break;
-    //         case "ArrowRight":
-    //             this.attemptToMoveInDirection(Direction.RIGHT);
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
-    //
-    // onKeyUp(key) {
-    //
-    // }
-
-    /** KEY EVENTER EVENTS - END **/
 
     attemptToMoveInDirection(direction) {
         let prevX = this.location.x;
