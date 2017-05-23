@@ -1,22 +1,15 @@
+import Direction from "../utils/Direction";
 
-const top = "top";
-const left = "left";
-const right = "right";
-const bottom = "bottom";
-
-const all = [left, top, right, bottom];
-
+// TODO: Replace all usages of BorderType to use Direction
 class BorderType {
-    static get LEFT() { return left; }
-    static get TOP() { return top; }
-    static get RIGHT() { return right; }
-    static get BOTTOM() { return bottom; }
-    static get ALL() { return all; }
+    static get LEFT() { return Direction.LEFT; }
+    static get TOP() { return Direction.UP; }
+    static get RIGHT() { return Direction.RIGHT; }
+    static get BOTTOM() { return Direction.DOWN; }
 
     static isValid(borderType) {
-        return all.indexOf(borderType) > -1;
+        return Direction.isValid(borderType);
     }
-
 }
 
 export default BorderType;

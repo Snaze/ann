@@ -32,6 +32,40 @@ class Border extends DataSourceBase {
     }
     get left () {return this._left}
 
+    // THESE DIRECTION PROPERTIES ARE A HACK TO MAKE THE BorderTypes behave like the Direction class
+    // TODO: Consolidate all usages of BorderType into Direction
+    set direction_up (value) {
+        this.top = value;
+    }
+
+    get direction_up() {
+        return this.top;
+    }
+
+    set direction_down (value) {
+        this.bottom = value;
+    }
+
+    get direction_down() {
+        return this.bottom;
+    }
+
+    set direction_left (value) {
+        this.left = value;
+    }
+
+    get direction_left() {
+        return this.left;
+    }
+
+    set direction_right (value) {
+        this.right = value;
+    }
+
+    get direction_right() {
+        return this.right;
+    }
+
     set top (value) {
         this._setValueAndRaiseOnChange("_top", value);
     }

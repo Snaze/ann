@@ -27,7 +27,11 @@ class Eventer {
         }
 
         this._callbacks.forEach(function (theCallback) {
-           theCallback(data);
+            try {
+                theCallback(data);
+            } catch (e) {
+                console.log(e);
+            }
         });
     }
 }

@@ -2,6 +2,7 @@ import Level from "./Level";
 import Cell from "./Cell";
 import BorderType from "./BorderType";
 import Location from "./Location";
+import Direction from "../utils/Direction";
 
 it('addRow works', () => {
     let theLevel = new Level();
@@ -399,4 +400,58 @@ it ("test removeSpawnLocation", () => {
     expect(theLevel._ghostOrangeLocation.isEqualTo(-1, -1)).toBe(true);
     expect(theLevel._ghostOrange.location.isEqualTo(-1, -1)).toBe(true);
     expect(theLevel.gameMatrix[5][5]._isGhostOrangeSpawn).toBe(false);
+});
+
+it ("canMoveInDirection solid rightBorder works", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.gameMatrix[0][0].setSolidBorder(BorderType.RIGHT, true);
+
+    // CALL
+    let moveRightResult = theLevel.canMoveInDirection(new Location(0, 0), Direction.RIGHT);
+    let moveDownResult = theLevel.canMoveInDirection(new Location(0, 0), Direction.DOWN);
+
+    // ASSERT
+    expect(moveRightResult).toBe(false);
+    expect(moveDownResult).toBe(true);
+});
+
+it ("canMoveInDirection partial rightBorder works", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.gameMatrix[0][0].setPartialBorder(BorderType.RIGHT, true);
+
+    // CALL
+    let moveRightResult = theLevel.canMoveInDirection(new Location(0, 0), Direction.RIGHT);
+    let moveDownResult = theLevel.canMoveInDirection(new Location(0, 0), Direction.DOWN);
+
+    // ASSERT
+    expect(moveRightResult).toBe(false);
+    expect(moveDownResult).toBe(true);
+});
+
+it ("moveInDirection blocked works", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.gameMatrix[0][0].setSolidBorder(BorderType.RIGHT, true);
+    theLevel.player.location.set(0, 0);
+
+    // CALL
+    theLevel.moveInDirection(theLevel.player, Direction.RIGHT);
+
+    // ASSERT
+    expect(theLevel.player.location.isEqualTo(0, 0)).toBe(true);
+});
+
+it ("moveInDirection not blocked works", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.gameMatrix[0][0].setSolidBorder(BorderType.RIGHT, true);
+    theLevel.player.location.set(0, 0);
+
+    // CALL
+    theLevel.moveInDirection(theLevel.player, Direction.DOWN);
+
+    // ASSERT
+    expect(theLevel.player.location.isEqualTo(0, 1)).toBe(true);
 });

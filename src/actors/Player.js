@@ -6,76 +6,23 @@ import DataSourceComponent from "../DataSourceComponent";
 import {default as PlayerModel} from "../model/Player";
 import {default as LevelModel} from "../model/Level";
 import Cell from "../Cell";
-import KeyEventer from "../utils/KeyEventer";
 
 class Player extends DataSourceComponent {
 
     constructor(props) {
         super(props);
 
-        this.state.direction = Direction.LEFT;
-        this.state.cellTransitionDuration = 0.5; // seconds
-        this._keyEventer = new KeyEventer();
+        this.propsToIgnore.push("_nextDirection");
     }
 
-    /** KEY EVENTER EVENTS - START **/
-
-    onKeyDown(key) {
-        if (this.level.editMode) {
-            return;
-        }
-
-        // let currentCell = this.level.selectedCell;
-        // let newSelectedCell = null;
-
-        switch (key) {
-            case "ArrowDown":
-                if ((this.location.y + 1) < this.level.height) {
-                    this.location.y = this.location.y + 1;
-                } else {
-                    this.location.y = 0;
-                }
-                this.player.direction = Direction.DOWN;
-                break;
-            case "ArrowUp":
-                if ((this.location.y - 1) >= 0) {
-                    this.location.y = this.location.y - 1;
-                } else {
-                    this.location.y = this.level.height - 1;
-                }
-                this.player.direction = Direction.UP;
-                break;
-            case "ArrowLeft":
-                if ((this.location.x - 1) >= 0) {
-                    this.location.x = this.location.x - 1;
-                } else {
-                    this.location.x = this.level.width - 1;
-                }
-                this.player.direction = Direction.LEFT;
-                break;
-            case "ArrowRight":
-                if ((this.location.x + 1) < this.level.width) {
-                    this.location.x = this.location.x + 1;
-                } else {
-                    this.location.x = 0;
-                }
-                this.player.direction = Direction.RIGHT;
-                break;
-            default:
-                break;
-        }
-    }
-
-    onKeyUp(key) {
+    timerCallback(e) {
 
     }
 
-    /** KEY EVENTER EVENTS - END **/
 
     componentDidMount() {
         super.componentDidMount();
 
-        this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
     }
 
     componentWillUnmount() {
@@ -83,8 +30,6 @@ class Player extends DataSourceComponent {
 
         let ds = this.dataSource;
         ds.removeOnChangeCallback(this._callback);
-
-        this._keyEventer.unBindEvents();
     }
 
     get player() {
@@ -114,8 +59,8 @@ class Player extends DataSourceComponent {
             toRet.left = (cellLocation.x - 2) + "px";
             toRet.pointerEvents = "none";
             if (!this.level.editMode) {
-                let transitionStr = "top " + this.state.cellTransitionDuration + "s," +
-                    " left " + this.state.cellTransitionDuration + "s";
+                let transitionStr = "top " + this.player.cellTransitionDuration + "s," +
+                    " left " + this.player.cellTransitionDuration + "s";
                 toRet.webKitTransition = transitionStr; /* Safari */
                 toRet.transition = transitionStr;
             }

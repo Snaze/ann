@@ -1,3 +1,4 @@
+import Direction from "./Direction";
 
 // TODO: refactor this to use the Eventer class
 class KeyEventer {
@@ -13,6 +14,7 @@ class KeyEventer {
         this._d = false;
         this._q = false;
         this._x = false;
+        this._lastArrowPressed = null;
         this._weBoundOnKeyDown = false;
         this._weBoundOnKeyUp = false;
         this._onKeyDownCallback = null;
@@ -81,11 +83,15 @@ class KeyEventer {
             this._weBoundOnKeyUp = true;
         }
 
-        this._onKeyDownCallback = onKeyDownCallback;
-        this._onKeyUpCallback = onKeyUpCallback;
+        if (onKeyDownCallback) {
+            this._onKeyDownCallback = onKeyDownCallback;
+            KeyEventer.onKeyDownCallbacks.push(this._onKeyDownCallback);
+        }
 
-        KeyEventer.onKeyDownCallbacks.push(this._onKeyDownCallback);
-        KeyEventer.onKeyUpCallbacks.push(this._onKeyUpCallback);
+        if (onKeyUpCallback) {
+            this._onKeyUpCallback = onKeyUpCallback;
+            KeyEventer.onKeyUpCallbacks.push(this._onKeyUpCallback);
+        }
     }
 
     unBindEvents() {
@@ -100,14 +106,18 @@ class KeyEventer {
 
         this._bindingElement = null;
 
-        let index = KeyEventer.onKeyDownCallbacks.indexOf(this._onKeyDownCallback);
-        if (index > -1) {
-            KeyEventer.onKeyDownCallbacks.splice(index, 1);
+        if (this._onKeyDownCallback) {
+            let index = KeyEventer.onKeyDownCallbacks.indexOf(this._onKeyDownCallback);
+            if (index > -1) {
+                KeyEventer.onKeyDownCallbacks.splice(index, 1);
+            }
         }
 
-        index = KeyEventer.onKeyUpCallbacks.indexOf(this._onKeyUpCallback);
-        if (index > -1) {
-            KeyEventer.onKeyUpCallbacks.splice(index, 1);
+        if (this._onKeyUpCallback) {
+            let index = KeyEventer.onKeyUpCallbacks.indexOf(this._onKeyUpCallback);
+            if (index > -1) {
+                KeyEventer.onKeyUpCallbacks.splice(index, 1);
+            }
         }
 
         this._onKeyDownCallback = null;
@@ -118,15 +128,19 @@ class KeyEventer {
         switch (e.key) {
             case "ArrowDown":
                 this._down = true;
+                this._lastArrowPressed = Direction.DOWN;
                 break;
             case "ArrowUp":
                 this._up = true;
+                this._lastArrowPressed = Direction.UP;
                 break;
             case "ArrowLeft":
                 this._left = true;
+                this._lastArrowPressed = Direction.LEFT;
                 break;
             case "ArrowRight":
                 this._right = true;
+                this._lastArrowPressed = Direction.RIGHT;
                 break;
             case "w":
             case "W":
@@ -165,15 +179,27 @@ class KeyEventer {
         switch (e.key) {
             case "ArrowDown":
                 this._down = false;
+                if (this._lastArrowPressed === Direction.DOWN) {
+                    this._lastArrowPressed = null;
+                }
                 break;
             case "ArrowUp":
                 this._up = false;
+                if (this._lastArrowPressed === Direction.UP) {
+                    this._lastArrowPressed = null;
+                }
                 break;
             case "ArrowLeft":
                 this._left = false;
+                if (this._lastArrowPressed === Direction.LEFT) {
+                    this._lastArrowPressed = null;
+                }
                 break;
             case "ArrowRight":
                 this._right = false;
+                if (this._lastArrowPressed === Direction.RIGHT) {
+                    this._lastArrowPressed = null;
+                }
                 break;
             case "w":
             case "W":
@@ -206,6 +232,10 @@ class KeyEventer {
         KeyEventer.onKeyUpCallbacks.forEach(function (cb) {
             cb(e.key);
         });
+    }
+
+    get lastArrowPressed() {
+        return this._lastArrowPressed;
     }
 }
 
