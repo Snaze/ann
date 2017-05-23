@@ -42,7 +42,7 @@ class Game extends DataSourceComponent {
                                     onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)}/>
                 </div>
                 <div className="GamePanel">
-                    <ContextMenu dataSource={this.level}/>
+                    <ContextMenu dataSource={this.level.selectedCell} editMode={this.level.editMode}/>
                 </div>
 
             </div>

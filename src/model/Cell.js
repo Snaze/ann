@@ -29,6 +29,7 @@ class Cell extends DataSourceBase {
         let tempArray = this._id.split("_");
         this._location = new Location(parseInt(tempArray[1], 10), parseInt(tempArray[0], 10));
         this._editMode = false;
+        this._screenLocation = null;
     }
 
     removeAllCallbacks() {
@@ -266,6 +267,14 @@ class Cell extends DataSourceBase {
 
     set editMode(value) {
         this._setValueAndRaiseOnChange("_editMode", value);
+    }
+
+    get screenLocation() {
+        return this._screenLocation;
+    }
+
+    set screenLocation(value) {
+        this._setValueAndRaiseOnChange("_screenLocation", value);
     }
 }
 

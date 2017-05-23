@@ -37,7 +37,6 @@
     top: 0;
     right: 0;
     width: 500px;
-    /*float: right;*/
     animation: GameLevelEditorPanelHideAnimation 1s forwards;
     -webkit-animation: GameLevelEditorPanelHideAnimation 1s forwards;
 }
@@ -49,7 +48,7 @@
 }
 
 .ButtonToggleEdit {
-    background: cadetblue; /* For browsers that do not support gradients */
+    background: steelblue; /* For browsers that do not support gradients */
     background: -webkit-linear-gradient(steelblue, midnightblue); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(steelblue, midnightblue); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(steelblue, midnightblue); /* For Firefox 3.6 to 15 */
@@ -64,7 +63,7 @@
 }
 
 .ButtonToggleEdit:hover {
-    background: cadetblue; /* For browsers that do not support gradients */
+    background: darkgreen; /* For browsers that do not support gradients */
     background: -webkit-linear-gradient(LimeGreen, darkgreen); /* For Safari 5.1 to 6.0 */
     background: -o-linear-gradient(LimeGreen, darkgreen); /* For Opera 11.1 to 12.0 */
     background: -moz-linear-gradient(LimeGreen, darkgreen); /* For Firefox 3.6 to 15 */

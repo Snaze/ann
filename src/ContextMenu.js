@@ -6,7 +6,7 @@ import BorderType from "./model/BorderType";
 import DataSourceComponent from "./DataSourceComponent";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
-import {default as LevelModel} from "./model/Level";
+import {default as CellModel} from "./model/Cell";
 import PropTypes from 'prop-types';
 
 
@@ -31,16 +31,12 @@ class ContextMenu extends DataSourceComponent {
         this._keyEventer.unBindEvents();
     }
 
-    get level() {
+    get cell() {
         return this.dataSource;
     }
 
-    get cell() {
-        return this.level.selectedCell;
-    }
-
     onKeyDown (key) {
-        if (!this.level.editMode) {
+        if (!this.props.editMode) {
             return;
         }
 
@@ -174,13 +170,21 @@ class ContextMenu extends DataSourceComponent {
         }
     }
 
+    get cellId() {
+        if (this.cell === null) {
+            return "Cell is NULL";
+        }
+
+        return this.cell.id;
+    }
+
     render() {
         return (
             <table className="ContextMenu">
                 <thead>
                     <tr>
                         <th colSpan={2} className="ContextMenuHeader">
-                            Cell {this.cell.id}
+                            Cell {this.cellId}
                         </th>
                     </tr>
                 </thead>
@@ -448,7 +452,8 @@ class ContextMenu extends DataSourceComponent {
 }
 
 ContextMenu.propTypes = {
-    dataSource: PropTypes.instanceOf(LevelModel).isRequired,
+    dataSource: PropTypes.instanceOf(CellModel).isRequired,
+    editMode: PropTypes.bool.isRequired
 };
 
 export default ContextMenu;

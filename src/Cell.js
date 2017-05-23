@@ -23,8 +23,12 @@ class Cell extends DataSourceComponent {
             let theCellDOMElement = document.getElementById(Cell.elementId(cell));
             if (theCellDOMElement) {
                 let clientRect = theCellDOMElement.getBoundingClientRect();
-                Cell._cellLocationCache[cell.id] = new LocationModel(clientRect["left"],
+                let screenLocation = new LocationModel(clientRect["left"],
                                                                      clientRect["top"]);
+
+                // Using the private set so it doesn't kick off the update event
+                cell._screenLocation = screenLocation;
+                Cell._cellLocationCache[cell.id] = screenLocation;
             } else {
                 return new LocationModel(-1, -1);
             }

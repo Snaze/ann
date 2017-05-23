@@ -1,5 +1,6 @@
 import Direction from "../utils/Direction";
 import Location from "./Location";
+import DataSourceBase from "./DataSourceBase";
 
 const red = 0;
 const blue = 1;
@@ -7,7 +8,7 @@ const pink = 2;
 const orange = 3;
 const valid_color = [red, blue, pink, orange];
 
-class Ghost {
+class Ghost extends DataSourceBase {
 
     static get RED() { return red; }
     static get BLUE() { return blue; }
@@ -19,6 +20,8 @@ class Ghost {
     }
 
     constructor(direction, location, color) {
+        super();
+
         if (!Direction.isValid(direction)) {
             throw new Error ("Invalid direction");
         }
@@ -41,7 +44,7 @@ class Ghost {
     }
 
     set direction(value) {
-        this._direction = value;
+        this._setValueAndRaiseOnChange("_direction", value);
     }
 
     get location() {
@@ -49,7 +52,7 @@ class Ghost {
     }
 
     set location(value) {
-        this._location = value;
+        this._setValueAndRaiseOnChange("_location", value);
     }
 
     get color() {
@@ -57,7 +60,7 @@ class Ghost {
     }
 
     set color(value) {
-        this._color = value;
+        this._setValueAndRaiseOnChange("_color", value);
     }
 }
 

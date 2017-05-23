@@ -1,5 +1,6 @@
 import LevelFactory from "./LevelFactory";
 import DataSourceBase from "./DataSourceBase";
+import Location from "./Location";
 
 class Game extends DataSourceBase {
     constructor(levelName="Level1") {
@@ -8,13 +9,13 @@ class Game extends DataSourceBase {
         this._score = 0;
         this._editMode = false;
         this._level = LevelFactory.createLevel(levelName);
-        // this._levelChangeCallback = (e) => this.levelChangeCallback(e);
-        // this._level.addOnChangeCallback(this._levelChangeCallback);
+        this._levelChangeCallback = (e) => this.levelChangeCallback(e);
+        this._level.addOnChangeCallback(this._levelChangeCallback);
     }
 
-    // levelChangeCallback(e) {
-    //     this._raiseOnChangeCallbacks("level." + e.source);
-    // }
+    levelChangeCallback(e) {
+        this._raiseOnChangeCallbacks("level." + e.source);
+    }
 
     get level() {
         return this._level;
@@ -35,15 +36,14 @@ class Game extends DataSourceBase {
     set editMode(value) {
         this.level.editMode = value;
 
+        if (value) {
+            this.level.setSelectedLocation(new Location(0, 0));
+        }
+
         this._setValueAndRaiseOnChange("_editMode", value);
     }
 
     set level(value) {
-        // if (this._level !== value) {
-        //     this._level.removeOnChangeCallback(this._levelChangeCallback);
-        //     value.addOnChangeCallback(this._levelChangeCallback);
-        // }
-
         this._setValueAndRaiseOnChange("_level", value);
     }
 }

@@ -3,6 +3,9 @@ import _ from "../../node_modules/lodash/lodash";
 import BorderType from "./BorderType";
 import DataSourceBase from "./DataSourceBase";
 import {default as LocationModel} from "./Location";
+import Player from "./Player";
+import Ghost from "./Ghost";
+import Direction from "../utils/Direction";
 
 const DEFAULT_WIDTH = 26;
 const DEFAULT_HEIGHT = 26;
@@ -28,6 +31,12 @@ class Level extends DataSourceBase {
         this._width = width;
         this._height = height;
         this._editMode = false;
+
+        this._player = new Player(Direction.LEFT, new LocationModel(-1, -1), Player.MR_PAC_MAN);
+        this._ghostRed = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.RED);
+        this._ghostBlue = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.BLUE);
+        this._ghostPink = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.PINK);
+        this._ghostOrange = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.ORANGE);
     }
 
     static constructGameMatrix(width, height, cellChangedCallbackRef) {
@@ -149,22 +158,37 @@ class Level extends DataSourceBase {
             case "_isPlayerSpawn":
                 toggleSpawn(e.object, "_isPlayerSpawn", this.playerSpawnLocation);
                 this._raiseOnChangeCallbacks("playerSpawnLocation");
+                if (e.object[e.source]) {
+                    this._player.location.setWithLocation(this.playerSpawnLocation);
+                }
                 break;
             case "_isGhostRedSpawn":
                 toggleSpawn(e.object, "_isGhostRedSpawn", this.ghostRedLocation);
                 this._raiseOnChangeCallbacks("ghostRedLocation");
+                if (e.object[e.source]) {
+                    this._ghostRed.location.setWithLocation(this.ghostRedLocation);
+                }
                 break;
             case "_isGhostPinkSpawn":
                 toggleSpawn(e.object, "_isGhostPinkSpawn", this.ghostPinkLocation);
                 this._raiseOnChangeCallbacks("ghostPinkLocation");
+                if (e.object[e.source]) {
+                    this._ghostPink.location.setWithLocation(this.ghostPinkLocation);
+                }
                 break;
             case "_isGhostBlueSpawn":
                 toggleSpawn(e.object, "_isGhostBlueSpawn", this.ghostBlueLocation);
                 this._raiseOnChangeCallbacks("ghostBlueLocation");
+                if (e.object[e.source]) {
+                    this._ghostBlue.location.setWithLocation(this.ghostBlueLocation);
+                }
                 break;
             case "_isGhostOrangeSpawn":
                 toggleSpawn(e.object, "_isGhostOrangeSpawn", this.ghostOrangeLocation);
                 this._raiseOnChangeCallbacks("ghostOrangeLocation");
+                if (e.object[e.source]) {
+                    this._ghostOrange.location.setWithLocation(this.ghostOrangeLocation);
+                }
                 break;
             case "_selected":
                 if (e.object.selected) {
@@ -360,6 +384,26 @@ class Level extends DataSourceBase {
 
         this._setValueAndRaiseOnChange("_editMode", value);
         this.selectedCell = null;
+    }
+
+    get player() {
+        return this._player;
+    }
+
+    get ghostRed() {
+        return this._ghostRed;
+    }
+
+    get ghostBlue() {
+        return this._ghostBlue;
+    }
+
+    get ghostPink() {
+        return this._ghostPink;
+    }
+
+    get ghostOrange() {
+        return this._ghostOrange;
     }
 }
 
