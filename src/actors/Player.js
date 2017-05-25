@@ -2,7 +2,7 @@ import React from 'react';
 import Entity from "../Entity";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "../DataSourceComponent";
-import {default as PlayerModel} from "../model/Player";
+import {default as PlayerModel} from "../model/actors/Player";
 import Cell from "../Cell";
 
 class Player extends DataSourceComponent {

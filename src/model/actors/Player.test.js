@@ -7,3 +7,5 @@ it ("Player gender is valid", () => {
     expect(Player.genderIsValid(3)).toBe(false);
 
 });
+
+// TODO: Fill out movement unit tests (test timerTick(e))

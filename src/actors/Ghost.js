@@ -3,7 +3,7 @@ import Entity from "../Entity";
 import Direction from "../utils/Direction";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "../DataSourceComponent";
-import {default as GhostModel} from "../model/Ghost";
+import {default as GhostModel} from "../model/actors/Ghost";
 import Cell from "../Cell";
 
 class Ghost extends DataSourceComponent {

@@ -3,8 +3,8 @@ import _ from "../../node_modules/lodash/lodash";
 import BorderType from "./BorderType";
 import DataSourceBase from "./DataSourceBase";
 import {default as LocationModel} from "./Location";
-import Player from "./Player";
-import Ghost from "./Ghost";
+import Player from "./actors/Player";
+import Ghost from "./actors/Ghost";
 import Direction from "../utils/Direction";
 
 const DEFAULT_WIDTH = 26;
@@ -32,15 +32,15 @@ class Level extends DataSourceBase {
         this._height = height;
         this._editMode = false;
 
-        this._moveInDirectionHandle = (actor, direction) => this.moveInDirection(actor, direction);
+        // TODO: Re-examine this relationship between Level and Actor - they reference each other now
         this._player = new Player(Direction.LEFT,
             new LocationModel(-1, -1),
-            Player.MR_PAC_MAN,
-            this._moveInDirectionHandle);
-        this._ghostRed = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.RED);
-        this._ghostBlue = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.BLUE);
-        this._ghostPink = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.PINK);
-        this._ghostOrange = new Ghost(Direction.LEFT, new LocationModel(-1, -1), Ghost.ORANGE);
+            this,
+            Player.MR_PAC_MAN);
+        this._ghostRed = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.RED);
+        this._ghostBlue = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.BLUE);
+        this._ghostPink = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.PINK);
+        this._ghostOrange = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.ORANGE);
 
         // TODO: Fix this.  This has a serious code smell
         this._spawnPropertyMapping = {
