@@ -452,65 +452,6 @@ class Level extends DataSourceBase {
     getCellByLocation(location) {
         return this.gameMatrix[location.y][location.x];
     }
-
-    canMoveInDirection(sourceLocation, direction) {
-        let theCell = this.getCellByLocation(sourceLocation);
-        let hasSolidBorder = theCell.getSolidBorder(direction);
-        let hasPartialBorder = theCell.getPartialBorder(direction);
-
-        return !(hasSolidBorder || hasPartialBorder);
-    }
-
-    /**
-     * This will move an Actor (Player or Ghost) in the appropriate
-     * direction according the the level's borders
-     * @param actor - Player or the Ghost
-     * @param direction - The Direction to move
-     */
-    moveInDirection(actor, direction) {
-        let sourceLocation = actor.location;
-
-        if ((Direction.NONE === direction) || !this.canMoveInDirection(sourceLocation, direction)) {
-            return;
-        }
-
-        switch (direction) {
-            case Direction.DOWN:
-                if ((sourceLocation.y + 1) < this.height) {
-                    sourceLocation.y += 1;
-                } else {
-                    sourceLocation.y = 0;
-                }
-                actor.direction = Direction.DOWN;
-                break;
-            case Direction.UP:
-                if ((sourceLocation.y - 1) >= 0) {
-                    sourceLocation.y -= 1;
-                } else {
-                    sourceLocation.y = this.height - 1;
-                }
-                actor.direction = Direction.UP;
-                break;
-            case Direction.LEFT:
-                if ((sourceLocation.x - 1) >= 0) {
-                    sourceLocation.x -= 1;
-                } else {
-                    sourceLocation.x = this.width - 1;
-                }
-                actor.direction = Direction.LEFT;
-                break;
-            case Direction.RIGHT:
-                if ((sourceLocation.x + 1) < this.width) {
-                    sourceLocation.x += 1;
-                } else {
-                    sourceLocation.x = 0;
-                }
-                actor.direction = Direction.RIGHT;
-                break;
-            default:
-                break;
-        }
-    }
 }
 
 export default Level;

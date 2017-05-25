@@ -27,7 +27,17 @@ class Player extends ActorBase {
 
         this._gender = gender;
         this._keyEventer = new KeyEventer();
-        this._keyEventer.bindEvents(document.body, null, null);
+        if (typeof(document) !== "undefined") {
+            this._keyEventer.bindEvents(document.body, null, null);
+        }
+    }
+
+    removeAllCallbacks() {
+        super.removeAllCallbacks();
+
+        if (typeof(document) !== "undefined") {
+            this._keyEventer.unBindEvents();
+        }
     }
 
     timerTick(e) {
@@ -53,9 +63,9 @@ class Player extends ActorBase {
         let prevX = this.location.x;
         let prevY = this.location.y;
 
-        this.level.moveInDirection(this, direction);
+        this.moveInDirection(direction);
         if (this.location.isEqualTo(prevX, prevY)) {
-            this.level.moveInDirection(this, this._direction);
+            this.moveInDirection(this._direction);
         }
     }
 

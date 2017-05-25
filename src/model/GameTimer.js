@@ -30,7 +30,9 @@ class GameTimer {
             throw new Error('Cannot instantiate directly.');
         }
 
-        this._interval = setInterval((e) => this.intervalTick(e), tickFrequency);
+        if (typeof(document) !== "undefined") {
+            this._interval = setInterval((e) => this.intervalTick(e), tickFrequency);
+        }
         let now = moment();
         this._stepDetails = [
             {

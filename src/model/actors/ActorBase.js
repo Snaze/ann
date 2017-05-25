@@ -57,8 +57,7 @@ class ActorBase extends DataSourceBase {
      * @param e The timer events args.  You can probably just ignore this.
      */
     timerTick(e) {
-
-        throw new Error("This method should be overridden in child classes.");
+        console.log("This method should be overridden in child classes.");
     }
 
     _timerCallback(e) {
@@ -137,6 +136,65 @@ class ActorBase extends DataSourceBase {
 
     set level(value) {
         this._level = value;
+    }
+
+    canMoveInDirection(sourceLocation, direction) {
+        let theCell = this.level.getCellByLocation(sourceLocation);
+        let hasSolidBorder = theCell.getSolidBorder(direction);
+        let hasPartialBorder = theCell.getPartialBorder(direction);
+
+        return !(hasSolidBorder || hasPartialBorder);
+    }
+
+    /**
+     * This will move an Actor (Player or Ghost) in the appropriate
+     * direction according the the level's borders
+     * @param actor - Player or the Ghost
+     * @param direction - The Direction to move
+     */
+    moveInDirection(direction) {
+        let sourceLocation = this.location;
+
+        if ((Direction.NONE === direction) || !this.canMoveInDirection(sourceLocation, direction)) {
+            return;
+        }
+
+        switch (direction) {
+            case Direction.DOWN:
+                if ((sourceLocation.y + 1) < this.level.height) {
+                    sourceLocation.y += 1;
+                } else {
+                    sourceLocation.y = 0;
+                }
+                this.direction = Direction.DOWN;
+                break;
+            case Direction.UP:
+                if ((sourceLocation.y - 1) >= 0) {
+                    sourceLocation.y -= 1;
+                } else {
+                    sourceLocation.y = this.level.height - 1;
+                }
+                this.direction = Direction.UP;
+                break;
+            case Direction.LEFT:
+                if ((sourceLocation.x - 1) >= 0) {
+                    sourceLocation.x -= 1;
+                } else {
+                    sourceLocation.x = this.level.width - 1;
+                }
+                this.direction = Direction.LEFT;
+                break;
+            case Direction.RIGHT:
+                if ((sourceLocation.x + 1) < this.level.width) {
+                    sourceLocation.x += 1;
+                } else {
+                    sourceLocation.x = 0;
+                }
+                this.direction = Direction.RIGHT;
+                break;
+            default:
+                break;
+        }
     }
 }
 
