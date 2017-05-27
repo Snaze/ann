@@ -6,10 +6,13 @@ import {default as LocationModel} from "./model/Location";
 import DataSourceComponent from "./DataSourceComponent";
 import BorderType from "./model/BorderType";
 
-// const default_cell_width = 16;
-// const default_cell_height = 16;
+const default_cell_width = 24;
+const default_cell_height = 24;
 
 class Cell extends DataSourceComponent {
+
+    static get DEFAULT_CELL_WIDTH() { return default_cell_width; }
+    static get DEFAULT_CELL_HEIGHT() { return default_cell_height; }
 
     constructor(props) {
         super(props);
@@ -132,8 +135,7 @@ class Cell extends DataSourceComponent {
 
 
 Cell.propTypes = {
-    dataSource: PropTypes.object.isRequired,
-    onClick: PropTypes.func
+    dataSource: PropTypes.object.isRequired
 };
 
 export default Cell;

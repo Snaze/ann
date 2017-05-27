@@ -9,8 +9,19 @@ import ContextMenu from "./ContextMenu";
 
 class Game extends DataSourceComponent {
 
+    constructor(props) {
+        super(props);
+
+        // this.debug = true;
+        this.regexToIgnore.push(/^_level._gameMatrix\[\d+\]\[\d+\]._selected$/);
+    }
+
     get level() {
         return this.game.level;
+    }
+
+    get gameObjectContainer() {
+        return this.game.gameObjectContainer;
     }
 
     get game() {
@@ -29,7 +40,7 @@ class Game extends DataSourceComponent {
     render() {
         return (<div className="Game">
             <div className="GameLevel">
-                <Level dataSource={this.level}/>
+                <Level dataSource={this.level} gameObjectContainer={this.gameObjectContainer} />
             </div>
             <div className={this.game.editMode ? "GameLevelEditorPanel" : "GameLevelEditorPanelHide"}>
                 <div className="ButtonToggleEdit"

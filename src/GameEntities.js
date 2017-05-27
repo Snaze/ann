@@ -1,6 +1,6 @@
 import React from 'react';
 import "./GameEntities.css";
-import {default as LevelModel} from "./model/Level";
+import GameObjectContainer from "./model/GameObjectContainer";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import DataSourceComponent from "./DataSourceComponent";
@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 class GameEntities extends DataSourceComponent {
 
-    get level() {
+    get gameObjectContainer() {
         return this.dataSource;
     }
 
@@ -21,18 +21,18 @@ class GameEntities extends DataSourceComponent {
     render() {
         return (
             <div className="GameEntities">
-                <Player dataSource={this.level.player} />
+                <Player dataSource={this.gameObjectContainer.player} />
 
-                <Ghost dataSource={this.level.ghostRed} />
-                <Ghost dataSource={this.level.ghostBlue} />
-                <Ghost dataSource={this.level.ghostPink} />
-                <Ghost dataSource={this.level.ghostOrange} />
+                <Ghost dataSource={this.gameObjectContainer.ghostRed} />
+                <Ghost dataSource={this.gameObjectContainer.ghostBlue} />
+                <Ghost dataSource={this.gameObjectContainer.ghostPink} />
+                <Ghost dataSource={this.gameObjectContainer.ghostOrange} />
             </div>);
     }
 }
 
 GameEntities.propTypes = {
-    dataSource: PropTypes.instanceOf(LevelModel).isRequired
+    dataSource: PropTypes.instanceOf(GameObjectContainer).isRequired
 };
 
 export default GameEntities;

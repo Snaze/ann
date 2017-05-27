@@ -9,16 +9,18 @@ class DataSourceComponent extends Component {
         this.state = {
             dataSource: props.dataSource
         };
-        this._propsToIgnore = [];
+        this._regexToIgnore = [];
         this._debug = false;
     }
 
     _dataSourceUpdated(e) {
         // Is this wise to put here?
         // TODO: Refactor this in componentShouldUpdate method
-        let theIndex = this._propsToIgnore.indexOf(e.source);
-        if (theIndex >= 0) {
-            return;
+        for (let i = 0; i < this._regexToIgnore.length; i++) {
+            if (this._regexToIgnore[i].test(e.source)) {
+                this.log("Canceling update");
+                return;
+            }
         }
 
         this.setState({
@@ -46,8 +48,8 @@ class DataSourceComponent extends Component {
         return this.state.dataSource;
     }
 
-    get propsToIgnore() {
-        return this._propsToIgnore;
+    get regexToIgnore() {
+        return this._regexToIgnore;
     }
 
     componentDidMount() {

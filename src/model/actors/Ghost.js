@@ -1,5 +1,3 @@
-import Direction from "../../utils/Direction";
-import Location from "../Location";
 import ActorBase from "./ActorBase";
 
 const red = 0;
@@ -19,14 +17,31 @@ class Ghost extends ActorBase {
         return valid_color.indexOf(color) > -1;
     }
 
-    constructor(direction, location, level, color) {
-        super(direction, location, level);
+    constructor(level, color) {
+        super(level);
 
         if (!Ghost.colorIsValid(color)) {
             throw new Error ("Invalid Color");
         }
 
         this._color = color;
+        switch(this._color) {
+            case Ghost.RED:
+                this.location.setWithLocation(level.ghostRedLocation);
+                break;
+            case Ghost.BLUE:
+                this.location.setWithLocation(level.ghostBlueLocation);
+                break;
+            case Ghost.PINK:
+                this.location.setWithLocation(level.ghostPinkLocation);
+                break;
+            case Ghost.ORANGE:
+                this.location.setWithLocation(level.ghostOrangeLocation);
+                break;
+            default:
+                throw new Error("Unknown Ghost color detected");
+        }
+        this._spawnLocation = this.location.clone();
     }
 
     get color() {
@@ -35,6 +50,10 @@ class Ghost extends ActorBase {
 
     set color(value) {
         this._setValueAndRaiseOnChange("_color", value);
+    }
+
+    timerTick(e) {
+
     }
 }
 

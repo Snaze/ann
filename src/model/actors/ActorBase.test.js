@@ -8,7 +8,8 @@ it ("canMoveInDirection solid rightBorder works", () => {
     // SETUP
     let theLevel = new Level();
     theLevel.gameMatrix[0][0].setSolidBorder(BorderType.RIGHT, true);
-    let actorBase = new ActorBase(Direction.LEFT, new Location(0, 0), theLevel);
+    let actorBase = new ActorBase(theLevel);
+    actorBase.location.set(0, 0);
 
     // CALL
     let moveRightResult = actorBase.canMoveInDirection(new Location(0, 0), Direction.RIGHT);
@@ -23,7 +24,8 @@ it ("canMoveInDirection partial rightBorder works", () => {
     // SETUP
     let theLevel = new Level();
     theLevel.gameMatrix[0][0].setPartialBorder(BorderType.RIGHT, true);
-    let actorBase = new ActorBase(Direction.LEFT, new Location(0, 0), theLevel);
+    let actorBase = new ActorBase(theLevel);
+    actorBase.location.set(0, 0);
 
     // CALL
     let moveRightResult = actorBase.canMoveInDirection(new Location(0, 0), Direction.RIGHT);
@@ -38,8 +40,8 @@ it ("moveInDirection blocked works", () => {
     // SETUP
     let theLevel = new Level();
     theLevel.gameMatrix[0][0].setSolidBorder(BorderType.RIGHT, true);
-    theLevel.player.location.set(0, 0);
-    let actorBase = new ActorBase(Direction.LEFT, new Location(0, 0), theLevel);
+    let actorBase = new ActorBase(theLevel);
+    actorBase.location.set(0, 0);
 
     // CALL
     actorBase.moveInDirection(Direction.RIGHT);
@@ -52,12 +54,37 @@ it ("moveInDirection not blocked works", () => {
     // SETUP
     let theLevel = new Level();
     theLevel.gameMatrix[0][0].setSolidBorder(BorderType.RIGHT, true);
-    theLevel.player.location.set(0, 0);
-    let actorBase = new ActorBase(Direction.LEFT, new Location(0, 0), theLevel);
+    let actorBase = new ActorBase(theLevel);
+    actorBase.location.set(0, 0);
 
     // CALL
     actorBase.moveInDirection(Direction.DOWN);
 
     // ASSERT
     expect(actorBase.location.isEqualTo(0, 1)).toBe(true);
+});
+
+it ("level change unwire events test", () => {
+    // SETUP
+    let theLevel = new Level();
+    let actorBase = new ActorBase(theLevel);
+    let newLevel = new Level();
+    let fired = false;
+    let theCallback = function (e) {
+        fired = true;
+    };
+    actorBase.level = newLevel;
+    actorBase.addOnChangeCallback(theCallback);
+
+    // CALL
+    theLevel.editMode = true;
+
+    // ASSERT
+    expect(fired).toBe(false);
+
+    // CALL AGAIN
+    newLevel.editMode = true;
+
+    // ASSERT
+    expect(fired).toBe(true);
 });

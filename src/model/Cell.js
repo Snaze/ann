@@ -4,17 +4,14 @@ import Dot from "./Dot";
 import DataSourceBase from "./DataSourceBase";
 import Location from "./Location";
 
-
 class Cell extends DataSourceBase {
 
     constructor(id) {
         super();
 
         this._id = id;
-        this._solidBorder = new Border();
-        this._solidBorder.addOnChangeCallback((e) => this._solidBorderCallback(e));
-        this._partialBorder = new Border();
-        this._partialBorder.addOnChangeCallback((e) => this._partialBorderCallback(e));
+        this._solidBorder = this._wireUp("_solidBorder", new Border());
+        this._partialBorder = this._wireUp("_partialBorder", new Border());
 
         this._dotType = Dot.NONE;
         this._selected = false;
@@ -27,24 +24,11 @@ class Cell extends DataSourceBase {
         this._isActive = true;
 
         let tempArray = this._id.split("_");
-        this._location = new Location(parseInt(tempArray[1], 10), parseInt(tempArray[0], 10));
+        let x = parseInt(tempArray[1], 10);
+        let y = parseInt(tempArray[0], 10);
+        this._location = this._wireUp("_location", new Location(x, y));
         this._editMode = false;
-        this._screenLocation = null;
-    }
-
-    removeAllCallbacks() {
-        super.removeAllCallbacks();
-
-        this._solidBorder.removeAllCallbacks();
-        this._partialBorder.removeAllCallbacks();
-    }
-
-    _solidBorderCallback(e) {
-        this._raiseOnChangeCallbacks("_solidBorder." + e.source);
-    }
-
-    _partialBorderCallback(e) {
-        this._raiseOnChangeCallbacks("_partialBorder." + e.source);
+        this._screenLocation = this._wireUp("_screenLocation", new Location(-1, -1));
     }
 
     clone(theId, direction="none") {
@@ -61,6 +45,10 @@ class Cell extends DataSourceBase {
         toRet._isGhostOrangeSpawn = this._isGhostOrangeSpawn;
         toRet._isActive = this._isActive;
         toRet._location = this._location.clone();
+        toRet._editMode = this._editMode;
+        if (null !== this._screenLocation) {
+            toRet._screenLocation = this._screenLocation.clone();
+        }
 
         // I'LL LEAVE IT AS THE RESPONSIBLITY OF THE CALLER TO RE-ASSIGN
         // THE EVENT HANDLERS
@@ -68,12 +56,27 @@ class Cell extends DataSourceBase {
         return toRet;
     }
 
-    _setAllSpawnValuesFalse() {
-        this._isPlayerSpawn = false;
-        this._isGhostBlueSpawn = false;
-        this._isGhostOrangeSpawn = false;
-        this._isGhostPinkSpawn = false;
-        this._isGhostRedSpawn = false;
+    _setAllSpawnValuesFalse(fromProperty) {
+
+        if (fromProperty !== "isPlayerSpawn") {
+            this.isPlayerSpawn = false;
+        }
+
+        if (fromProperty !== "isGhostBlueSpawn") {
+            this.isGhostBlueSpawn = false;
+        }
+
+        if (fromProperty !== "isGhostOrangeSpawn") {
+            this.isGhostOrangeSpawn = false;
+        }
+
+        if (fromProperty !== "isGhostPinkSpawn") {
+            this.isGhostPinkSpawn = false;
+        }
+
+        if (fromProperty !== "isGhostRedSpawn") {
+            this.isGhostRedSpawn = false;
+        }
     }
 
     get isPlayerSpawn() {
@@ -82,7 +85,7 @@ class Cell extends DataSourceBase {
 
     set isPlayerSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse("isPlayerSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isPlayerSpawn", value);
@@ -94,7 +97,7 @@ class Cell extends DataSourceBase {
 
     set isGhostRedSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse("isGhostRedSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostRedSpawn", value);
@@ -106,7 +109,7 @@ class Cell extends DataSourceBase {
 
     set isGhostPinkSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse("isGhostPinkSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostPinkSpawn", value);
@@ -118,7 +121,7 @@ class Cell extends DataSourceBase {
 
     set isGhostBlueSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse("isGhostBlueSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostBlueSpawn", value);
@@ -130,7 +133,7 @@ class Cell extends DataSourceBase {
 
     set isGhostOrangeSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse();
+            this._setAllSpawnValuesFalse("isGhostOrangeSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostOrangeSpawn", value);
@@ -144,7 +147,9 @@ class Cell extends DataSourceBase {
         this._setValueAndRaiseOnChange("_isActive", value);
     }
 
-    get selected() { return this._selected; }
+    get selected() {
+        return this._selected;
+    }
 
     set selected(value) {
         this._setValueAndRaiseOnChange("_selected", value);
@@ -271,10 +276,6 @@ class Cell extends DataSourceBase {
 
     get screenLocation() {
         return this._screenLocation;
-    }
-
-    set screenLocation(value) {
-        this._setValueAndRaiseOnChange("_screenLocation", value);
     }
 }
 

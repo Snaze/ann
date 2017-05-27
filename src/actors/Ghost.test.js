@@ -9,7 +9,7 @@ import Level from "../model/Level";
 it('renders without crashing', () => {
     const div = document.createElement('div');
     const level = new Level();
-    const ghost = new GhostModel(Direction.LEFT, new LocationModel(-1, -1), level, GhostModel.RED);
+    const ghost = new GhostModel(level, GhostModel.RED);
 
     ReactDOM.render(<Ghost dataSource={ghost}/>, div);
 });

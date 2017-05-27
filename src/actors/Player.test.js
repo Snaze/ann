@@ -9,8 +9,7 @@ import Level from "../model/Level";
 it('renders without crashing', () => {
     const div = document.createElement('div');
     const level = new Level();
-    const player = new PlayerModel(Direction.LEFT,
-        new LocationModel(-1, -1), level, PlayerModel.MR_PAC_MAN);
+    const player = new PlayerModel(level, PlayerModel.MR_PAC_MAN);
 
     ReactDOM.render(<Player dataSource={player} />, div);
 });

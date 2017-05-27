@@ -3,7 +3,7 @@ import Direction from "../../utils/Direction";
 import Location from "../Location";
 import moment from "../../../node_modules/moment/moment";
 import GameTimer from "../GameTimer";
-// import Level from "../Level";
+import Level from "../Level";
 
 /**
  * This is an abstract class that should be used by any game agent.
@@ -11,25 +11,17 @@ import GameTimer from "../GameTimer";
  * i.e. Player, Ghost, etc....
  */
 class ActorBase extends DataSourceBase {
-    constructor(direction, location, level) {
+    constructor(level) {
         super();
 
-        if (!Direction.isValid(direction)) {
-            throw new Error ("Invalid direction");
+        if (!(level instanceof Level)) {
+            throw new Error ("Invalid Level");
         }
 
-        if (!(location instanceof Location)) {
-            throw new Error ("Invalid Location");
-        }
-
-        // if (!(level instanceof Level)) {
-        //     throw new Error ("Invalid Level");
-        // }
-
-        this._direction = direction;
-        this._startDirection = direction;
-        this._location = location;
-        this._level = level;
+        this._level = this._wireUp("_level", level);
+        this._direction = Direction.LEFT;
+        this._startDirection = Direction.LEFT;
+        this._location = this._wireUp("_location", new Location(-1, -1));
         this._cellTransitionDuration = 0.25; // seconds
         this._spawnLocation = null;
         this._lastTick = moment();
@@ -37,18 +29,12 @@ class ActorBase extends DataSourceBase {
 
         this._timerCallbackHandle = (e) => this._timerCallback(e);
         GameTimer.instance.addCallback(this._timerCallbackHandle);
-
-        this._locationOnChangeCallbackRef = (e) => this._locationOnChangeCallback(e);
-        this._location.addOnChangeCallback(this._locationOnChangeCallbackRef);
     }
 
-    _locationOnChangeCallback(e) {
-        this._raiseOnChangeCallbacks("_location." + e.source);
+    _nestedDataSourceChanged(e) {
+        super._nestedDataSourceChanged(e);
 
-        // TODO: FIXME this is kind of a hack
-        if ((this._spawnLocation === null) && e.object.isValid) {
-            this._spawnLocation = e.object.clone();
-        }
+
     }
 
     /**
@@ -91,10 +77,6 @@ class ActorBase extends DataSourceBase {
         return this._location;
     }
 
-    set location(value) {
-        this._setValueAndRaiseOnChange("_location", value);
-    }
-
     get cellTransitionDuration() {
         return this._cellTransitionDuration;
     }
@@ -127,7 +109,7 @@ class ActorBase extends DataSourceBase {
     }
 
     set spawnLocation(value) {
-        this._spawnLocation = value;
+        this._setValueAndRaiseOnChange("_spawnLocation", value);
     }
 
     get level() {
@@ -135,7 +117,12 @@ class ActorBase extends DataSourceBase {
     }
 
     set level(value) {
-        this._level = value;
+        if (value !== this._level) {
+            this._unWireForDestruction(this._level);
+            this._wireUp("_level", value);
+        }
+
+        this._setValueAndRaiseOnChange("_level", value);
     }
 
     canMoveInDirection(sourceLocation, direction) {
@@ -195,6 +182,14 @@ class ActorBase extends DataSourceBase {
             default:
                 break;
         }
+    }
+
+    moveBackToSpawn() {
+        if (this._spawnLocation === null) {
+            throw new Error("_spawnLocation is null");
+        }
+
+        this.location.setWithLocation(this._spawnLocation);
     }
 }
 

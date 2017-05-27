@@ -3,82 +3,60 @@ import _ from "../../node_modules/lodash/lodash";
 import BorderType from "./BorderType";
 import DataSourceBase from "./DataSourceBase";
 import {default as LocationModel} from "./Location";
-import Player from "./actors/Player";
-import Ghost from "./actors/Ghost";
-import Direction from "../utils/Direction";
+import KeyEventer from "../utils/KeyEventer";
 
-const DEFAULT_WIDTH = 26;
-const DEFAULT_HEIGHT = 26;
+const default_width = 26;
+const default_height = 26;
 
 class Level extends DataSourceBase {
 
-    constructor(width=DEFAULT_WIDTH, height=DEFAULT_HEIGHT) {
+    static get DEFAULT_WIDTH() { return default_width; }
+    static get DEFAULT_HEIGHT() { return default_height; }
+
+    constructor(width=default_width, height=default_height) {
         super();
 
         this._width = width;
         this._height = height;
-        this._cellChangedCallbackRef = (e) => this.cellChangedCallback(e);
 
-        this._playerSpawnLocation = new LocationModel(-1, -1);
-        this._ghostRedLocation = new LocationModel(-1, -1);
-        this._ghostBlueLocation = new LocationModel(-1, -1);
-        this._ghostOrangeLocation = new LocationModel(-1, -1);
-        this._ghostPinkLocation = new LocationModel(-1, -1);
-        this._selectedLocation = new LocationModel(-1, -1);
+        this._playerSpawnLocation = this._wireUp("_playerSpawnLocation", new LocationModel(-1, -1));
+        this._ghostRedLocation = this._wireUp("_ghostRedLocation", new LocationModel(-1, -1));
+        this._ghostBlueLocation = this._wireUp("_ghostBlueLocation", new LocationModel(-1, -1));
+        this._ghostOrangeLocation = this._wireUp("_ghostOrangeLocation", new LocationModel(-1, -1));
+        this._ghostPinkLocation = this._wireUp("_ghostPinkLocation", new LocationModel(-1, -1));
+        this._selectedLocation = this._wireUp("_selectedLocation", new LocationModel(-1, -1));
 
-        this._gameMatrix = Level.constructGameMatrix(this._width, this._height, this._cellChangedCallbackRef);
-        this._selectedCell = this._gameMatrix[0][0];
+        let theGameMatrix = Level.constructGameMatrix(this._width, this._height);
+        this._wireUpGameMatrix(theGameMatrix);
+        this._gameMatrix = theGameMatrix;
         this._width = width;
         this._height = height;
         this._editMode = false;
-
-        // TODO: Re-examine this relationship between Level and Actor - they reference each other now
-        this._player = new Player(Direction.LEFT,
-            new LocationModel(-1, -1),
-            this,
-            Player.MR_PAC_MAN);
-        this._ghostRed = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.RED);
-        this._ghostBlue = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.BLUE);
-        this._ghostPink = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.PINK);
-        this._ghostOrange = new Ghost(Direction.LEFT, new LocationModel(-1, -1), this, Ghost.ORANGE);
-
-        // TODO: Fix this.  This has a serious code smell
-        this._spawnPropertyMapping = {
-            "spawnToEntity": {
-                "_playerSpawnLocation": "player",
-                "_ghostRedLocation": "ghostRed",
-                "_ghostBlueLocation": "ghostBlue",
-                "_ghostPinkLocation": "ghostPink",
-                "_ghostOrangeLocation": "ghostOrange"
-            },
-            "entityToSpawn": {
-                "_player": "_playerSpawnLocation",
-                "_ghostRed": "_ghostRedLocation",
-                "_ghostBlue": "_ghostBlueLocation",
-                "_ghostPink": "_ghostPinkLocation",
-                "_ghostOrange": "_ghostOrangeLocation"
-            }
-        };
-
-        this._spawnPropertyToCellPropertyMapping = {
-            "levelToCell": {
-                "_playerSpawnLocation": "_isPlayerSpawn",
-                "_ghostRedLocation": "_isGhostRedSpawn",
-                "_ghostBlueLocation": "_isGhostBlueSpawn",
-                "_ghostPinkLocation": "_isGhostPinkSpawn",
-                "_ghostOrangeLocation": "_isGhostOrangeSpawn"
-            },
-            "cellToLevel": {
-                "_isPlayerSpawn": "_playerSpawnLocation",
-                "_isGhostRedSpawn": "_ghostRedLocation",
-                "_isGhostBlueSpawn": "_ghostBlueLocation",
-                "_isGhostPinkSpawn": "_ghostPinkLocation",
-                "_isGhostOrangeSpawn": "_ghostOrangeLocation"
-            }
-        };
+        this._keyEventer = new KeyEventer();
+        if (typeof(document) !== "undefined") {
+            this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
+        }
     }
 
-    static constructGameMatrix(width, height, cellChangedCallbackRef) {
+    static _getGameMatrixPropName(x, y) {
+        return "_gameMatrix[" + y + "][" + x + "]";
+    }
+
+    _wireUpGameMatrix(theGameMatrix) {
+        let self = this;
+
+        theGameMatrix.forEach(function (row) {
+            row.forEach(function (cell) {
+                let x = cell.x;
+                let y = cell.y;
+                let propertyName = Level._getGameMatrixPropName(x, y);
+
+                self._wireUp(propertyName, cell);
+            })
+        });
+    }
+
+    static constructGameMatrix(width, height) {
         let toRet = [];
 
         for (let y = 0; y < height; y++) {
@@ -86,23 +64,11 @@ class Level extends DataSourceBase {
 
             for (let x = 0; x < width; x++) {
                 let currentId = y + "_" + x;
-                let currentCell = new Cell(currentId);
-                currentCell.addOnChangeCallback(cellChangedCallbackRef);
-                toRet[y][x] = currentCell;
+                toRet[y][x] = new Cell(currentId);
             }
         }
 
         return toRet;
-    }
-
-    removeAllCallbacks() {
-        super.removeAllCallbacks();
-
-        this.gameMatrix.forEach(function(row) {
-            row.forEach(function(cell) {
-                cell.removeAllCallbacks();
-            })
-        })
     }
 
     static fromJSON(jsonObject) {
@@ -158,91 +124,63 @@ class Level extends DataSourceBase {
         conditionalAssignLocation(jsonObject, "_ghostPinkLocation");
         conditionalAssignLocation(jsonObject, "_selectedLocation");
 
-        let conditionalAssignEntityLocation = function (jsonObject, jsonObjectProperty, toRetProperty) {
-            if (typeof(jsonObject[jsonObjectProperty]) !== "undefined") {
-                let x = jsonObject[jsonObjectProperty]._x;
-                let y = jsonObject[jsonObjectProperty]._y;
-                toRet[toRetProperty].location.set(x, y);
-            }
-        };
-
-        conditionalAssignEntityLocation(jsonObject, "_playerSpawnLocation", "_player");
-        conditionalAssignEntityLocation(jsonObject, "_ghostRedLocation", "_ghostRed");
-        conditionalAssignEntityLocation(jsonObject, "_ghostBlueLocation", "_ghostBlue");
-        conditionalAssignEntityLocation(jsonObject, "_ghostPinkLocation", "_ghostPink");
-        conditionalAssignEntityLocation(jsonObject, "_ghostOrangeLocation", "_ghostOrange");
+        // let conditionalAssignEntityLocation = function (jsonObject, jsonObjectProperty, toRetProperty) {
+        //     if (typeof(jsonObject[jsonObjectProperty]) !== "undefined") {
+        //         let x = jsonObject[jsonObjectProperty]._x;
+        //         let y = jsonObject[jsonObjectProperty]._y;
+        //         toRet[toRetProperty].location.set(x, y);
+        //     }
+        // };
+        //
+        // conditionalAssignEntityLocation(jsonObject, "_playerSpawnLocation", "_player");
+        // conditionalAssignEntityLocation(jsonObject, "_ghostRedLocation", "_ghostRed");
+        // conditionalAssignEntityLocation(jsonObject, "_ghostBlueLocation", "_ghostBlue");
+        // conditionalAssignEntityLocation(jsonObject, "_ghostPinkLocation", "_ghostPink");
+        // conditionalAssignEntityLocation(jsonObject, "_ghostOrangeLocation", "_ghostOrange");
 
         return toRet;
     }
 
-    _toggleLocationIfUsed(theLocation) {
-        let self = this;
-        let resetIfEqual = function (theLocationName, propName) {
-            if (self[theLocationName].equals(theLocation)) {
-                self.gameMatrix[theLocation.y][theLocation.x][propName] = false;
-                self[theLocationName].reset();
-            }
-        };
+    removeAllCallbacks() {
+        super.removeAllCallbacks();
 
-        resetIfEqual("_playerSpawnLocation", "_isPlayerSpawn");
-        resetIfEqual("_ghostBlueLocation", "_isGhostBlueSpawn");
-        resetIfEqual("_ghostRedLocation", "_isGhostRedSpawn");
-        resetIfEqual("_ghostPinkLocation", "_isGhostPinkSpawn");
-        resetIfEqual("_ghostOrangeLocation", "_isGhostOrangeSpawn");
+        this._keyEventer.unBindEvents();
     }
 
-    _removeSpawnLocation(newLocation) {
-        for (let spawnProp in this._spawnPropertyMapping.spawnToEntity) {
-            if (this.hasOwnProperty(spawnProp) &&
-                !newLocation.isEqualTo(-1, -1) &&
-                this[spawnProp].equals(newLocation)) {
-
-                let oldLocation = this[spawnProp];
-                let cellProp = this._spawnPropertyToCellPropertyMapping.levelToCell[spawnProp];
-                this.gameMatrix[oldLocation.y][oldLocation.x][cellProp] = false;
-                this[spawnProp].set(-1, -1);
-                this[this._spawnPropertyMapping.spawnToEntity[spawnProp]].location.set(-1, -1);
+    _setLocationChangeValue(thisSpawnLocationPropName, cellPropName, newValue, newCell) {
+        if (newValue) { // -1
+            if (this[thisSpawnLocationPropName].isValid) {
+                // This kicks off another event.
+                this.getCellByLocation(this[thisSpawnLocationPropName])[cellPropName] = false;
             }
+
+            this[thisSpawnLocationPropName].setWithLocation(newCell.location);
+        } else { // -1
+            this[thisSpawnLocationPropName].set(-1, -1);
         }
     }
 
-    _setSpawnValue(cellSpawnField, newLocation, checked) {
-        let levelFieldName = this._spawnPropertyToCellPropertyMapping.cellToLevel[cellSpawnField];
-
-        if (!checked) {
-            this._removeSpawnLocation(this[levelFieldName]);
-        } else {
-            this._removeSpawnLocation(this[levelFieldName]);
-            this._removeSpawnLocation(newLocation);
-
-            this[levelFieldName].setWithLocation(newLocation);
-            this[this._spawnPropertyMapping.spawnToEntity[levelFieldName]].location.setWithLocation(newLocation);
-            this.gameMatrix[newLocation.y][newLocation.x][cellSpawnField] = true;
-        }
-    }
-
-    cellChangedCallback(e) {
+    _nestedDataSourceChanged(e) {
+        super._nestedDataSourceChanged(e);
 
         switch (e.source) {
             case "_isPlayerSpawn":
+                this._setLocationChangeValue("playerSpawnLocation", "isPlayerSpawn", e.newValue, e.object);
+                break;
             case "_isGhostRedSpawn":
+                this._setLocationChangeValue("ghostRedLocation", "isGhostRedSpawn", e.newValue, e.object);
+                break;
             case "_isGhostPinkSpawn":
+                this._setLocationChangeValue("ghostPinkLocation", "isGhostPinkSpawn", e.newValue, e.object);
+                break;
             case "_isGhostBlueSpawn":
+                this._setLocationChangeValue("ghostBlueLocation", "isGhostBlueSpawn", e.newValue, e.object);
+                break;
             case "_isGhostOrangeSpawn":
-                this._setSpawnValue(e.source, e.object.location, e.object[e.source]);
+                this._setLocationChangeValue("ghostOrangeLocation", "isGhostOrangeSpawn", e.newValue, e.object);
                 break;
             case "_selected":
-                if (e.object.selected) {
-                    if (this._selectedLocation.isValid) {
-                        this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x].selected = false;
-                    }
-                    this._selectedLocation.setWithLocation(e.object.location);
-                    this.selectedCell = e.object;
-                } else if (this._selectedLocation.equals(e.object.location) && !e.object.selected) {
-                    this._selectedLocation.reset();
-                } else {
-                    throw new Error("Im not sure how you would get here");
-                }
+                this._setLocationChangeValue("_selectedLocation", "selected", e.newValue, e.object);
                 break;
             default:
                 // nothing to do
@@ -264,7 +202,8 @@ class Level extends DataSourceBase {
 
                 currentCell = this.gameMatrix[y][x];
                 currentClonedCell = currentCell.clone(y + "_" + currentNewXIndex, "horizontal");
-                currentClonedCell.addOnChangeCallback(this._cellChangedCallbackRef);
+
+                this._wireUp(Level._getGameMatrixPropName(currentNewXIndex, y), currentClonedCell);
                 this.gameMatrix[y][currentNewXIndex++] = currentClonedCell;
             }
         }
@@ -286,7 +225,7 @@ class Level extends DataSourceBase {
 
                 currentCell = this.gameMatrix[y][x];
                 currentClonedCell = currentCell.clone(currentNewYIndex + "_" + x, "vertical");
-                currentClonedCell.addOnChangeCallback(this._cellChangedCallbackRef);
+                this._wireUp(Level._getGameMatrixPropName(x, currentNewYIndex), currentClonedCell);
                 this.gameMatrix[currentNewYIndex][x] = currentClonedCell;
             }
 
@@ -328,7 +267,7 @@ class Level extends DataSourceBase {
         for (let x = 0; x < this.width; x++) {
             let currentId = this.height + "_" + x;
             let currentCell = new Cell(currentId);
-            currentCell.addOnChangeCallback(this._cellChangedCallbackRef);
+            this._wireUp(Level._getGameMatrixPropName(x, this._height), currentCell);
             this.gameMatrix[this.height][x] = currentCell;
         }
 
@@ -336,44 +275,45 @@ class Level extends DataSourceBase {
     }
 
     removeRow() {
+        let self = this;
         let currentRow = this._gameMatrix.pop();
         currentRow.forEach(function (cell) {
-           cell.removeAllCallbacks();
+            self._unWire(cell);
+            cell.removeAllCallbacks();
         });
-        this._setValueAndRaiseOnChange("_height", this.height - 1);
+
+        this.height = this.height - 1;
     }
 
     addColumn() {
         for (let y = 0; y < this.height; y++) {
             let currentId = y + "_" + this.width;
             let currentCell = new Cell(currentId);
-            currentCell.addOnChangeCallback(this._cellChangedCallbackRef);
+            this._wireUp(Level._getGameMatrixPropName(this.width, y), currentCell);
+
             this.gameMatrix[y][this.width] = currentCell;
         }
 
-        this._setValueAndRaiseOnChange("_width", this.width + 1);
+        this.width = this.width + 1;
     }
 
     removeColumn() {
 
         for (let y = 0; y < this.height; y++) {
             let currentCell = this.gameMatrix[y].pop();
+            this._unWire(currentCell);
             currentCell.removeAllCallbacks();
         }
 
-        this._setValueAndRaiseOnChange("_width", this.width - 1);
+        this.width = this.width - 1;
     }
 
     get selectedCell() {
-        return this._selectedCell;
-    }
+        if (this._selectedLocation.isValid) {
+            return this.getCellByLocation(this._selectedLocation);
+        }
 
-    set selectedCell(value) {
-        this._setValueAndRaiseOnChange("_selectedCell", value);
-    }
-
-    setSelectedCellByIndex(x, y) {
-        this.selectedCell = this.gameMatrix[y][x];
+        return null;
     }
 
     get playerSpawnLocation() {
@@ -396,21 +336,6 @@ class Level extends DataSourceBase {
         return this._ghostPinkLocation;
     }
 
-    get selectedLocation() {
-        return this._selectedLocation;
-    }
-
-    setSelectedLocation(theLocation) {
-        if (this._selectedLocation.isValid) {
-            this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x].selected = false;
-        }
-
-        this._selectedLocation.setWithLocation(theLocation);
-        this._selectedCell = this.gameMatrix[this._selectedLocation.y][this._selectedLocation.x];
-        this._selectedCell._selected = true;
-        this._raiseOnChangeCallbacks("_selectedLocation");
-    }
-
     get editMode() {
         return this._editMode;
     }
@@ -423,10 +348,7 @@ class Level extends DataSourceBase {
             });
         });
 
-        this.player.editMode = value;
-
         this._setValueAndRaiseOnChange("_editMode", value);
-        this.selectedCell = null;
     }
 
     get player() {
@@ -452,6 +374,66 @@ class Level extends DataSourceBase {
     getCellByLocation(location) {
         return this.gameMatrix[location.y][location.x];
     }
+
+    /**
+     * Use this method to iterate over all cells of the game matrix.
+     *
+     * @param theCallback This is a function that will be called for each cell.  It is passed (cell, level).
+     */
+    iterateOverCells(theCallback) {
+        let theLevel = this;
+        this._gameMatrix.forEach(function (row) {
+            row.forEach(function (cell) {
+                theCallback(cell, theLevel);
+            });
+        });
+    }
+
+    /** KEY EVENTER EVENTS - START **/
+    onKeyDown(key) {
+        if (!this.editMode) {
+            return;
+        }
+
+        let currentCell = this.selectedCell;
+        let newSelectedCell = null;
+
+        switch (key) {
+            case "ArrowDown":
+                if ((currentCell.y + 1) < this.height) {
+                    newSelectedCell = this.getCell(currentCell.x, currentCell.y + 1);
+                    newSelectedCell.selected = true;
+                }
+                break;
+            case "ArrowUp":
+                if ((currentCell.y - 1) >= 0) {
+                    newSelectedCell = this.getCell(currentCell.x, currentCell.y - 1);
+                    newSelectedCell.selected = true;
+                }
+                break;
+            case "ArrowLeft":
+                if ((currentCell.x - 1) >= 0) {
+                    newSelectedCell = this.getCell(currentCell.x - 1, currentCell.y);
+                    newSelectedCell.selected = true;
+                }
+                break;
+            case "ArrowRight":
+                if ((currentCell.x + 1) < this.width) {
+                    newSelectedCell = this.getCell(currentCell.x + 1, currentCell.y);
+                    newSelectedCell.selected = true;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    onKeyUp(key) {
+
+    }
+
+    /** KEY EVENTER EVENTS - END **/
+
 }
 
 export default Level;

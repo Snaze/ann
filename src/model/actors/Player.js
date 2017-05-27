@@ -1,7 +1,4 @@
 import Direction from "../../utils/Direction";
-import Location from "../Location";
-import GameTimer from "../GameTimer";
-import moment from "../../../node_modules/moment/moment";
 import KeyEventer from "../../utils/KeyEventer";
 import ActorBase from "./ActorBase";
 
@@ -18,8 +15,8 @@ class Player extends ActorBase {
         return valid_gender.indexOf(theGender) > -1;
     }
 
-    constructor(direction, location, level, gender) {
-        super(direction, location, level);
+    constructor(level, gender) {
+        super(level);
 
         if (!Player.genderIsValid(gender)) {
             throw new Error ("Invalid gender");
@@ -30,6 +27,9 @@ class Player extends ActorBase {
         if (typeof(document) !== "undefined") {
             this._keyEventer.bindEvents(document.body, null, null);
         }
+
+        this.location.setWithLocation(level.playerSpawnLocation);
+        this._spawnLocation = level.playerSpawnLocation.clone();
     }
 
     removeAllCallbacks() {

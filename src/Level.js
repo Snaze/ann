@@ -1,97 +1,22 @@
 import React from 'react';
 import './Level.css';
 import Cell from "./Cell";
-import KeyEventer from "./utils/KeyEventer";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "./DataSourceComponent";
 import GameEntities from "./GameEntities";
+import {default as LevelModel} from "./model/Level";
+import GameObjectContainer from "./model/GameObjectContainer";
 
 class Level extends DataSourceComponent {
     constructor(props) {
         super(props);
 
-        this._keyEventer = new KeyEventer();
-        this.propsToIgnore.push("_selectedCell");
-    }
-
-    componentDidMount() {
-        super.componentDidMount();
-
-        this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
-    }
-
-    componentWillUnmount() {
-        super.componentWillUnmount();
-
-        this._keyEventer.unBindEvents();
+        this.regexToIgnore.push(/^_gameMatrix\[\d+\]\[\d+\]._selected$/);
+        // this.debug = true;
     }
 
     get level() {
         return this.dataSource;
-    }
-
-    /** KEY EVENTER EVENTS - START **/
-    onKeyDown(key) {
-        if ((this.level.selectedCell === null) || !this.level.editMode) {
-            return;
-        }
-
-        let currentCell = this.level.selectedCell;
-        let newSelectedCell = null;
-
-        switch (key) {
-            case "ArrowDown":
-                if ((currentCell.y + 1) < this.level.height) {
-                    currentCell.selected = false;
-                    newSelectedCell = this.level.gameMatrix[currentCell.y + 1][currentCell.x];
-                    newSelectedCell.selected = true;
-                }
-                break;
-            case "ArrowUp":
-                if ((currentCell.y - 1) >= 0) {
-                    currentCell.selected = false;
-                    newSelectedCell = this.level.gameMatrix[currentCell.y - 1][currentCell.x];
-                    newSelectedCell.selected = true;
-                }
-                break;
-            case "ArrowLeft":
-                if ((currentCell.x - 1) >= 0) {
-                    currentCell.selected = false;
-                    newSelectedCell = this.level.gameMatrix[currentCell.y][currentCell.x - 1];
-                    newSelectedCell.selected = true;
-                }
-                break;
-            case "ArrowRight":
-                if ((currentCell.x + 1) < this.level.width) {
-                    currentCell.selected = false;
-                    newSelectedCell = this.level.gameMatrix[currentCell.y][currentCell.x + 1];
-                    newSelectedCell.selected = true;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    onKeyUp(key) {
-
-    }
-
-    /** KEY EVENTER EVENTS - END **/
-
-    cellOnClick(e) {
-
-        let cellId = e.target.dataset["cell_id"];
-        let theArray = cellId.split("_");
-        let y = theArray[0];
-        let x = theArray[1];
-        let cellModel = this.level.getCell(x, y);
-
-        if (cellModel.id !== cellId) {
-            throw new Error("Mismatched cell Ids");
-        }
-
-        this.level.setSelectedLocation(cellModel.location);
     }
 
     renderCells(rowIndex) {
@@ -100,8 +25,7 @@ class Level extends DataSourceComponent {
         for (let colIndex = 0; colIndex < this.level.gameMatrix[rowIndex].length; colIndex++) {
             let currentCell = this.level.gameMatrix[rowIndex][colIndex];
             toRet.push(<Cell key={"Cell_" + currentCell.id}
-                             dataSource={currentCell}
-                             onClick={(e) => this.cellOnClick(e)} />);
+                             dataSource={currentCell} />);
         }
 
         return toRet;
@@ -139,8 +63,8 @@ class Level extends DataSourceComponent {
 
     get tableStyle() {
         return {
-            width: (this.level.width * 24) + "px",
-            height: (this.level.height * 24) + "px",
+            width: (this.level.width * Cell.DEFAULT_CELL_WIDTH) + "px",
+            height: (this.level.height * Cell.DEFAULT_CELL_HEIGHT) + "px",
         };
     }
 
@@ -150,14 +74,15 @@ class Level extends DataSourceComponent {
                 <table cellPadding={0} cellSpacing={0} style={this.tableStyle}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
-                <GameEntities dataSource={this.level} />
+                <GameEntities dataSource={this.props.gameObjectContainer} />
             </div>
         );
     }
 }
 
 Level.propTypes = {
-    dataSource: PropTypes.object.isRequired
+    dataSource: PropTypes.instanceOf(LevelModel).isRequired,
+    gameObjectContainer: PropTypes.instanceOf(GameObjectContainer).isRequired
 };
 
 export default Level;

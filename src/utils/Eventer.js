@@ -34,6 +34,10 @@ class Eventer {
             }
         });
     }
+
+    get numCallbacks() {
+        return this._callbacks.length;
+    }
 }
 
 export default Eventer;

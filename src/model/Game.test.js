@@ -1,5 +1,9 @@
 import Game from "./Game";
 
-it("Dummy Test", () => {
+it("Test Constructor Doesnt Bomb", () => {
+    // SETUP
+
+    // CALL
+    let theGame = new Game("Level1");
 
 });
