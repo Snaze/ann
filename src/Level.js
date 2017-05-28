@@ -11,7 +11,7 @@ class Level extends DataSourceComponent {
     constructor(props) {
         super(props);
 
-        this.regexToIgnore.push(/^_gameMatrix\[\d+\]\[\d+\]._selected$/);
+        // this.regexToIgnore.push(/^_gameMatrix\[\d+\]\[\d+\]._selected$/);
         // this.debug = true;
     }
 

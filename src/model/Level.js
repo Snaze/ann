@@ -32,10 +32,9 @@ class Level extends DataSourceBase {
         this._width = width;
         this._height = height;
         this._editMode = false;
-        this._keyEventer = new KeyEventer();
-        if (typeof(document) !== "undefined") {
-            this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
-        }
+        this._onKeyDownRef = (e) => this.onKeyDown(e);
+        this._onKeyUpRef = (e) => this.onKeyUp(e);
+        // this.debug = true;
     }
 
     static _getGameMatrixPropName(x, y) {
@@ -144,10 +143,16 @@ class Level extends DataSourceBase {
     removeAllCallbacks() {
         super.removeAllCallbacks();
 
-        this._keyEventer.unBindEvents();
+        KeyEventer.instance.removeCallback(this._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
+        KeyEventer.instance.removeCallback(this._onKeyUpRef, KeyEventer.CALLBACK_KEYUP);
     }
 
-    _setLocationChangeValue(thisSpawnLocationPropName, cellPropName, newValue, newCell) {
+    _setLocationChangeValue(thisSpawnLocationPropName, cellPropName, newValue, newCell, oldValue, raiseEvent) {
+        let thisSpawnLocationPropNameWithUnderscore = thisSpawnLocationPropName;
+        if (!_.startsWith(thisSpawnLocationPropName, "_")) {
+            thisSpawnLocationPropNameWithUnderscore = "_" + thisSpawnLocationPropName;
+        }
+
         if (newValue) { // -1
             if (this[thisSpawnLocationPropName].isValid) {
                 // This kicks off another event.
@@ -155,37 +160,46 @@ class Level extends DataSourceBase {
             }
 
             this[thisSpawnLocationPropName].setWithLocation(newCell.location);
+            if (raiseEvent) {
+                this._raiseOnChangeCallbacks(thisSpawnLocationPropNameWithUnderscore, oldValue, newValue);
+            }
+
         } else { // -1
             this[thisSpawnLocationPropName].set(-1, -1);
+
+            if (raiseEvent) {
+                this._raiseOnChangeCallbacks(thisSpawnLocationPropNameWithUnderscore, oldValue, newValue);
+            }
         }
     }
 
     _nestedDataSourceChanged(e) {
-        super._nestedDataSourceChanged(e);
 
         switch (e.source) {
             case "_isPlayerSpawn":
-                this._setLocationChangeValue("playerSpawnLocation", "isPlayerSpawn", e.newValue, e.object);
+                this._setLocationChangeValue("playerSpawnLocation", "isPlayerSpawn", e.newValue, e.object, e.oldValue, true);
                 break;
             case "_isGhostRedSpawn":
-                this._setLocationChangeValue("ghostRedLocation", "isGhostRedSpawn", e.newValue, e.object);
+                this._setLocationChangeValue("ghostRedLocation", "isGhostRedSpawn", e.newValue, e.object, e.oldValue, true);
                 break;
             case "_isGhostPinkSpawn":
-                this._setLocationChangeValue("ghostPinkLocation", "isGhostPinkSpawn", e.newValue, e.object);
+                this._setLocationChangeValue("ghostPinkLocation", "isGhostPinkSpawn", e.newValue, e.object, e.oldValue, true);
                 break;
             case "_isGhostBlueSpawn":
-                this._setLocationChangeValue("ghostBlueLocation", "isGhostBlueSpawn", e.newValue, e.object);
+                this._setLocationChangeValue("ghostBlueLocation", "isGhostBlueSpawn", e.newValue, e.object, e.oldValue, true);
                 break;
             case "_isGhostOrangeSpawn":
-                this._setLocationChangeValue("ghostOrangeLocation", "isGhostOrangeSpawn", e.newValue, e.object);
+                this._setLocationChangeValue("ghostOrangeLocation", "isGhostOrangeSpawn", e.newValue, e.object, e.oldValue, true);
                 break;
             case "_selected":
-                this._setLocationChangeValue("_selectedLocation", "selected", e.newValue, e.object);
+                this._setLocationChangeValue("_selectedLocation", "selected", e.newValue, e.object, e.oldValue, false);
                 break;
             default:
                 // nothing to do
                 break;
         }
+
+        super._nestedDataSourceChanged(e);
     }
 
     mirrorHorizontally() {
@@ -348,6 +362,14 @@ class Level extends DataSourceBase {
             });
         });
 
+        if (value && (this._editMode !== value)) {
+            KeyEventer.instance.addCallback(this._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
+            KeyEventer.instance.addCallback(this._onKeyUpRef, KeyEventer.CALLBACK_KEYUP);
+        } else if (!value && (this._editMode !== value)) {
+            KeyEventer.instance.removeCallback(this._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
+            KeyEventer.instance.removeCallback(this._onKeyUpRef, KeyEventer.CALLBACK_KEYUP);
+        }
+
         this._setValueAndRaiseOnChange("_editMode", value);
     }
 
@@ -401,24 +423,28 @@ class Level extends DataSourceBase {
         switch (key) {
             case "ArrowDown":
                 if ((currentCell.y + 1) < this.height) {
+                    // currentCell.selected = false;
                     newSelectedCell = this.getCell(currentCell.x, currentCell.y + 1);
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowUp":
                 if ((currentCell.y - 1) >= 0) {
+                    // currentCell.selected = false;
                     newSelectedCell = this.getCell(currentCell.x, currentCell.y - 1);
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowLeft":
                 if ((currentCell.x - 1) >= 0) {
+                    // currentCell.selected = false;
                     newSelectedCell = this.getCell(currentCell.x - 1, currentCell.y);
                     newSelectedCell.selected = true;
                 }
                 break;
             case "ArrowRight":
                 if ((currentCell.x + 1) < this.width) {
+                    // currentCell.selected = false;
                     newSelectedCell = this.getCell(currentCell.x + 1, currentCell.y);
                     newSelectedCell.selected = true;
                 }

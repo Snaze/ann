@@ -29,12 +29,7 @@ class ActorBase extends DataSourceBase {
 
         this._timerCallbackHandle = (e) => this._timerCallback(e);
         GameTimer.instance.addCallback(this._timerCallbackHandle);
-    }
-
-    _nestedDataSourceChanged(e) {
-        super._nestedDataSourceChanged(e);
-
-
+        // this.debug = true;
     }
 
     /**

@@ -13,7 +13,7 @@ class Game extends DataSourceComponent {
         super(props);
 
         // this.debug = true;
-        this.regexToIgnore.push(/^_level._gameMatrix\[\d+\]\[\d+\]._selected$/);
+        // this.regexToIgnore.push(/^_level._gameMatrix\[\d+\]\[\d+\]._selected$/);
     }
 
     get level() {

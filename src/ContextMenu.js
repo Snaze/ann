@@ -13,20 +13,30 @@ class ContextMenu extends DataSourceComponent {
     constructor(props) {
         super(props);
 
-        this._keyEventer = new KeyEventer();
         this.state.dummyCell = new CellModel("-1_-1");
+        this._onKeyDownRef = (e) => this.onKeyDown(e);
+        this._onKeyUpRef = (e) => this.onKeyUp(e);
+        // this.debug = true;
+    }
+
+    componentWillReceiveProps(nextProps) {
+        super.componentWillReceiveProps(nextProps);
+
+
     }
 
     componentDidMount() {
         super.componentDidMount();
 
-        this._keyEventer.bindEvents(document.body, (e) => this.onKeyDown(e), (e) => this.onKeyUp(e));
+        KeyEventer.instance.addCallback(this._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
+        KeyEventer.instance.addCallback(this._onKeyUpRef, KeyEventer.CALLBACK_KEYUP);
     }
 
     componentWillUnmount() {
         super.componentWillUnmount();
 
-        this._keyEventer.unBindEvents();
+        KeyEventer.instance.removeCallback(this._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
+        KeyEventer.instance.removeCallback(this._onKeyUpRef, KeyEventer.CALLBACK_KEYUP);
     }
 
     get cell() {

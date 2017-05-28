@@ -11,17 +11,24 @@ class DataSourceComponent extends Component {
         };
         this._regexToIgnore = [];
         this._debug = false;
+        this._lastSource = "";
     }
 
+    // shouldComponentUpdate(nextProps, nextState) {
+    //     // Is this wise to put here?
+    //     for (let i = 0; i < this._regexToIgnore.length; i++) {
+    //         if (this._regexToIgnore[i].test(this._lastSource)) {
+    //             this.log("Canceling update");
+    //             return false;
+    //         }
+    //     }
+    //
+    //     return true;
+    // }
+
     _dataSourceUpdated(e) {
-        // Is this wise to put here?
-        // TODO: Refactor this in componentShouldUpdate method
-        for (let i = 0; i < this._regexToIgnore.length; i++) {
-            if (this._regexToIgnore[i].test(e.source)) {
-                this.log("Canceling update");
-                return;
-            }
-        }
+
+        this._lastSource = e.source;
 
         this.setState({
             dataSource: e.object

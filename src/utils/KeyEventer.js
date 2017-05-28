@@ -1,8 +1,21 @@
 import Direction from "./Direction";
+import Eventer from "./Eventer";
 
-// TODO: refactor this to use the Eventer class
+let _singleton = Symbol();
+
+const callback_keydown = 0;
+const callback_keyup = 1;
+
 class KeyEventer {
-    constructor() {
+
+    static get CALLBACK_KEYDOWN() { return callback_keydown; }
+    static get CALLBACK_KEYUP() { return callback_keyup; }
+
+    constructor(singletonToken) {
+        if (_singleton !== singletonToken){
+            throw new Error('Cannot instantiate directly.');
+        }
+
         this._bindingElement = null;
         this._left = false;
         this._up = false;
@@ -15,31 +28,44 @@ class KeyEventer {
         this._q = false;
         this._x = false;
         this._lastArrowPressed = null;
-        this._weBoundOnKeyDown = false;
-        this._weBoundOnKeyUp = false;
-        this._onKeyDownCallback = null;
-        this._onKeyUpCallback = null;
+        this._keyDownEventer = new Eventer();
+        this._keyUpEventer = new Eventer();
+
+        if (typeof(document) !== "undefined") {
+            this._bindingElement = document.body;
+            this._bindingElement.onkeydown = (e) => this.onKeyDown(e);
+            this._bindingElement.onkeyup = (e) => this.onKeyUp(e);
+        }
     }
 
-    // TODO: Should these really be static?
-    static _onKeyDownCallbacks = null;
-    static get onKeyDownCallbacks() {
-        if (KeyEventer._onKeyDownCallbacks === null) {
-            KeyEventer._onKeyDownCallbacks = [];
+    static get instance() {
+        if(!this[_singleton]) {
+            this[_singleton] = new KeyEventer(_singleton);
         }
 
-        return KeyEventer._onKeyDownCallbacks;
+        return this[_singleton];
     }
 
-    // TODO: Should these really be static?
-    static _onKeyUpCallbacks = null;
-    static get onKeyUpCallbacks() {
-        if (KeyEventer._onKeyUpCallbacks === null) {
-            KeyEventer._onKeyUpCallbacks = [];
+    addCallback(theCallback, callbackType) {
+        if (callbackType === KeyEventer.CALLBACK_KEYDOWN) {
+            this._keyDownEventer.addCallback(theCallback);
+        } else if (callbackType === KeyEventer.CALLBACK_KEYUP) {
+            this._keyUpEventer.addCallback(theCallback);
+        } else {
+            throw new Error("Unknown Callback Type");
         }
-
-        return KeyEventer._onKeyUpCallbacks;
     }
+
+    removeCallback(theCallback, callbackType) {
+        if (callbackType === KeyEventer.CALLBACK_KEYDOWN) {
+            this._keyDownEventer.removeCallback(theCallback);
+        } else if (callbackType === KeyEventer.CALLBACK_KEYUP) {
+            this._keyUpEventer.removeCallback(theCallback);
+        } else {
+            throw new Error("Unknown Callback Type");
+        }
+    }
+
 
     get left() { return this._left; }
     get up() { return this._up; }
@@ -68,60 +94,6 @@ class KeyEventer {
 
     get x() {
         return this._x;
-    }
-
-    bindEvents(bindingElement, onKeyDownCallback, onKeyUpCallback) {
-        this._bindingElement = bindingElement;
-
-        if (!this._bindingElement.onkeydown) {
-            this._bindingElement.onkeydown = (e) => this.onKeyDown(e);
-            this._weBoundOnKeyDown = true;
-        }
-
-        if (!this._bindingElement.onkeyup) {
-            this._bindingElement.onkeyup = (e) => this.onKeyUp(e);
-            this._weBoundOnKeyUp = true;
-        }
-
-        if (onKeyDownCallback) {
-            this._onKeyDownCallback = onKeyDownCallback;
-            KeyEventer.onKeyDownCallbacks.push(this._onKeyDownCallback);
-        }
-
-        if (onKeyUpCallback) {
-            this._onKeyUpCallback = onKeyUpCallback;
-            KeyEventer.onKeyUpCallbacks.push(this._onKeyUpCallback);
-        }
-    }
-
-    unBindEvents() {
-
-        if (this._weBoundOnKeyDown) {
-            this._bindingElement.onkeydown = null;
-        }
-
-        if (this._weBoundOnKeyUp) {
-            this._bindingElement.onkeyup = null;
-        }
-
-        this._bindingElement = null;
-
-        if (this._onKeyDownCallback) {
-            let index = KeyEventer.onKeyDownCallbacks.indexOf(this._onKeyDownCallback);
-            if (index > -1) {
-                KeyEventer.onKeyDownCallbacks.splice(index, 1);
-            }
-        }
-
-        if (this._onKeyUpCallback) {
-            let index = KeyEventer.onKeyUpCallbacks.indexOf(this._onKeyUpCallback);
-            if (index > -1) {
-                KeyEventer.onKeyUpCallbacks.splice(index, 1);
-            }
-        }
-
-        this._onKeyDownCallback = null;
-        this._onKeyUpCallback = null;
     }
 
     onKeyDown(e) {
@@ -170,9 +142,7 @@ class KeyEventer {
                 return; // Quit when this doesn't handle the key event.
         }
 
-        KeyEventer.onKeyDownCallbacks.forEach(function (cb) {
-           cb(e.key);
-        });
+        this._keyDownEventer.raiseEvent(e.key);
     }
 
     onKeyUp(e) {
@@ -229,9 +199,7 @@ class KeyEventer {
                 return; // Quit when this doesn't handle the key event.
         }
 
-        KeyEventer.onKeyUpCallbacks.forEach(function (cb) {
-            cb(e.key);
-        });
+        this._keyUpEventer.raiseEvent(e.key);
     }
 
     get lastArrowPressed() {

@@ -1,6 +1,7 @@
 import Direction from "../../utils/Direction";
 import KeyEventer from "../../utils/KeyEventer";
 import ActorBase from "./ActorBase";
+import _ from "../../../node_modules/lodash/lodash";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
@@ -23,13 +24,22 @@ class Player extends ActorBase {
         }
 
         this._gender = gender;
-        this._keyEventer = new KeyEventer();
-        if (typeof(document) !== "undefined") {
-            this._keyEventer.bindEvents(document.body, null, null);
-        }
 
         this.location.setWithLocation(level.playerSpawnLocation);
         this._spawnLocation = level.playerSpawnLocation.clone();
+        // this.debug = true;
+    }
+
+    _nestedDataSourceChanged(e) {
+
+        if (_.startsWith(e.source, "_playerSpawnLocation")) {
+            this._spawnLocation.setWithLocation(this.level.playerSpawnLocation);
+            if (this.editMode) {
+                this.location.setWithLocation(this._spawnLocation);
+            }
+        }
+
+        super._nestedDataSourceChanged(e);
     }
 
     removeAllCallbacks() {
@@ -44,14 +54,14 @@ class Player extends ActorBase {
 
         let newDirection = this.direction;
 
-        if (this._keyEventer.lastArrowPressed !== null) {
-            if (this._keyEventer.lastArrowPressed === Direction.UP) {
+        if (KeyEventer.instance.lastArrowPressed !== null) {
+            if (KeyEventer.instance.lastArrowPressed === Direction.UP) {
                 newDirection = Direction.UP;
-            } else if (this._keyEventer.lastArrowPressed === Direction.DOWN) {
+            } else if (KeyEventer.instance.lastArrowPressed === Direction.DOWN) {
                 newDirection = Direction.DOWN;
-            } else if (this._keyEventer.lastArrowPressed === Direction.LEFT) {
+            } else if (KeyEventer.instance.lastArrowPressed === Direction.LEFT) {
                 newDirection = Direction.LEFT;
-            } else if (this._keyEventer.lastArrowPressed === Direction.RIGHT) {
+            } else if (KeyEventer.instance.lastArrowPressed === Direction.RIGHT) {
                 newDirection = Direction.RIGHT;
             }
         }

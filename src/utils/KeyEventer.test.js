@@ -1,7 +1,7 @@
 import KeyEventer from "./KeyEventer";
 
 it ("keydown and keyup works", () => {
-    let keyEventer = new KeyEventer();
+    let keyEventer = KeyEventer.instance;
     expect(keyEventer.up).toBe(false);
     expect(keyEventer.down).toBe(false);
     expect(keyEventer.left).toBe(false);

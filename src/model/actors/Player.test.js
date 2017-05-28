@@ -1,5 +1,6 @@
 import Player from "./Player";
 import Level from "../Level";
+import Location from "../Location";
 
 it ("Player gender is valid", () => {
 
@@ -34,4 +35,36 @@ it ("moveBackToSpawn", () => {
     // ASSERT
     expect(player.location.equals(player._spawnLocation)).toBe(true);
     expect(player._spawnLocation.isEqualTo(1, 1)).toBe(true);
+});
+
+it ("player spawn location updates on _nestedDataSourceChanged", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.playerSpawnLocation.set(1, 1);
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    let originalLocation = player.location.clone();
+
+    // CALL
+    theLevel.playerSpawnLocation.set(1, 2);
+
+    // ASSERT
+    expect(player._spawnLocation.isEqualTo(1, 2)).toBe(true);
+    expect(player.location.equals(originalLocation)).toBe(true);
+});
+
+it ("player spawn location updates on _nestedDataSourceChanged in editMode", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.playerSpawnLocation.set(1, 1);
+    theLevel.editMode = true;
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    player.editMode = true;
+    // let originalLocation = player.location.clone();
+
+    // CALL
+    theLevel.playerSpawnLocation.set(1, 2);
+
+    // ASSERT
+    expect(player._spawnLocation.isEqualTo(1, 2)).toBe(true);
+    expect(player.location.isEqualTo(1, 2)).toBe(true);
 });

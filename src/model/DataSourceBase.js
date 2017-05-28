@@ -12,6 +12,7 @@ class DataSourceBase {
         this._eventer = new Eventer();
         this._nestDataSourceChangedRef = (e) => this._nestedDataSourceChanged(e);
         this._nestedDataSources = {};
+        this._debug = false;
     }
 
     addOnChangeCallback(callback) {
@@ -32,7 +33,17 @@ class DataSourceBase {
         }
     }
 
+    log (toLog) {
+        if (this.debug && (typeof(console) !== "undefined")) {
+            console.log(toLog);
+        }
+    }
+
     _nestedDataSourceChanged(e) {
+
+        // When overridding this method, add your custom code and then call super
+        // super._nestedDataSourceChanged(e);
+
         let source = e.object.ownerPropName + "." + e.source;
         this._eventer.raiseEvent({
             object: this,
@@ -40,6 +51,8 @@ class DataSourceBase {
             oldValue: e.oldValue,
             newValue: e.newValue
         });
+
+        this.log("DataSourceBase._nestedDataSourceChanged: " + source);
     }
 
     /**
@@ -57,10 +70,6 @@ class DataSourceBase {
         if (typeof(this._nestedDataSources[nestedObject.id]) !== "undefined") {
             throw new Error("this._nestDataSource already contains a id '" + nestedObject.id + "'");
         }
-
-        // if (typeof(this[propName]) !== "undefined") {
-        //     throw new Error("this object already has a property named '" + propName + "'");
-        // }
 
         nestedObject.addOnChangeCallback(this._nestDataSourceChangedRef);
         this._nestedDataSources[nestedObject.id] = nestedObject;
@@ -96,6 +105,8 @@ class DataSourceBase {
             oldValue: oldValue,
             newValue: newValue
         });
+
+        this.log("DataSourceBase._raiseOnChangeCallbacks: " + source);
     }
 
     _setValueAndRaiseOnChange(property, newValue) {
@@ -119,6 +130,15 @@ class DataSourceBase {
 
     get numCallbacks() {
         return this._eventer.numCallbacks;
+    }
+
+
+    get debug() {
+        return this._debug;
+    }
+
+    set debug(value) {
+        this._debug = value;
     }
 }
 
