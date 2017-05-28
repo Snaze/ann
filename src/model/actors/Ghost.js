@@ -1,5 +1,6 @@
 import ActorBase from "./ActorBase";
 import _ from "../../../node_modules/lodash/lodash";
+import GhostBrainManual from "./GhostBrains/GhostBrainManual";
 
 const red = 0;
 const blue = 1;
@@ -43,6 +44,7 @@ class Ghost extends ActorBase {
                 throw new Error("Unknown Ghost color detected");
         }
         this._spawnLocation = this.location.clone();
+        this._ghostBrain = new GhostBrainManual();
     }
 
     _nestedDataSourceChanged(e) {
@@ -81,7 +83,8 @@ class Ghost extends ActorBase {
     }
 
     timerTick(e) {
-
+        let theDirection = this._ghostBrain.getNextLocation(this, this.level);
+        this.moveInDirection(theDirection);
     }
 }
 

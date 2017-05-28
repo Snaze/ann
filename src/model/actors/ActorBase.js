@@ -22,7 +22,7 @@ class ActorBase extends DataSourceBase {
         this._direction = Direction.LEFT;
         this._startDirection = Direction.LEFT;
         this._location = this._wireUp("_location", new Location(-1, -1));
-        this._cellTransitionDuration = 0.25; // seconds
+        this._cellTransitionDuration = 0.3; // seconds
         this._spawnLocation = null;
         this._lastTick = moment();
         this._editMode = false;

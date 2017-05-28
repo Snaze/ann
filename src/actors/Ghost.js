@@ -18,20 +18,26 @@ class Ghost extends DataSourceComponent {
         return this.dataSource;
     }
 
-    getEntityStyle(spawnLocation) {
+    getEntityStyle(currentGridLocation) {
         let toRet = {
             display: "none"
         };
 
-        if (spawnLocation.isValid) {
+        if (currentGridLocation.isValid) {
             // let cellModel = this.level.gameMatrix[spawnLocation.y][spawnLocation.x];
-            let cellLocation = Cell.getCellLocation(spawnLocation);
+            let cellLocation = Cell.getCellLocation(currentGridLocation);
 
             toRet.display = "block";
             toRet.position = "absolute";
             toRet.top =  (cellLocation.y - 2) + "px";
             toRet.left = (cellLocation.x - 2) + "px";
             toRet.pointerEvents = "none";
+            if (!this.ghost.editMode) {
+                let transitionStr = "top " + this.ghost.cellTransitionDuration + "s," +
+                    " left " + this.ghost.cellTransitionDuration + "s";
+                toRet.webKitTransition = transitionStr; /* Safari */
+                toRet.transition = transitionStr;
+            }
         }
 
         return toRet;
