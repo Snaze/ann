@@ -76,6 +76,46 @@ class Location extends DataSourceBase {
     isEqualTo(x, y) {
         return (this.x === x) && (this.y === y);
     }
+
+    isAbove(otherLocation, maxHeight=null) {
+        if (otherLocation.isEqualTo(this.x, this.y + 1)) {
+            return true;
+        }
+
+        return ((maxHeight !== null) &&
+            (otherLocation.y === 0) &&
+            (this.isEqualTo(otherLocation.x, maxHeight - 1)));
+    }
+
+    isLeftOf(otherLocation, maxWidth=null) {
+        if (otherLocation.isEqualTo(this.x + 1, this.y)) {
+            return true;
+        }
+
+        return ((maxWidth !== null) &&
+                (otherLocation.x === 0) &&
+                this.isEqualTo(maxWidth - 1, otherLocation.y));
+    }
+
+    isRightOf(otherLocation, maxWidth=null) {
+        if (otherLocation.isEqualTo(this.x - 1, this.y)) {
+            return true;
+        }
+
+        return ((maxWidth !== null) &&
+                (otherLocation.x === (maxWidth - 1)) &&
+                this.isEqualTo(0, otherLocation.y));
+    }
+
+    isBelow(otherLocation, maxHeight=null) {
+        if (otherLocation.isEqualTo(this.x, this.y - 1)) {
+            return true;
+        }
+
+        return ((maxHeight !== null) &&
+                (otherLocation.y === (maxHeight - 1)) &&
+                this.isEqualTo(otherLocation.x, 0));
+    }
 }
 
 export default Location;

@@ -136,3 +136,230 @@ it ("test set isPlayerSpawn -- toggle case", () => {
     expect(cell.isGhostBlueSpawn).toBe(false);
     expect(cell.isGhostOrangeSpawn).toBe(false);
 });
+
+/** canTraverseTo - DOWN **/
+
+it ("canTraverseTo up to down -- no border", () => {
+    // SETUP
+    let topCell = new Cell("0_0");
+    let bottomCell = new Cell("1_0");
+
+    // CALL
+    let retVal = topCell.canTraverseTo(bottomCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo up to down -- border", () => {
+    // SETUP
+    let topCell = new Cell("0_0");
+    topCell.solidBorder.bottom = true;
+    let bottomCell = new Cell("1_0");
+
+    // CALL
+    let retVal = topCell.canTraverseTo(bottomCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+it ("canTraverseTo up to down -- wrap", () => {
+    // SETUP
+    let topCell = new Cell("2_0");
+    // topCell.solidBorder.bottom = true;
+    let bottomCell = new Cell("0_0");
+
+    // CALL
+    let retVal = topCell.canTraverseTo(bottomCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo up to down -- wrap border", () => {
+    // SETUP
+    let topCell = new Cell("2_0");
+    topCell.solidBorder.bottom = true;
+    let bottomCell = new Cell("0_0");
+
+    // CALL
+    let retVal = topCell.canTraverseTo(bottomCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+
+/** canTraverseTo - LEFT **/
+
+it ("canTraverseTo right to left -- no border", () => {
+    // SETUP
+    let leftCell = new Cell("0_0");
+    let rightCell = new Cell("0_1");
+
+    // CALL
+    let retVal = rightCell.canTraverseTo(leftCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo right to left -- border", () => {
+    // SETUP
+    let leftCell = new Cell("0_0");
+    let rightCell = new Cell("0_1");
+    rightCell.solidBorder.left = true;
+
+    // CALL
+    let retVal = rightCell.canTraverseTo(leftCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+it ("canTraverseTo right to left -- wrap", () => {
+    // SETUP
+    let rightCell = new Cell("0_0");
+    let leftCell = new Cell("2_0");
+
+    // CALL
+    let retVal = rightCell.canTraverseTo(leftCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo right to left -- wrap border", () => {
+    // SETUP
+    let rightCell = new Cell("0_0");
+    rightCell.solidBorder.left = true;
+    let leftCell = new Cell("0_2");
+
+    // CALL
+    let retVal = rightCell.canTraverseTo(leftCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+
+/** canTraverseTo - RIGHT **/
+
+it ("canTraverseTo left to right -- no border", () => {
+    // SETUP
+    let leftCell = new Cell("0_0");
+    let rightCell = new Cell("0_1");
+
+    // CALL
+    let retVal = leftCell.canTraverseTo(rightCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo left to right -- border", () => {
+    // SETUP
+    let leftCell = new Cell("0_0");
+    leftCell.solidBorder.right = true;
+    let rightCell = new Cell("0_1");
+
+    // CALL
+    let retVal = leftCell.canTraverseTo(rightCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+it ("canTraverseTo left to right -- wrap", () => {
+    // SETUP
+    let rightCell = new Cell("0_0");
+    let leftCell = new Cell("2_0");
+
+    // CALL
+    let retVal = leftCell.canTraverseTo(rightCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo left to right -- wrap border", () => {
+    // SETUP
+    let rightCell = new Cell("0_0");
+    let leftCell = new Cell("0_2");
+    leftCell.solidBorder.right = true;
+
+    // CALL
+    let retVal = leftCell.canTraverseTo(rightCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+
+/** canTraverseTo - UP **/
+
+it ("canTraverseTo down to up -- no border", () => {
+    // SETUP
+    let topCell = new Cell("0_0");
+    let bottomCell = new Cell("1_0");
+
+    // CALL
+    let retVal = bottomCell.canTraverseTo(topCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo down to up -- border", () => {
+    // SETUP
+    let topCell = new Cell("0_0");
+    let bottomCell = new Cell("1_0");
+    bottomCell.solidBorder.top = true;
+
+    // CALL
+    let retVal = bottomCell.canTraverseTo(topCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+it ("canTraverseTo down to up -- wrap", () => {
+    // SETUP
+    let topCell = new Cell("2_0");
+    // topCell.solidBorder.bottom = true;
+    let bottomCell = new Cell("0_0");
+
+    // CALL
+    let retVal = bottomCell.canTraverseTo(topCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(true);
+});
+
+it ("canTraverseTo down to up -- wrap border", () => {
+    // SETUP
+    let topCell = new Cell("2_0");
+    // topCell.solidBorder.bottom = true;
+    let bottomCell = new Cell("0_0");
+    bottomCell.solidBorder.top = true;
+
+    // CALL
+    let retVal = bottomCell.canTraverseTo(topCell, 3, 3);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+
+it ("canTraverseTo non adjacent test", () => {
+    // SETUP
+    let topCell = new Cell("1_1");
+    let bottomCell = new Cell("2_2");
+
+    // CALL
+    let retVal = bottomCell.canTraverseTo(topCell, 10, 10);
+
+    // ASSERT
+    expect(retVal).toBe(false);
+});
+

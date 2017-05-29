@@ -277,6 +277,26 @@ class Cell extends DataSourceBase {
     get screenLocation() {
         return this._screenLocation;
     }
+
+    canTraverseTo(otherCell, maxWidth, maxHeight) {
+        if (this.location.isAbove(otherCell.location, maxHeight)) {
+            return !this.solidBorder.bottom;
+        }
+
+        if (this.location.isRightOf(otherCell.location, maxWidth)) {
+            return !this.solidBorder.left;
+        }
+
+        if (this.location.isLeftOf(otherCell.location, maxWidth)) {
+            return !this.solidBorder.right;
+        }
+
+        if (this.location.isBelow(otherCell.location, maxHeight)) {
+            return !this.solidBorder.top;
+        }
+
+        return false;
+    }
 }
 
 export default Cell;

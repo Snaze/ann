@@ -7,7 +7,7 @@ class DataSourceBase {
     }
 
     constructor() {
-        this._id = DataSourceBase.getNextId().toString();
+        this._dataSourceId = DataSourceBase.getNextId().toString();
         this._ownerPropName = null;
         this._eventer = new Eventer();
         this._nestDataSourceChangedRef = (e) => this._nestedDataSourceChanged(e);
@@ -67,12 +67,12 @@ class DataSourceBase {
             throw new Error("toNest must be an instance of DataSourceBase");
         }
 
-        if (typeof(this._nestedDataSources[nestedObject.id]) !== "undefined") {
-            throw new Error("this._nestDataSource already contains a id '" + nestedObject.id + "'");
+        if (typeof(this._nestedDataSources[nestedObject.dataSourceId]) !== "undefined") {
+            throw new Error("this._nestDataSource already contains a id '" + nestedObject.dataSourceId + "'");
         }
 
         nestedObject.addOnChangeCallback(this._nestDataSourceChangedRef);
-        this._nestedDataSources[nestedObject.id] = nestedObject;
+        this._nestedDataSources[nestedObject.dataSourceId] = nestedObject;
 
         nestedObject._ownerPropName = propName;
 
@@ -84,13 +84,13 @@ class DataSourceBase {
             throw new Error("toNest must be an instance of DataSourceBase");
         }
 
-        if (typeof(this._nestedDataSources[nestedObject.id]) === "undefined") {
-            throw new Error("this._nestDataSource does not contain nestedObject.id = '" + nestedObject.id + "'");
+        if (typeof(this._nestedDataSources[nestedObject.dataSourceId]) === "undefined") {
+            throw new Error("this._nestDataSource does not contain nestedObject.dataSourceId = '" + nestedObject.dataSourceId + "'");
         }
 
         nestedObject.removeOnChangeCallback(this._nestDataSourceChangedRef);
         nestedObject._ownerPropName = null;
-        delete this._nestedDataSources[nestedObject.id];
+        delete this._nestedDataSources[nestedObject.dataSourceId];
     }
 
     _unWireForDestruction(nestedObject) {
@@ -120,8 +120,8 @@ class DataSourceBase {
         this._raiseOnChangeCallbacks(property, oldValue, newValue);
     }
 
-    get id() {
-        return this._id;
+    get dataSourceId() {
+        return this._dataSourceId;
     }
 
     get ownerPropName() {
