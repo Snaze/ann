@@ -9,13 +9,6 @@ import ContextMenu from "./ContextMenu";
 
 class Game extends DataSourceComponent {
 
-    constructor(props) {
-        super(props);
-
-        // this.debug = true;
-        // this.regexToIgnore.push(/^_level._gameMatrix\[\d+\]\[\d+\]._selected$/);
-    }
-
     get level() {
         return this.game.level;
     }

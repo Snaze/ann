@@ -1,5 +1,3 @@
-import Direction from "../../../../utils/Direction";
-import Location from "../../../Location";
 
 class GhostBrainStrategyWander {
 

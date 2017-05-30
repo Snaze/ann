@@ -8,12 +8,6 @@ import {default as LevelModel} from "./model/Level";
 import GameObjectContainer from "./model/GameObjectContainer";
 
 class Level extends DataSourceComponent {
-    constructor(props) {
-        super(props);
-
-        // this.regexToIgnore.push(/^_gameMatrix\[\d+\]\[\d+\]._selected$/);
-        // this.debug = true;
-    }
 
     get level() {
         return this.dataSource;

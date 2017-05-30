@@ -54,9 +54,28 @@
 
 /** DOTS **/
 
+@keyframes blink {
+    0% {
+        background-image: none;
+    }
+    100% {
+        background-image: url(./images/BigDot.png);
+    }
+}
+@-webkit-keyframes blink {
+    0% {
+        background-image: none;
+    }
+    100% {
+        background-image: url(./images/BigDot.png);
+    }
+}
+
 .CellBigDot {
     background-image: url(./images/BigDot.png);
     background-size: 96% 96%;
+    animation: blink 0.5s infinite;
+    -webkit-animation: blink 0.5s infinite;
 }
 
 .CellLittleDot {

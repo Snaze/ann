@@ -1,10 +1,5 @@
-import Direction from "../../../../utils/Direction";
-import Location from "../../../Location";
 
 class GhostBrainStrategyAttack {
-
-    constructor() {
-    }
 
     getNextDirection(ghost, player, level) {
 
@@ -15,7 +10,11 @@ class GhostBrainStrategyAttack {
     }
 
     get cellTransitionDuration() {
-        return 0.2;
+        return 0.3;
+    }
+
+    get attackExpirationDuration() {
+        return 3.0;
     }
 }
 

@@ -20,6 +20,7 @@ class GhostBrainManual {
 
         this._currentState = null;
         this._endHoldingPinTime = null;
+        this._attackStateExpiration = moment();
 
         this.enterState(GhostBrainManual.GHOST_STATE_HOLDING_PIN);
     }
@@ -69,6 +70,7 @@ class GhostBrainManual {
             case GhostBrainManual.GHOST_STATE_WANDER:
                 break;
             case GhostBrainManual.GHOST_STATE_ATTACK:
+                this._attackStateExpiration = moment().add(this._ghostBrainStrategyAttack.attackExpirationDuration, "s");
                 break;
             default:
                 break;
@@ -88,7 +90,9 @@ class GhostBrainManual {
                 }
                 break;
             case GhostBrainManual.GHOST_STATE_ATTACK:
-                if (!this._canGhostSeePlayer(ghost, player, level)) {
+                if (this._attackStateExpiration < moment() &&
+                    !this._canGhostSeePlayer(ghost, player, level)) {
+
                     this._ghostBrainStrategyWander.destinationLocation.setWithLocation(player.location);
                     this.enterState(GhostBrainManual.GHOST_STATE_WANDER);
                 }
