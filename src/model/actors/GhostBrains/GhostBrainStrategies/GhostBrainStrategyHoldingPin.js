@@ -35,6 +35,10 @@ class GhostBrainStrategyHoldingPin {
         // throw new Error("You should never get here");
     }
 
+    get cellTransitionDuration() {
+        return 0.3;
+    }
+
 }
 
 export default GhostBrainStrategyHoldingPin;

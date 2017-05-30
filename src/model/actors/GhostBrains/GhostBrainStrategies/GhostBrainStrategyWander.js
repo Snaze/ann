@@ -33,6 +33,18 @@ class GhostBrainStrategyWander {
 
         return level.floydWarshall.getDirection(fromCellId, toCellId);
     }
+
+    get cellTransitionDuration() {
+        return 0.3;
+    }
+
+    get destinationLocation() {
+        return this._destinationLocation;
+    }
+
+    set destinationLocation(value) {
+        this._destinationLocation = value;
+    }
 }
 
 export default GhostBrainStrategyWander;

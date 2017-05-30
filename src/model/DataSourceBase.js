@@ -1,4 +1,5 @@
 import Eventer from "../utils/Eventer";
+import _ from "../../node_modules/lodash/lodash";
 
 class DataSourceBase {
     static nextId = 1;
@@ -13,6 +14,7 @@ class DataSourceBase {
         this._nestDataSourceChangedRef = (e) => this._nestedDataSourceChanged(e);
         this._nestedDataSources = {};
         this._debug = false;
+        this._toIgnore = [];
     }
 
     addOnChangeCallback(callback) {
@@ -39,10 +41,24 @@ class DataSourceBase {
         }
     }
 
+    _shouldIgnore(source) {
+        for (let i = 0; i < this._toIgnore.length; i++) {
+            if (_.endsWith(this._toIgnore[i], source)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     _nestedDataSourceChanged(e) {
 
         // When overridding this method, add your custom code and then call super
         // super._nestedDataSourceChanged(e);
+
+        if (this._shouldIgnore(e.source)) {
+            return;
+        }
 
         let source = e.object.ownerPropName + "." + e.source;
         this._eventer.raiseEvent({
@@ -99,6 +115,10 @@ class DataSourceBase {
     }
 
     _raiseOnChangeCallbacks(source, oldValue, newValue) {
+        if (this._shouldIgnore(source)) {
+            return;
+        }
+
         this._eventer.raiseEvent({
             object: this,
             source: source,
@@ -139,6 +159,10 @@ class DataSourceBase {
 
     set debug(value) {
         this._debug = value;
+    }
+
+    get toIgnore() {
+        return this._toIgnore;
     }
 }
 

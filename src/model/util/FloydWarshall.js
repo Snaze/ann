@@ -11,19 +11,22 @@ class FloydWarshall {
         this._edges = null;
         this._paths = null;
         this._directions = null;
+        this._pathDistance = null;
     }
 
     static fromJSON(jsonObject) {
         let toRet = new FloydWarshall();
 
         toRet._directions = jsonObject._directions;
+        toRet._pathDistance = jsonObject._pathDistance;
 
         return toRet;
     }
 
     toJSON() {
         return {
-            _directions: this._directions
+            _directions: this._directions,
+            _pathDistance: this._pathDistance
         };
     }
 
@@ -186,12 +189,14 @@ class FloydWarshall {
 
     convertPathsToDirections(level) {
         this._directions = {};
+        this._pathDistance = {};
 
         for (let key in this._paths) {
             if (this._paths.hasOwnProperty(key)) {
                 let currentPath = this._paths[key];
                 if (currentPath.length === 1) {
                     this._directions[key] = Direction.NONE;
+                    this._pathDistance[key] = 1;
                 } else {
                     let fromCellId = currentPath[0];
                     let toCellId = currentPath[1];
@@ -200,6 +205,7 @@ class FloydWarshall {
 
                     this._directions[key] = Location.getDirection(fromCell.location,
                         toCell.location, level.width, level.height);
+                    this._pathDistance[key] = currentPath.length;
                 }
             }
         }
@@ -218,6 +224,14 @@ class FloydWarshall {
         }
 
         return this._directions[FloydWarshall._convertCellIdsToKey(fromCellId, toCellId)];
+    }
+
+    getPathDistance(fromCellId, toCellId) {
+        if (this._pathDistance === null) {
+            throw new Error("You must first call convertPathsToDirections");
+        }
+
+        return this._pathDistance[FloydWarshall._convertCellIdsToKey(fromCellId, toCellId)];
     }
 }
 

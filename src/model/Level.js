@@ -90,6 +90,7 @@ class Level extends DataSourceBase {
             (typeof(jsonObject._floydWarshall._directions) !== "undefined")) {
             toRet._floydWarshall = new FloydWarshall();
             toRet._floydWarshall._directions = jsonObject._floydWarshall._directions;
+            toRet._floydWarshall._pathDistance = jsonObject._floydWarshall._pathDistance;
             toRet._borderIsDirty = false;
         }
 
@@ -137,6 +138,8 @@ class Level extends DataSourceBase {
         this._onKeyUpRef = (e) => this.onKeyUp(e);
         this._activeCells = null;
         this._activeCellsIsDirty = true;
+        this.toIgnore.push("_dotType");
+        // this.debug = true;
     }
 
     toJSON() {
