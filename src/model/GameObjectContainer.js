@@ -7,10 +7,10 @@ class GameObjectContainer extends DataSourceBase {
         super();
 
         this._player = this._wireUp("_player", new Player(level, Player.MR_PAC_MAN));
-        this._ghostRed = this._wireUp("_ghostRed", new Ghost(level, Ghost.RED));
-        this._ghostBlue = this._wireUp("_ghostBlue", new Ghost(level, Ghost.BLUE));
-        this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK));
-        this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE));
+        this._ghostRed = this._wireUp("_ghostRed", new Ghost(level, Ghost.RED, this._player));
+        this._ghostBlue = this._wireUp("_ghostBlue", new Ghost(level, Ghost.BLUE, this._player));
+        this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
+        this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE, this._player));
 
         this._gameObjects = [
             this._player,

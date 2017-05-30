@@ -2,7 +2,7 @@ import Direction from "../../../../utils/Direction";
 
 class GhostBrainStrategyHoldingPin {
 
-    getNextLocation(ghost, level) {
+    getNextDirection(ghost, player, level) {
         // let toRet = ghost.location.clone();
         let randomValue = Math.random();
 

@@ -1,4 +1,5 @@
 import Level1 from "../levels/Level1.json";
+import Level1WithPaths from "../levels/Level1WithPaths.json";
 import Level from "./Level";
 
 
@@ -9,6 +10,8 @@ class LevelFactory {
         switch (levelName) {
             case "level1":
                 return Level.fromJSON(Level1);
+            case "level1withpaths":
+                return Level.fromJSON(Level1WithPaths);
             default:
                 throw new Error("Unknown Level Name found");
         }

@@ -31,6 +31,23 @@ class Cell extends DataSourceBase {
         this._screenLocation = this._wireUp("_screenLocation", new Location(-1, -1));
     }
 
+    toJSON() {
+        return {
+            _id: this._id,
+            _solidBorder: this._solidBorder.toJSON(),
+            _partialBorder: this._partialBorder.toJSON(),
+            _dotType: this._dotType,
+            _selected: this._selected,
+            _isPlayerSpawn: this._isPlayerSpawn,
+            _isGhostRedSpawn: this._isGhostRedSpawn,
+            _isGhostPinkSpawn: this._isGhostPinkSpawn,
+            _isGhostBlueSpawn: this._isGhostBlueSpawn,
+            _isGhostOrangeSpawn: this._isGhostOrangeSpawn,
+            _isActive: this._isActive,
+            _location: this._location.toJSON()
+        };
+    }
+
     clone(theId, direction="none") {
         let toRet = new Cell(theId);
 

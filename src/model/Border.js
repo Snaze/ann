@@ -11,6 +11,15 @@ class Border extends DataSourceBase {
         this._bottom = bottom;
     }
 
+    toJSON() {
+        return {
+            _left: this._left,
+            _top: this._top,
+            _right: this._right,
+            _bottom: this._bottom
+        };
+    }
+
     clone(direction="none") {
         if (direction === "none") {
             return new Border(this._left, this._top, this._right, this._bottom);

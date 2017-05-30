@@ -1,6 +1,7 @@
 import ActorBase from "./ActorBase";
 import _ from "../../../node_modules/lodash/lodash";
 import GhostBrainManual from "./GhostBrains/GhostBrainManual";
+import Player from "./Player";
 
 const red = 0;
 const blue = 1;
@@ -19,13 +20,18 @@ class Ghost extends ActorBase {
         return valid_color.indexOf(color) > -1;
     }
 
-    constructor(level, color) {
+    constructor(level, color, player) {
         super(level);
 
         if (!Ghost.colorIsValid(color)) {
             throw new Error ("Invalid Color");
         }
 
+        if (!(player instanceof Player)) {
+            throw new Error ("Invalid Player");
+        }
+
+        this._player = player;
         this._color = color;
         switch(this._color) {
             case Ghost.RED:
@@ -78,12 +84,20 @@ class Ghost extends ActorBase {
         return this._color;
     }
 
-    set color(value) {
-        this._setValueAndRaiseOnChange("_color", value);
+    get player() {
+        return this._player;
+    }
+
+    canMoveInDirection(sourceLocation, direction) {
+        let theCell = this.level.getCellByLocation(sourceLocation);
+        let hasSolidBorder = theCell.getSolidBorder(direction);
+        // let hasPartialBorder = theCell.getPartialBorder(direction);
+
+        return !hasSolidBorder;
     }
 
     timerTick(e) {
-        let theDirection = this._ghostBrain.getNextLocation(this, this.level);
+        let theDirection = this._ghostBrain.getNextDirection(this, this.player, this.level);
         this.moveInDirection(theDirection);
     }
 }

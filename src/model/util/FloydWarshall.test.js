@@ -5,10 +5,10 @@ import FloydWarshallTestLevel from "../../levels/FloydWarshallTest.json";
 it ("Build vertIds works", () => {
     // SETUP
     let theLevel = new Level(2, 2);
-    let fw = new FloydWarshall(theLevel);
+    let fw = new FloydWarshall();
 
     // CALL
-    let vertIds = fw.vertIds;
+    let vertIds = fw.getVertIds(theLevel);
 
     // ASSERT
     expect(vertIds.indexOf("0_0") >= 0).toBe(true);
@@ -21,10 +21,10 @@ it ("Build vertIds works", () => {
 it ("Build edges works", () => {
     // SETUP
     let theLevel = new Level(2, 2);
-    let fw = new FloydWarshall(theLevel);
+    let fw = new FloydWarshall();
 
     // CALL
-    let edges = fw.edges;
+    let edges = fw.getEdges(theLevel);
 
     // ASSERT
     expect(edges.length).toBe(16);
@@ -37,10 +37,10 @@ it ("Build edges works", () => {
 it ("getDistance - noBarrier and adjacent", () => {
     // SETUP
     let theLevel = new Level(5, 5);
-    let fw = new FloydWarshall(theLevel);
+    let fw = new FloydWarshall();
 
     // CALL
-    let distance = fw.getDistance(["0_0", "1_0"]);
+    let distance = fw.getDistance(theLevel, ["0_0", "1_0"]);
 
     // ASSERT
     expect(distance).toBe(1);
@@ -50,10 +50,10 @@ it ("getDistance - barrier and adjacent", () => {
     // SETUP
     let theLevel = new Level(5, 5);
     theLevel.getCell(0, 0).solidBorder.right = true;
-    let fw = new FloydWarshall(theLevel);
+    let fw = new FloydWarshall();
 
     // CALL
-    let distance = fw.getDistance(["0_0", "0_1"]);
+    let distance = fw.getDistance(theLevel, ["0_0", "0_1"]);
 
     // ASSERT
     expect(distance).toBe(Number.POSITIVE_INFINITY);
@@ -63,10 +63,10 @@ it ("getDistance - not adjacent", () => {
     // SETUP
     let theLevel = new Level(5, 5);
     // theLevel.getCell(0, 0).solidBorder.right = true;
-    let fw = new FloydWarshall(theLevel);
+    let fw = new FloydWarshall();
 
     // CALL
-    let distance = fw.getDistance(["0_0", "0_2"]);
+    let distance = fw.getDistance(theLevel, ["0_0", "0_2"]);
 
     // ASSERT
     expect(distance).toBe(Number.POSITIVE_INFINITY);
@@ -75,8 +75,8 @@ it ("getDistance - not adjacent", () => {
 it ("test it works correctly", () => {
     // SETUP
     let testLevel = Level.fromJSON(FloydWarshallTestLevel);
-    let fw = new FloydWarshall(testLevel);
-    fw.buildAllPaths();
+    let fw = new FloydWarshall();
+    fw.buildAllPaths(testLevel);
 
     // CALL
     let thePath = fw.getPath("0_0", "0_1");

@@ -45,9 +45,9 @@ class Player extends ActorBase {
     removeAllCallbacks() {
         super.removeAllCallbacks();
 
-        if (typeof(document) !== "undefined") {
-            this._keyEventer.unBindEvents();
-        }
+        // if (typeof(document) !== "undefined") {
+        //     this._keyEventer.unBindEvents();
+        // }
     }
 
     timerTick(e) {

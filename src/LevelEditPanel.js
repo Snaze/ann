@@ -38,7 +38,7 @@ class LevelEditPanel extends DataSourceComponent {
                 this.props.onLoadComplete(theLevel);
                 break;
             case "btnSave":
-                let newTextAreaValue = JSON.stringify(theLevel);
+                let newTextAreaValue = JSON.stringify(theLevel.toJSON());
                 let newState = {
                     textAreaValue: newTextAreaValue
                 };

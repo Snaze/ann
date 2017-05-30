@@ -1,5 +1,6 @@
 import Location from "./Location";
 import _ from "../../node_modules/lodash/lodash";
+import Direction from "../utils/Direction";
 
 it("toArray works", () => {
     let loc = new Location(1, 2);
@@ -121,4 +122,12 @@ it ("isBelow works - wrong case", () => {
 
 it ("isBelow works - wrong case 2", () => {
     testIsBelow(new Location(0, 1), new Location(1, 0), false);
+});
+
+it ("test getDirection", () => {
+    expect(Location.getDirection(new Location(0, 0), new Location(1, 0)) === Direction.RIGHT).toBe(true);
+    expect(Location.getDirection(new Location(1, 0), new Location(0, 0)) === Direction.LEFT).toBe(true);
+    expect(Location.getDirection(new Location(0, 0), new Location(0, 1)) === Direction.DOWN).toBe(true);
+    expect(Location.getDirection(new Location(0, 1), new Location(0, 0)) === Direction.UP).toBe(true);
+    expect(Location.getDirection(new Location(0, 0), new Location(5, 0)) === Direction.NONE).toBe(true);
 });

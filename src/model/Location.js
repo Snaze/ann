@@ -1,4 +1,5 @@
 import DataSourceBase from "./DataSourceBase";
+import Direction from "../utils/Direction";
 
 class Location extends DataSourceBase {
     constructor(x, y) {
@@ -6,6 +7,13 @@ class Location extends DataSourceBase {
 
         this._x = x;
         this._y = y;
+    }
+
+    toJSON() {
+        return {
+            _x: this._x,
+            _y: this._y
+        };
     }
 
     clone() {
@@ -115,6 +123,30 @@ class Location extends DataSourceBase {
         return ((maxHeight !== null) &&
                 (otherLocation.y === (maxHeight - 1)) &&
                 this.isEqualTo(otherLocation.x, 0));
+    }
+
+    static getDirection(fromLocation, toLocation, maxWidth=null, maxHeight=null) {
+        if (fromLocation.isAbove(toLocation, maxHeight)) {
+            return Direction.DOWN;
+        }
+
+        if (fromLocation.isLeftOf(toLocation, maxWidth)) {
+            return Direction.RIGHT;
+        }
+
+        if (fromLocation.isRightOf(toLocation, maxWidth)) {
+            return Direction.LEFT;
+        }
+
+        if (fromLocation.isBelow(toLocation, maxHeight)) {
+            return Direction.UP;
+        }
+
+        return Direction.NONE;
+    }
+
+    toCellId() {
+        return this.y + "_" + this.x;
     }
 }
 

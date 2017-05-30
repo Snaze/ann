@@ -1,18 +1,30 @@
-import Level from "../Level";
+// import Level from "../Level";
+import Location from "../Location";
+import Direction from "../../utils/Direction";
 
 class FloydWarshall {
 
-    constructor(level) {
-        this._level = level;
+    constructor() {
         this._dist = null;
         this._next = null;
         this._vertIds = null;
         this._edges = null;
         this._paths = null;
+        this._directions = null;
     }
 
-    get level() {
-        return this._level;
+    static fromJSON(jsonObject) {
+        let toRet = new FloydWarshall();
+
+        toRet._directions = jsonObject._directions;
+
+        return toRet;
+    }
+
+    toJSON() {
+        return {
+            _directions: this._directions
+        };
     }
 
     get dist() {
@@ -31,42 +43,40 @@ class FloydWarshall {
         return this._next;
     }
 
-    get edges() {
+    getEdges(level) {
         if (this._edges === null) {
-            this._edges = this.buildEdges();
+            this._edges = this.buildEdges(level);
         }
 
         return this._edges;
     }
 
-    get vertIds() {
+    getVertIds(level) {
         if (this._vertIds === null) {
-            this._vertIds = this.buildVertIds();
+            this._vertIds = this.buildVertIds(level);
         }
 
         return this._vertIds;
     }
 
-    buildVertIds() {
+    buildVertIds(level) {
         let toRet = [];
 
-        this.level.iterateOverCells(function (cell) {
-            toRet.push(cell.id);
+        level.iterateOverCells(function (cell) {
+            if (cell.isActive) {
+                toRet.push(cell.id);
+            }
         });
 
         return toRet;
     }
 
-    buildEdges() {
+    buildEdges(level) {
         let toRet = [];
         let self = this;
 
-        this.vertIds.forEach(function (vertId) {
-            self.vertIds.forEach(function (otherVertId) {
-                // if (otherVertId === vertId) {
-                //     return;
-                // }
-
+        this.getVertIds(level).forEach(function (vertId) {
+            self.getVertIds(level).forEach(function (otherVertId) {
                 toRet.push([vertId, otherVertId]);
             });
         });
@@ -74,15 +84,15 @@ class FloydWarshall {
         return toRet;
     }
 
-    getDistance(edge) {
+    getDistance(level, edge) {
         if (edge[0] === edge[1]) {
             return 0;
         }
 
-        let currentCell = this.level.getCellById(edge[0]);
-        let otherCell = this.level.getCellById(edge[1]);
+        let currentCell = level.getCellById(edge[0]);
+        let otherCell = level.getCellById(edge[1]);
 
-        if (currentCell.canTraverseTo(otherCell, this.level.width, this.level.height)) {
+        if (currentCell.canTraverseTo(otherCell, level.width, level.height)) {
             return 1;
         }
 
@@ -92,14 +102,14 @@ class FloydWarshall {
     /**
      * https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
      */
-    _buildShortestPaths() {
+    _buildShortestPaths(level) {
         if ((this._dist !== null) || (this._next !== null)) {
             throw new Error("Shortest Paths Already Calculated.");
         }
 
         let self = this;
 
-        this.edges.forEach(function (edge) {
+        this.getEdges(level).forEach(function (edge) {
             let u = edge[0];
             let v = edge[1];
 
@@ -111,16 +121,16 @@ class FloydWarshall {
                 self.next[u] = {};
             }
 
-            self.dist[u][v] = self.getDistance(edge);
+            self.dist[u][v] = self.getDistance(level, edge);
             self.next[u][v] = v;
         });
 
-        this.vertIds.forEach(function (k) {
-            self.vertIds.forEach(function (i) {
-                self.vertIds.forEach(function (j) {
+        this.getVertIds(level).forEach(function (k) {
+            self.getVertIds(level).forEach(function (i) {
+                self.getVertIds(level).forEach(function (j) {
                     if (self.dist[i][j] > self.dist[i][k] + self.dist[k][j]) {
                         self.dist[i][j] = self.dist[i][k] + self.dist[k][j];
-                        self.next[i][j] = self.next[i][k]
+                        self.next[i][j] = self.next[i][k];
                     }
                 });
             });
@@ -145,17 +155,21 @@ class FloydWarshall {
         return edge[0] + "__" + edge[1];
     }
 
-    buildAllPaths() {
+    static _convertCellIdsToKey(fromCellId, toCellId) {
+        return fromCellId + "__" + toCellId;
+    }
+
+    buildAllPaths(level) {
         if (this._paths !== null) {
             throw new Error("Paths already initialized.");
         }
 
-        this._buildShortestPaths();
+        this._buildShortestPaths(level);
 
         this._paths = {};
         let self = this;
 
-        this.edges.forEach(function (edge) {
+        this.getEdges(level).forEach(function (edge) {
             let key = FloydWarshall._convertEdgeToKey(edge);
             self._paths[key] = self._getPath(edge[0], edge[1]);
         });
@@ -168,6 +182,42 @@ class FloydWarshall {
 
         let key = FloydWarshall._convertEdgeToKey([u, v]);
         return this._paths[key];
+    }
+
+    convertPathsToDirections(level) {
+        this._directions = {};
+
+        for (let key in this._paths) {
+            if (this._paths.hasOwnProperty(key)) {
+                let currentPath = this._paths[key];
+                if (currentPath.length === 1) {
+                    this._directions[key] = Direction.NONE;
+                } else {
+                    let fromCellId = currentPath[0];
+                    let toCellId = currentPath[1];
+                    let fromCell = level.getCellById(fromCellId);
+                    let toCell = level.getCellById(toCellId);
+
+                    this._directions[key] = Location.getDirection(fromCell.location,
+                        toCell.location, level.width, level.height);
+                }
+            }
+        }
+
+        // I'm doing this to save space.
+        this._dist = null;
+        this._next = null;
+        this._vertIds = null;
+        this._edges = null;
+        this._paths = null;
+    }
+
+    getDirection(fromCellId, toCellId) {
+        if (this._directions === null) {
+            throw new Error("You must first call convertPathsToDirections");
+        }
+
+        return this._directions[FloydWarshall._convertCellIdsToKey(fromCellId, toCellId)];
     }
 }
 
