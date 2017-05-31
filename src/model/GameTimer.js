@@ -69,6 +69,7 @@ class GameTimer {
 
         this._steps = [0, 0, 0, 0, 0, 0];
         this._eventer = new Eventer();
+        this._tickFinishedEventer = new Eventer();
     }
 
     static get instance() {
@@ -94,6 +95,7 @@ class GameTimer {
         }
 
         this._eventer.raiseEvent(this._steps);
+        this._tickFinishedEventer.raiseEvent();
     }
 
     getStepNumber(timeIndex) {
@@ -104,12 +106,21 @@ class GameTimer {
         this._eventer.addCallback(theCallback);
     }
 
+    addTickFinishedCallback(theCallback) {
+        this._tickFinishedEventer.addCallback(theCallback);
+    }
+
     removeCallback(theCallback) {
         this._eventer.removeCallback(theCallback);
     }
 
+    removeTickCallback(theCallback) {
+        this._tickFinishedEventer.removeCallback();
+    }
+
     removeAllCallbacks() {
         this._eventer.removeAllCallbacks();
+        this._tickFinishedEventer.removeAllCallbacks();
     }
 }
 

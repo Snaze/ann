@@ -1,6 +1,8 @@
 import DataSourceBase from "./DataSourceBase";
 import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
+import GameTimer from "./GameTimer";
+import moment from "../../node_modules/moment/moment";
 
 class GameObjectContainer extends DataSourceBase {
     constructor(level) {
@@ -19,6 +21,33 @@ class GameObjectContainer extends DataSourceBase {
             this._ghostPink,
             this._ghostOrange
         ];
+
+        this._gameTimerTickFinishedRef = (e) => this.gameTimerTickFinished(e);
+        GameTimer.instance.addTickFinishedCallback(this._gameTimerTickFinishedRef);
+    }
+
+    _killIfCollision(thePlayer, theGhost, now) {
+        if (thePlayer.location.equals(theGhost.location)) {
+            if (thePlayer.attackModeFinishTime > now) {
+                // GHOST IS DEAD SINCE PLAYER IS ATTACKING
+                theGhost.isAlive = false;
+                // console.log("Ghost DEAD");
+            } else {
+                // PLAYER IS DEAD SINCE PLAYER IS NOT ATTACKING
+                thePlayer.isAlive = false;
+                // console.log("Player DEAD");
+            }
+        }
+    }
+
+    // TODO: This fires a lot.  There may be a better way to accomplish this.
+    gameTimerTickFinished(e) {
+        let now = moment();
+
+        this._killIfCollision(this.player, this.ghostRed, now);
+        this._killIfCollision(this.player, this.ghostBlue, now);
+        this._killIfCollision(this.player, this.ghostPink, now);
+        this._killIfCollision(this.player, this.ghostOrange, now);
     }
 
     get player() {

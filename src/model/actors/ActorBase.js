@@ -26,6 +26,8 @@ class ActorBase extends DataSourceBase {
         this._spawnLocation = null;
         this._lastTick = moment();
         this._editMode = false;
+        this._paused = false;
+        this._isAlive = true;
 
         this._timerCallbackHandle = (e) => this._timerCallback(e);
         GameTimer.instance.addCallback(this._timerCallbackHandle);
@@ -88,14 +90,14 @@ class ActorBase extends DataSourceBase {
         this._setValueAndRaiseOnChange("_editMode", value);
 
         if (value) {
-            GameTimer.instance.removeCallback(this._timerCallbackHandle);
+            this.paused = true;
 
             if ((this._spawnLocation !== null) && this._spawnLocation.isValid) {
                 this.direction = this._startDirection;
                 this.location.setWithLocation(this._spawnLocation);
             }
         } else {
-            GameTimer.instance.addCallback(this._timerCallbackHandle);
+            this.paused = false;
         }
     }
 
@@ -151,6 +153,28 @@ class ActorBase extends DataSourceBase {
         }
 
         this.location.setWithLocation(this._spawnLocation);
+    }
+
+    get paused() {
+        return this._paused;
+    }
+
+    set paused(value) {
+        if (!value && this._paused) {
+            GameTimer.instance.addCallback(this._timerCallbackHandle);
+        } else if (value && !this._paused) {
+            GameTimer.instance.removeCallback(this._timerCallbackHandle);
+        }
+
+        this._setValueAndRaiseOnChange("_paused", value);
+    }
+
+    get isAlive() {
+        return this._isAlive;
+    }
+
+    set isAlive(value) {
+        this._setValueAndRaiseOnChange("_isAlive", value);
     }
 }
 

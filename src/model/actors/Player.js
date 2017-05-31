@@ -30,6 +30,7 @@ class Player extends ActorBase {
         this.location.setWithLocation(level.playerSpawnLocation);
         this._spawnLocation = level.playerSpawnLocation.clone();
         this._score = 0;
+        this._dotsEaten = 0;
         this._attackModeDuration = 8;
         // this._attackModeDuration = 60;
         this._attackModeFinishTime = moment();
@@ -59,9 +60,11 @@ class Player extends ActorBase {
         if (cell.dotType === Dot.LITTLE) {
             this.score = this.score + 10;
             cell.dotType = Dot.NONE;
+            this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
         } else if (cell.dotType === Dot.BIG) {
-            cell.dotType = Dot.NONE;
             this.score = this.score + 50;
+            cell.dotType = Dot.NONE;
+            this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
             this._setValueAndRaiseOnChange("_attackModeFinishTime", moment().add(this._attackModeDuration, "s"));
         }
     }
@@ -125,6 +128,10 @@ class Player extends ActorBase {
 
     get attackModeFinishTime() {
         return this._attackModeFinishTime;
+    }
+
+    get dotsEaten() {
+        return this._dotsEaten;
     }
 }
 

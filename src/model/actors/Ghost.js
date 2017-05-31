@@ -103,17 +103,10 @@ class Ghost extends ActorBase {
     }
 
     canMoveInDirection(sourceLocation, direction) {
-        // try {
         let theCell = this.level.getCellByLocation(sourceLocation);
         let hasSolidBorder = theCell.getSolidBorder(direction);
-        // let hasPartialBorder = theCell.getPartialBorder(direction);
 
         return !hasSolidBorder;
-        // } catch (e) {
-        //     this.log(e);
-        // }
-        //
-        // throw new Error("you should never get here");
     }
 
     timerTick(e) {
