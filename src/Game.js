@@ -6,6 +6,7 @@ import LevelEditPanel from "./LevelEditPanel";
 import DataSourceComponent from "./DataSourceComponent";
 import "./Game.css";
 import ContextMenu from "./ContextMenu";
+import GameHeader from "./GameHeader";
 
 class Game extends DataSourceComponent {
 
@@ -30,26 +31,48 @@ class Game extends DataSourceComponent {
         this.game.editMode = !this.game.editMode;
     }
 
+    editPanelStyle() {
+        if (this.game.editPanelEnabled) {
+            return {
+                display: "inline"
+            };
+        }
+
+        return {
+            display: "none"
+        };
+    }
+
     render() {
         return (<div className="Game">
             <div className="GameLevel">
-                <Level dataSource={this.level} gameObjectContainer={this.gameObjectContainer} />
+                <table className="GameArea">
+                    <GameHeader dataSource={this.gameObjectContainer.player} />
+                    <tbody>
+                        <tr>
+                            <td colSpan={3}>
+                                <Level dataSource={this.level} gameObjectContainer={this.gameObjectContainer} />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div className={this.game.editMode ? "GameLevelEditorPanel" : "GameLevelEditorPanelHide"}>
-                <div className="ButtonToggleEdit"
-                     onClick={(e) => this.buttonToggleEdit_Click(e)}>
-                    <div className="ButtonToggleEditText">
-                        {this.game.editMode ? "Play!" : "Edit!"}
+            <div style={this.editPanelStyle()}>
+                <div className={this.game.editMode ? "GameLevelEditorPanel" : "GameLevelEditorPanelHide"}>
+                    <div className="ButtonToggleEdit"
+                         onClick={(e) => this.buttonToggleEdit_Click(e)}>
+                        <div className="ButtonToggleEditText">
+                            {this.game.editMode ? "Play!" : "Edit!"}
+                        </div>
+                    </div>
+                    <div className="GamePanel">
+                        <LevelEditPanel dataSource={this.level}
+                                        onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)}/>
+                    </div>
+                    <div className="GamePanel">
+                        <ContextMenu dataSource={this.level.selectedCell} editMode={this.level.editMode}/>
                     </div>
                 </div>
-                <div className="GamePanel">
-                    <LevelEditPanel dataSource={this.level}
-                                    onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)}/>
-                </div>
-                <div className="GamePanel">
-                    <ContextMenu dataSource={this.level.selectedCell} editMode={this.level.editMode}/>
-                </div>
-
             </div>
         </div>);
     }

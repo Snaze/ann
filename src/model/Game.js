@@ -10,6 +10,15 @@ class Game extends DataSourceBase {
         this._editMode = false;
         this._level = this._wireUp("_level", LevelFactory.createLevel(levelName));
         this._gameObjectContainer = new GameObjectContainer(this._level);
+        this._editPanelEnabled = false;
+    }
+
+    get editPanelEnabled() {
+        return this._editPanelEnabled;
+    }
+
+    set editPanelEnabled(value) {
+        this._setValueAndRaiseOnChange("_editPanelEnabled", value);
     }
 
     get level() {

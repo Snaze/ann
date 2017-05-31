@@ -1,0 +1,12 @@
+.GameHeader {
+    color: orange;
+}
+
+.GameHeaderData {
+    color: white;
+}
+
+.GameHeaderCell {
+    vertical-align: middle;
+    text-align: center;
+}

@@ -82,3 +82,11 @@
     transform: rotate(-90deg) translateX(-90px);
 }
 
+@font-face {
+    font-family: PacFont;
+    src: url(./images/PAC-FONT.TTF);
+}
+
+.GameArea {
+    background: black;
+}

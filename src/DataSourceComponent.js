@@ -10,25 +10,15 @@ class DataSourceComponent extends Component {
             dataSource: props.dataSource
         };
         this._regexToIgnore = [];
+        this._propsToAccept = [];
         this._debug = false;
-        this._lastSource = "";
     }
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     // Is this wise to put here?
-    //     for (let i = 0; i < this._regexToIgnore.length; i++) {
-    //         if (this._regexToIgnore[i].test(this._lastSource)) {
-    //             this.log("Canceling update");
-    //             return false;
-    //         }
-    //     }
-    //
-    //     return true;
-    // }
+    shouldComponentUpdate(nextProps, nextState) {
+        return true;
+    }
 
     _dataSourceUpdated(e) {
-
-        this._lastSource = e.source;
 
         this.setState({
             dataSource: e.object
@@ -87,6 +77,10 @@ class DataSourceComponent extends Component {
                 dataSource: nextProps.dataSource
             });
         }
+    }
+
+    get propsToAccept() {
+        return this._propsToAccept;
     }
 }
 
