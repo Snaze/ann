@@ -131,3 +131,15 @@ it ("test getDirection", () => {
     expect(Location.getDirection(new Location(0, 1), new Location(0, 0)) === Direction.UP).toBe(true);
     expect(Location.getDirection(new Location(0, 0), new Location(5, 0)) === Direction.NONE).toBe(true);
 });
+
+it ("test distance", () =>  {
+    // SETUP
+    let leftLocation = new Location(0, 0);
+    let rightLocation = new Location(1, 0);
+
+    // CALL
+    let result = rightLocation.distance(leftLocation);
+
+    // ASSERT
+    expect(result).toBe(1.0);
+});

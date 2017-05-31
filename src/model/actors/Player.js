@@ -31,6 +31,7 @@ class Player extends ActorBase {
         this._spawnLocation = level.playerSpawnLocation.clone();
         this._score = 0;
         this._attackModeDuration = 8;
+        // this._attackModeDuration = 60;
         this._attackModeFinishTime = moment();
         this._prevLocation = this.location.clone();
         // this.debug = true;

@@ -9,9 +9,7 @@ class GhostBrainStrategyWander {
         let toRet = currentLocation;
 
         while (toRet.equals(currentLocation)) {
-            let numActiveCells = level.activeCells.length;
-            let randomIndex = Math.floor(Math.random() * numActiveCells);
-            toRet = level.activeCells[randomIndex].location.clone();
+            toRet = level.getRandomActiveCellLocation();
         }
 
         return toRet;

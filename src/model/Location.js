@@ -148,6 +148,47 @@ class Location extends DataSourceBase {
     toCellId() {
         return this.y + "_" + this.x;
     }
+
+    distance(otherLocation) {
+        return Math.sqrt(Math.pow((this.y - otherLocation.y), 2.0) + Math.pow((this.x - otherLocation.x), 2.0));
+    }
+
+    moveInDirection(direction, levelHeight, levelWidth) {
+        switch (direction) {
+            case Direction.DOWN:
+                if ((this.y + 1) < levelHeight) {
+                    this.y += 1;
+                } else {
+                    this.y = 0;
+                }
+                break;
+            case Direction.UP:
+                if ((this.y - 1) >= 0) {
+                    this.y -= 1;
+                } else {
+                    this.y = levelHeight - 1;
+                }
+                break;
+            case Direction.LEFT:
+                if ((this.x - 1) >= 0) {
+                    this.x -= 1;
+                } else {
+                    this.x = levelWidth - 1;
+                }
+                break;
+            case Direction.RIGHT:
+                if ((this.x + 1) < levelWidth) {
+                    this.x += 1;
+                } else {
+                    this.x = 0;
+                }
+                break;
+            case Direction.NONE:
+                break;
+            default:
+                throw new Error("invalid direction");
+        }
+    }
 }
 
 export default Location;

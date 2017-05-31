@@ -19,6 +19,29 @@ class Direction {
         return all.indexOf(value) > -1;
     }
 
+    static getOpposite(value) {
+        if (value === Direction.UP) {
+            return Direction.DOWN;
+        }
+
+        if (value === Direction.DOWN) {
+            return Direction.UP;
+        }
+
+        if (value === Direction.LEFT) {
+            return Direction.RIGHT;
+        }
+
+        if (value === Direction.RIGHT) {
+            return Direction.LEFT;
+        }
+
+        if (value === Direction.NONE) {
+            return Direction.NONE;
+        }
+
+        throw new Error("Invalid Direction Entered");
+    }
 
 }
 

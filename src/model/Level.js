@@ -277,6 +277,13 @@ class Level extends DataSourceBase {
         return this._activeCells;
     }
 
+    getRandomActiveCellLocation() {
+        let numActiveCells = this.activeCells.length;
+        let randomIndex = Math.floor(Math.random() * numActiveCells);
+        return this.activeCells[randomIndex].location.clone();
+        // return toRet;
+    }
+
     _getActiveCells() {
         let toRet = [];
 

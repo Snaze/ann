@@ -126,6 +126,19 @@ class EntityAnimationDebug extends Component {
                         modifier={Entity.MODIFIER_DIRECTION_LEFT}
                         animating={this.props.animating} />
 
+                <Entity designator={Entity.DESIGNATOR_FLASH_GHOST}
+                        modifier={Entity.MODIFIER_DIRECTION_UP}
+                        animating={this.props.animating} />
+                <Entity designator={Entity.DESIGNATOR_FLASH_GHOST}
+                        modifier={Entity.MODIFIER_DIRECTION_RIGHT}
+                        animating={this.props.animating} />
+                <Entity designator={Entity.DESIGNATOR_FLASH_GHOST}
+                        modifier={Entity.MODIFIER_DIRECTION_DOWN}
+                        animating={this.props.animating} />
+                <Entity designator={Entity.DESIGNATOR_FLASH_GHOST}
+                        modifier={Entity.MODIFIER_DIRECTION_LEFT}
+                        animating={this.props.animating} />
+
                 <Entity designator={Entity.DESIGNATOR_POWER_UP}
                         modifier={Entity.MODIFIER_POWER_UP_APPLE}
                         animating={this.props.animating} />

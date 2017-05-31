@@ -13,6 +13,7 @@ const pink_ghost = "pink_ghost";
 const blue_ghost = "blue_ghost";
 const scared_ghost = "scared_ghost";
 const dead_ghost = "dead_ghost";
+const flash_ghost = "flash_ghost";
 const power_up = "power_up";
 const act = "act";
 const eyes = "eyes";
@@ -146,6 +147,12 @@ const frame_mappings = {
         direction_right: ["Entity RowEntity GhostDead1", "Entity RowEntity GhostDead2"],
         direction_down: ["Entity RowEntity GhostDead1", "Entity RowEntity GhostDead2"]
     },
+    flash_ghost: {
+        direction_left: ["Entity RowEntity GhostScared1", "Entity RowEntity GhostDead2"],
+        direction_up: ["Entity RowEntity GhostScared1", "Entity RowEntity GhostDead2"],
+        direction_right: ["Entity RowEntity GhostScared1", "Entity RowEntity GhostDead2"],
+        direction_down: ["Entity RowEntity GhostScared1", "Entity RowEntity GhostDead2"]
+    },
     power_up: {
         power_up_cherry: ["Entity RowEntity Cherry"],
         power_up_strawberry: ["Entity RowEntity Strawberry"],
@@ -202,6 +209,7 @@ class Entity extends Component {
     static get DESIGNATOR_BLUE_GHOST() { return blue_ghost; }
     static get DESIGNATOR_SCARED_GHOST() { return scared_ghost; }
     static get DESIGNATOR_DEAD_GHOST() { return dead_ghost; }
+    static get DESIGNATOR_FLASH_GHOST() { return flash_ghost; }
     static get DESIGNATOR_POWER_UP() { return power_up; }
     static get DESIGNATOR_ACT() { return act; }
     static get DESIGNATOR_EYES() { return eyes; }

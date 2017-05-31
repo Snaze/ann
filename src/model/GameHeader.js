@@ -45,7 +45,7 @@ class GameHeader extends DataSourceBase {
     }
 
     persistHighScore() {
-        this.localStorageHighScore = Math.max(this.player1Score, this.player2Score, this.localStorageHighScore);
+        this.localStorageHighScore = Math.max(this.player1Score, this.player2Score, this.highScore);
     }
 
     _nestedDataSourceChanged(e) {

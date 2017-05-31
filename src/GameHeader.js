@@ -6,12 +6,12 @@ import {default as GameHeaderModel} from "./model/GameHeader";
 // import Player from "./model/actors/Player";
 
 class GameHeader extends DataSourceComponent {
-    constructor(props) {
-        super (props);
-
-        // this.propsToAccept.push("_score");
-        // this.debug = true;
-    }
+    // constructor(props) {
+    //     super (props);
+    //
+    //     // this.propsToAccept.push("_score");
+    //     // this.debug = true;
+    // }
 
     get gameHeader() {
         return this.dataSource;

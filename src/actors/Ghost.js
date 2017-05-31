@@ -44,6 +44,14 @@ class Ghost extends DataSourceComponent {
     }
 
     getGhostEntityColor() {
+        if (this.ghost.scaredState === GhostModel.SCARED_STATE_SCARED) {
+            return Entity.DESIGNATOR_SCARED_GHOST;
+        }
+
+        if (this.ghost.scaredState === GhostModel.SCARED_STATE_SCARED_FLASH) {
+            return Entity.DESIGNATOR_FLASH_GHOST;
+        }
+
         switch (this.ghost.color) {
             case GhostModel.RED:
                 return Entity.DESIGNATOR_RED_GHOST;
