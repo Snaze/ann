@@ -16,18 +16,29 @@ class Game extends DataSourceBase {
         return this._level;
     }
 
+    set level(value) {
+        if (this._level !== null) {
+            this._unWireForDestruction(this._level);
+            this._level = null;
+        }
+
+        let toSet = this._wireUp("_level", value);
+        this._gameObjectContainer.level = toSet;
+        this._setValueAndRaiseOnChange("_level", toSet);
+    }
+
     get editMode() {
         return this._editMode;
     }
 
     set editMode(value) {
-        this.level.editMode = value;
-        this.gameObjectContainer.editMode = value;
-
         if (value) {
+            this.reloadLevel();
             this.level.getCell(0, 0).selected = true;
         }
 
+        this.level.editMode = value;
+        this.gameObjectContainer.editMode = value;
         this._setValueAndRaiseOnChange("_editMode", value);
     }
 
@@ -37,6 +48,10 @@ class Game extends DataSourceBase {
 
     get gameObjectContainer() {
         return this._gameObjectContainer;
+    }
+
+    reloadLevel() {
+        this.level = LevelFactory.createLevel(this._levelName);
     }
 }
 
