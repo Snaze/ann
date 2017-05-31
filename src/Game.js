@@ -18,6 +18,10 @@ class Game extends DataSourceComponent {
         return this.game.gameObjectContainer;
     }
 
+    get gameHeader() {
+        return this.game.gameHeader;
+    }
+
     get game() {
         return this.dataSource;
     }
@@ -47,10 +51,14 @@ class Game extends DataSourceComponent {
         return (<div className="Game">
             <div className="GameLevel">
                 <table className="GameArea">
-                    <GameHeader dataSource={this.gameObjectContainer.player} />
                     <tbody>
                         <tr>
-                            <td colSpan={3}>
+                            <td>
+                                <GameHeader dataSource={this.gameHeader} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
                                 <Level dataSource={this.level} gameObjectContainer={this.gameObjectContainer} />
                             </td>
                         </tr>

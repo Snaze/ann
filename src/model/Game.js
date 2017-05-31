@@ -1,6 +1,7 @@
 import LevelFactory from "./LevelFactory";
 import DataSourceBase from "./DataSourceBase";
 import GameObjectContainer from "./GameObjectContainer";
+import GameHeader from "./GameHeader";
 
 class Game extends DataSourceBase {
     constructor(levelName="Level1") {
@@ -11,6 +12,7 @@ class Game extends DataSourceBase {
         this._level = this._wireUp("_level", LevelFactory.createLevel(levelName));
         this._gameObjectContainer = new GameObjectContainer(this._level);
         this._editPanelEnabled = false;
+        this._gameHeader = new GameHeader(this._gameObjectContainer.player, null);
     }
 
     get editPanelEnabled() {
@@ -61,6 +63,10 @@ class Game extends DataSourceBase {
 
     reloadLevel() {
         this.level = LevelFactory.createLevel(this._levelName);
+    }
+
+    get gameHeader() {
+        return this._gameHeader;
     }
 }
 

@@ -2,49 +2,53 @@ import React from 'react';
 import DataSourceComponent from "./DataSourceComponent";
 import "./GameHeader.css";
 import PropTypes from 'prop-types';
-import Player from "./model/actors/Player";
+import {default as GameHeaderModel} from "./model/GameHeader";
+// import Player from "./model/actors/Player";
 
 class GameHeader extends DataSourceComponent {
-    // constructor(props) {
-    //     super (props);
-    //
-    //
-    // }
+    constructor(props) {
+        super (props);
 
-    get player() {
+        // this.propsToAccept.push("_score");
+        // this.debug = true;
+    }
+
+    get gameHeader() {
         return this.dataSource;
     }
 
     render() {
-        return (<thead>
-            <tr className="GameHeader">
-                <th className="GameHeaderCell">
-                    1UP
-                </th>
-                <th className="GameHeaderCell">
-                    HI-SCORE
-                </th>
-                <th className="GameHeaderCell">
-                    2UP
-                </th>
-            </tr>
-            <tr className="GameHeaderData">
-                <th className="GameHeaderCell">
-                    {this.player.score}
-                </th>
-                <th className="GameHeaderCell">
-                    0
-                </th>
-                <th className="GameHeaderCell">
-                    0
-                </th>
-            </tr>
-        </thead>);
+        return (<table className="GameHeaderTable">
+            <tbody>
+                <tr className="GameHeader">
+                    <td className="GameHeaderCell">
+                        1UP
+                    </td>
+                    <td className="GameHeaderCell">
+                        HI-SCORE
+                    </td>
+                    <td className="GameHeaderCell">
+                        2UP
+                    </td>
+                </tr>
+                <tr className="GameHeaderData">
+                    <td className="GameHeaderCell">
+                        {this.gameHeader.player1Score}
+                    </td>
+                    <td className="GameHeaderCell">
+                        {this.gameHeader.highScore}
+                    </td>
+                    <td className="GameHeaderCell">
+                        {this.gameHeader.player2Score}
+                    </td>
+                </tr>
+            </tbody>
+        </table>);
     }
 }
 
 GameHeader.propTypes = {
-    dataSource: PropTypes.instanceOf(Player).isRequired
+    dataSource: PropTypes.instanceOf(GameHeaderModel).isRequired
 };
 
 export default GameHeader;

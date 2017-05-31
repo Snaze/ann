@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import _ from "../../../../node_modules/lodash/lodash";
 
 class DataSourceComponent extends Component {
     constructor(props) {
@@ -9,16 +10,36 @@ class DataSourceComponent extends Component {
         this.state = {
             dataSource: props.dataSource
         };
-        this._regexToIgnore = [];
-        this._propsToAccept = [];
+        // this._propsModifiedSinceUpdate = [];
+        // this._regexToIgnore = [];
+        // this._propsToAccept = [];
         this._debug = false;
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        return true;
-    }
+    // shouldComponentUpdate(nextProps, nextState) {
+    //
+    //     if (this._propsToAccept.length === 0) {
+    //         this._propsModifiedSinceUpdate = [];
+    //         this.log("shouldComponentUpdate = true");
+    //         return true;
+    //     }
+    //
+    //     if (this._propsToAccept.length > 0) {
+    //         let theIntersection = _.intersection(this._propsToAccept, this._propsModifiedSinceUpdate);
+    //         this._propsModifiedSinceUpdate = [];
+    //         let toRet = theIntersection.length > 0;
+    //         this.log("shouldComponentUpdate = " + toRet);
+    //         return toRet;
+    //     }
+    //
+    //     this._propsModifiedSinceUpdate = [];
+    //     this.log("shouldComponentUpdate = true");
+    //     return true;
+    // }
 
     _dataSourceUpdated(e) {
+
+        // this._propsModifiedSinceUpdate.push(e.source);
 
         this.setState({
             dataSource: e.object
@@ -77,10 +98,6 @@ class DataSourceComponent extends Component {
                 dataSource: nextProps.dataSource
             });
         }
-    }
-
-    get propsToAccept() {
-        return this._propsToAccept;
     }
 }
 
