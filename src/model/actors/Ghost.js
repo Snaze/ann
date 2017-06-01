@@ -151,6 +151,10 @@ class Ghost extends ActorBase {
         this._setValueAndRaiseOnChange("_killScore", value);
     }
 
+    resetBrain() {
+        this._ghostBrain.reset();
+    }
+
     // set isAlive(value) {
     //     if (value) {
     //         this.points.reset();

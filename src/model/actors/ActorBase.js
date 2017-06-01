@@ -155,6 +155,10 @@ class ActorBase extends DataSourceBase {
         this.location.setWithLocation(this._spawnLocation);
     }
 
+    resetDirection() {
+        this.direction = this._startDirection;
+    }
+
     get paused() {
         return this._paused;
     }

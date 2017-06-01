@@ -26,6 +26,28 @@ class GameObjectContainer extends DataSourceBase {
 
         this._gameTimerTickFinishedRef = (e) => this.gameTimerTickFinished(e);
         GameTimer.instance.addTickFinishedCallback(this._gameTimerTickFinishedRef);
+
+        this._currentPlayerDead = false;
+        this._restartLevelRef = null;
+    }
+
+    restartLevel(timeout=3000) {
+        this.moveAllBackToSpawn();
+
+        if (!this.player.isAlive) {
+            this.player.isAlive = true;
+            this.player.numLives = this.player.numLives - 1;
+        }
+
+        if (this.player.numLives === 0) {
+            alert ('Game Over');
+        } else {
+            let self = this;
+            setTimeout(function (e) {
+                self.paused = false;
+                self._restartLevelRef = null;
+            }, timeout);
+        }
     }
 
     _killIfCollision(thePlayer, theGhost, now) {
@@ -37,7 +59,16 @@ class GameObjectContainer extends DataSourceBase {
             } else {
                 // PLAYER IS DEAD SINCE PLAYER IS NOT ATTACKING
                 thePlayer.isAlive = false;
-                // console.log("Player DEAD");
+                this.paused = true;
+                this.currentPlayerDead = true;
+
+                if (this._restartLevelRef === null) {
+                    this._restartLevelRef = () => this.restartLevel();
+                    let self = this;
+                    setTimeout(function (e) {
+                        self.restartLevel();
+                    }, 3000);
+                }
             }
         }
     }
@@ -107,7 +138,30 @@ class GameObjectContainer extends DataSourceBase {
             if (typeof(gameObject.moveBackToSpawn) !== "undefined") {
                 gameObject.moveBackToSpawn();
             }
+
+            if (typeof(gameObject.resetDirection) !== "undefined") {
+                gameObject.resetDirection();
+            }
+
+            if (typeof(gameObject.resetBrain) !== "undefined") {
+                gameObject.resetBrain();
+            }
         });
+    }
+
+    set paused(value) {
+        this.iterateOverGameObjects(function (gameObject) {
+            gameObject.paused = value
+        });
+    }
+
+
+    get currentPlayerDead() {
+        return this._currentPlayerDead;
+    }
+
+    set currentPlayerDead(value) {
+        this._setValueAndRaiseOnChange("_currentPlayerDead", value);
     }
 }
 

@@ -29,6 +29,7 @@ const direction_left = "direction_left";
 const direction_up = "direction_up";
 const direction_right = "direction_right";
 const direction_down = "direction_down";
+const dead = "dead";
 
 const power_up_cherry = "power_up_cherry";
 const power_up_strawberry = "power_up_strawberry";
@@ -85,6 +86,12 @@ const frame_mappings = {
             "Entity RowEntity MrsPacManDownClose",
             "Entity RowEntity MrsPacManDownMid"
         ],
+        dead: [
+            "Entity RowEntity MrsPacManLeftMid",
+            "Entity RowEntity MrsPacManUpMid",
+            "Entity RowEntity MrsPacManRightMid",
+            "Entity RowEntity MrsPacManDownMid"
+        ]
     },
     pac_man: {
         direction_left: [
@@ -111,6 +118,12 @@ const frame_mappings = {
             "Entity RowEntity PacManDownClose",
             "Entity RowEntity PacManDownMid"
         ],
+        dead: [
+            "Entity RowEntity PacManLeftMid",
+            "Entity RowEntity PacManUpMid",
+            "Entity RowEntity PacManRightMid",
+            "Entity RowEntity PacManDownMid"
+        ]
     },
     red_ghost: {
         direction_left: ["Entity RowEntity GhostRedLeft1", "Entity RowEntity GhostRedLeft2"],
@@ -228,6 +241,7 @@ class Entity extends Component {
     static get MODIFIER_DIRECTION_LEFT() { return direction_left }
     static get MODIFIER_DIRECTION_RIGHT() { return direction_right; }
     static get MODIFIER_DIRECTION_DOWN() { return direction_down; }
+    static get MODIFIER_DEAD() { return dead; }
 
     static get MODIFIER_POWER_UP_CHERRY() { return power_up_cherry; }
     static get MODIFIER_POWER_UP_STRAWBERRY() { return power_up_strawberry; }

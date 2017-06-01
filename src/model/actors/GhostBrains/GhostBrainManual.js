@@ -58,6 +58,10 @@ class GhostBrainManual {
         return this._currentGhostBrainStrategy.cellTransitionDuration;
     }
 
+    reset() {
+        this.enterState(GhostBrainManual.GHOST_STATE_HOLDING_PIN);
+    }
+
     enterState(state) {
         this._currentState = state;
 

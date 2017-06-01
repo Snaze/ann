@@ -55,11 +55,19 @@ class Player extends DataSourceComponent {
         }
     }
 
+    getPlayerModifier() {
+        if (this.player.isAlive) {
+            return this.player.direction;
+        }
+
+        return Entity.MODIFIER_DEAD;
+    }
+
     render() {
         return (
             <div className="Player" style={this.getEntityStyle(this.player.location)}>
                 <Entity designator={this.getPlayerEntityGender()}
-                            modifier={this.player.direction}
+                            modifier={this.getPlayerModifier()}
                             animating={this.props.animating} />
             </div>);
     }

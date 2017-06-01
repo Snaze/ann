@@ -34,6 +34,9 @@ class EntityAnimationDebug extends Component {
                 <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
                         modifier={Entity.MODIFIER_DIRECTION_LEFT}
                         animating={this.props.animating} />
+                    <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
+                            modifier={Entity.MODIFIER_DEAD}
+                            animating={this.props.animating} />
 
                 <Entity designator={Entity.DESIGNATOR_PAC_MAN}
                         modifier={Entity.MODIFIER_DIRECTION_UP}
@@ -47,6 +50,9 @@ class EntityAnimationDebug extends Component {
                 <Entity designator={Entity.DESIGNATOR_PAC_MAN}
                         modifier={Entity.MODIFIER_DIRECTION_LEFT}
                         animating={this.props.animating} />
+            <Entity designator={Entity.DESIGNATOR_PAC_MAN}
+                    modifier={Entity.MODIFIER_DEAD}
+                    animating={this.props.animating} />
 
                 <Entity designator={Entity.DESIGNATOR_RED_GHOST}
                         modifier={Entity.MODIFIER_DIRECTION_UP}
