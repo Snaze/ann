@@ -40,7 +40,7 @@ class GhostBrainManual {
         this._currentState = null;
         this._endHoldingPinTime = null;
         this._attackStateExpiration = moment();
-        this._holdingPinDuration = 10.0;
+        this._holdingPinDuration = 5.0;
 
         this.enterState(GhostBrainManual.GHOST_STATE_HOLDING_PIN);
     }
@@ -123,6 +123,7 @@ class GhostBrainManual {
             case GhostBrainManual.GHOST_STATE_DEAD:
                 if (ghost.location.equals(ghost.spawnLocation)) {
                     ghost.isAlive = true;
+                    ghost.points.reset();
                     this.enterState(GhostBrainManual.GHOST_STATE_WANDER);
                 }
                 break;

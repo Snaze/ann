@@ -5,6 +5,7 @@ import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import DataSourceComponent from "./DataSourceComponent";
 import PropTypes from 'prop-types';
+import Points from "./Points";
 
 class GameEntities extends DataSourceComponent {
 
@@ -27,6 +28,11 @@ class GameEntities extends DataSourceComponent {
                 <Ghost dataSource={this.gameObjectContainer.ghostBlue} />
                 <Ghost dataSource={this.gameObjectContainer.ghostPink} />
                 <Ghost dataSource={this.gameObjectContainer.ghostOrange} />
+
+                <Points dataSource={this.gameObjectContainer.ghostRed.points} />
+                <Points dataSource={this.gameObjectContainer.ghostBlue.points} />
+                <Points dataSource={this.gameObjectContainer.ghostPink.points} />
+                <Points dataSource={this.gameObjectContainer.ghostOrange.points} />
             </div>);
     }
 }

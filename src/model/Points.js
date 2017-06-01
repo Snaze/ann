@@ -36,6 +36,12 @@ class Points extends DataSourceBase {
 
     }
 
+    reset() {
+        this.pointsType = Points.POINTS_TYPE_NONE;
+        this.amount = 0;
+        this.location.set(-1, -1);
+    }
+
     removeAllCallbacks() {
         super.removeAllCallbacks();
 
@@ -59,12 +65,14 @@ class Points extends DataSourceBase {
 
     _resetFadeTime() {
         let now = moment();
-        this._fadeTime = now.clone().add(1, "s");
-        this._vanishTime = now.clone().add(2, "s");
+        this._fadeTime = now.clone().add(2, "s");
+        this._vanishTime = now.clone().add(4, "s");
     }
 
     _nestedDataSourceChanged(e) {
+
         this._resetFadeTime();
+        super._nestedDataSourceChanged(e);
     }
 
     get pointsType() {
@@ -76,8 +84,8 @@ class Points extends DataSourceBase {
             throw new Error("Invalid Points Type");
         }
 
-        this._setValueAndRaiseOnChange("_pointsType", value);
         this._resetFadeTime();
+        this._setValueAndRaiseOnChange("_pointsType", value);
     }
 
     get amount() {
@@ -89,8 +97,8 @@ class Points extends DataSourceBase {
             throw new Error("Points should be positive");
         }
 
-        this._setValueAndRaiseOnChange("_amount", value);
         this._resetFadeTime();
+        this._setValueAndRaiseOnChange("_amount", value);
     }
 
     get location() {

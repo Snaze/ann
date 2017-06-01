@@ -6,6 +6,12 @@ import Cell from "./Cell";
 import Entity from "./Entity";
 
 class Points extends DataSourceComponent {
+    constructor(props) {
+        super(props);
+
+        this.debug = false;
+    }
+
     static modifierScoreMapping = {
         "ghost_kill": {
             200: Entity.MODIFIER_BIG_SCORE_200,
@@ -57,6 +63,8 @@ class Points extends DataSourceComponent {
                 toRet.opacity = 0;
 
                 // console.log("component - fade");
+            } else {
+                // console.log("component - visible");
             }
         }
 
@@ -70,6 +78,7 @@ class Points extends DataSourceComponent {
             case PointsModel.POINTS_TYPE_POWER_UP:
                 return Entity.DESIGNATOR_ROW_SCORE;
             default:
+                this.log("warn: Entity.DESIGNATOR_NONE");
                 return Entity.DESIGNATOR_NONE;
         }
     }
@@ -79,16 +88,19 @@ class Points extends DataSourceComponent {
             case PointsModel.POINTS_TYPE_GHOST_KILL:
                 let toRet = Points.modifierScoreMapping["ghost_kill"][this.points.amount];
                 if (typeof(toRet) === "undefined") {
+                    this.log("warn: Entity.MODIFIER_NO_MODIFIER 1");
                     return Entity.MODIFIER_NO_MODIFIER;
                 }
                 return toRet;
             case PointsModel.POINTS_TYPE_POWER_UP:
                 let toRet2 = Points.modifierScoreMapping["power_up"][this.points.amount];
                 if (typeof(toRet2) === "undefined") {
+                    this.log("warn: Entity.MODIFIER_NO_MODIFIER 2");
                     return Entity.MODIFIER_NO_MODIFIER;
                 }
                 return toRet2;
             default:
+                this.log("warn: Entity.MODIFIER_NO_MODIFIER 3");
                 return Entity.MODIFIER_NO_MODIFIER;
 
         }
