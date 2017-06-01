@@ -2,6 +2,7 @@ import ActorBase from "./ActorBase";
 import _ from "../../../node_modules/lodash/lodash";
 import GhostBrainManual from "./GhostBrains/GhostBrainManual";
 import Player from "./Player";
+import Points from "../Points";
 
 const red = 0;
 const blue = 1;
@@ -65,6 +66,8 @@ class Ghost extends ActorBase {
         this._ghostBrain = new GhostBrainManual();
         this._scaredState = Ghost.SCARED_STATE_NOT_SCARED;
         this._prevLocation = this.location.clone();
+        this._killScore = 0;
+        this._points = this._wireUp("_points", new Points());
     }
 
     _nestedDataSourceChanged(e) {
@@ -133,6 +136,23 @@ class Ghost extends ActorBase {
 
     get prevLocation() {
         return this._prevLocation;
+    }
+
+    get killScore() {
+        return this._killScore;
+    }
+
+    set killScore(value) {
+        if (value !== this._killScore) {
+            this.points.amount = value;
+            this.points.pointsType = Points.POINTS_TYPE_GHOST_KILL;
+            this.points.location.setWithLocation(this.location);
+        }
+        this._setValueAndRaiseOnChange("_killScore", value);
+    }
+
+    get points() {
+        return this._points;
     }
 }
 

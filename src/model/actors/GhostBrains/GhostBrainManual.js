@@ -82,7 +82,6 @@ class GhostBrainManual {
                 break;
             default:
                 throw new Error("Unknown Strategy");
-                break;
         }
     }
 
@@ -115,7 +114,8 @@ class GhostBrainManual {
             case GhostBrainManual.GHOST_STATE_SCARED:
                 if (!ghost.isAlive) {
                     this.enterState(GhostBrainManual.GHOST_STATE_DEAD);
-                    player.score += GhostBrainManual.nextKillScore;
+                    ghost.killScore = GhostBrainManual.nextKillScore;
+                    player.score += ghost.killScore;
                 } else if (moment() >= player.attackModeFinishTime) {
                     this.enterState(GhostBrainManual.GHOST_STATE_WANDER);
                 }

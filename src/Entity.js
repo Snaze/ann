@@ -22,6 +22,7 @@ const tiny_icon = "tiny_icon";
 const swan = "swan";
 const big_score = "big_score";
 const row_score = "row_score";
+const none = "none";
 
 /** MODIFIERS **/
 const direction_left = "direction_left";
@@ -196,6 +197,9 @@ const frame_mappings = {
         row_score_1000: ["Entity RowEntity Score1000"],
         row_score_2000: ["Entity RowEntity Score2000"],
         row_score_5000: ["Entity RowEntity Score5000"]
+    },
+    none: {
+        no_modifier: ["EntityInvisible"]
     }
 };
 
@@ -218,6 +222,7 @@ class Entity extends Component {
     static get DESIGNATOR_SWAN() { return swan; }
     static get DESIGNATOR_BIG_SCORE() { return big_score; }
     static get DESIGNATOR_ROW_SCORE() { return row_score; }
+    static get DESIGNATOR_NONE() { return none; }
 
     static get MODIFIER_DIRECTION_UP() { return direction_up; }
     static get MODIFIER_DIRECTION_LEFT() { return direction_left }
@@ -287,6 +292,13 @@ class Entity extends Component {
 
     currentClassName() {
         let frames = frame_mappings[this.props.designator][this.props.modifier];
+        if (typeof(frames) === "undefined") {
+            throw new Error("Invalid Mapping Detected between " +
+                this.props.designator +
+                " and " +
+                this.props.modifier);
+        }
+
         let frameNumber = this.state.stepNumber % frames.length;
         return frames[frameNumber];
     }

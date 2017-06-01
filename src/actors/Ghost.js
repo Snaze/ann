@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import DataSourceComponent from "../DataSourceComponent";
 import {default as GhostModel} from "../model/actors/Ghost";
 import Cell from "../Cell";
+import Points from "../Points";
 
 class Ghost extends DataSourceComponent {
 
@@ -72,10 +73,13 @@ class Ghost extends DataSourceComponent {
 
     render() {
         return (
-            <div className="Ghost" style={this.getEntityStyle(this.ghost.location)}>
-                <Entity designator={this.getGhostEntityColor()}
-                            modifier={this.ghost.direction}
-                            animating={this.props.animating} />
+            <div className="Ghost">
+                <div style={this.getEntityStyle(this.ghost.location)}>
+                    <Entity designator={this.getGhostEntityColor()}
+                                modifier={this.ghost.direction}
+                                animating={this.props.animating} />
+                </div>
+                <Points dataSource={this.dataSource.points} />
             </div>);
     }
 }

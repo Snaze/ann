@@ -20,7 +20,8 @@ class GhostBrainStrategyWander {
             this._destinationLocation = ghost.location;
         }
 
-        if (this._destinationLocation.equals(ghost.location)) {
+        if ((this._destinationLocation.equals(ghost.location)) ||
+            (ghost.prevLocation.equals(ghost.location))) { // THIS CHECK HERE IS SO THEY DONT GET STUCK ON PARTIAL BORDER
             this._destinationLocation = GhostBrainStrategyWander._getRandomLocation(ghost.location, level);
         }
 

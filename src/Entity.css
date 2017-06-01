@@ -9,6 +9,10 @@
     height: 28px;
 }
 
+.EntityInvisible {
+    display: none;
+}
+
 /** MRS PAC MAN **/
 
 .MrsPacManRightOpen {

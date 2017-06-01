@@ -70,6 +70,7 @@ class GameTimer {
         this._steps = [0, 0, 0, 0, 0, 0];
         this._eventer = new Eventer();
         this._tickFinishedEventer = new Eventer();
+        this._intervalEventers = {};
     }
 
     static get instance() {
@@ -94,8 +95,17 @@ class GameTimer {
             }
         }
 
+        // LEAVE THIS COMMENT IN HERE.  YOU MAY WANT THIS AT SOME POINT
+        this._iterateOverIntervalEventer(function (intervalObject) {
+            if (now >= intervalObject.nextTime) {
+                intervalObject.eventer.raiseEvent(this);
+                intervalObject.tickFinishedEventer.raiseEvent(this);
+                intervalObject.nextTime = moment().add(intervalObject.timeInMilliSec, "ms");
+            }
+        });
+
         this._eventer.raiseEvent(this._steps);
-        this._tickFinishedEventer.raiseEvent();
+        this._tickFinishedEventer.raiseEvent(this);
     }
 
     getStepNumber(timeIndex) {
@@ -110,6 +120,36 @@ class GameTimer {
         this._tickFinishedEventer.addCallback(theCallback);
     }
 
+    addIntervalCallback(theCallback, timeInMilliSec) {
+        this._createIntervalEventer(timeInMilliSec);
+
+        this._intervalEventers[timeInMilliSec].eventer.addCallback(theCallback);
+    }
+
+    addTickFinishedIntervalCallback(theCallback, timeInMilliSec) {
+        this._createIntervalEventer(timeInMilliSec);
+        this._intervalEventers[timeInMilliSec].tickFinishedEventer.addCallback(theCallback);
+    }
+
+    _createIntervalEventer(timeInMilliSec) {
+        if (typeof(this._intervalEventers[timeInMilliSec]) === "undefined") {
+            this._intervalEventers[timeInMilliSec] = {
+                timeInMilliSec: timeInMilliSec,
+                nextTime: moment().add(timeInMilliSec, "ms"),
+                eventer: new Eventer(),
+                tickFinishedEventer: new Eventer()
+            };
+        }
+    }
+
+    removeIntervalCallback(theCallback, timeInMilliSec) {
+        this._intervalEventers[timeInMilliSec].eventer.removeCallback(theCallback);
+    }
+
+    removeTickFinishedIntervalCallback(theCallback, timeInMilliSec) {
+        this._intervalEventers[timeInMilliSec].tickFinishedEventer.removeCallback(theCallback);
+    }
+
     removeCallback(theCallback) {
         this._eventer.removeCallback(theCallback);
     }
@@ -121,6 +161,18 @@ class GameTimer {
     removeAllCallbacks() {
         this._eventer.removeAllCallbacks();
         this._tickFinishedEventer.removeAllCallbacks();
+        this._iterateOverIntervalEventer(function (intervalObject) {
+            intervalObject.eventer.removeAllCallbacks();
+            intervalObject.tickFinishedEventer.removeAllCallbacks();
+        });
+    }
+
+    _iterateOverIntervalEventer(callback) {
+        for (let prop in this._intervalEventers) {
+            if (this._intervalEventers.hasOwnProperty(prop)) {
+                callback(this._intervalEventers[prop]);
+            }
+        }
     }
 }
 
