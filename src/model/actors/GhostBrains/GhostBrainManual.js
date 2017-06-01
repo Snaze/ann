@@ -4,72 +4,58 @@ import GhostBrainStrategyWander from "./GhostBrainStrategies/GhostBrainStrategyW
 import Direction from "../../../utils/Direction";
 import GhostBrainStrategyAttack from "./GhostBrainStrategies/GhostBrainStrategyAttack";
 import GhostBrainStrategyScared from "./GhostBrainStrategies/GhostBrainStrategyScared";
+import GhostBrainStrategyDead from "./GhostBrainStrategies/GhostBrainStrategyDead";
 
 const ghost_state_wander = 0;
 const ghost_state_holding_pin = 1;
 const ghost_state_attack = 2;
 const ghost_state_scared = 3;
+const ghost_state_dead = 4;
 
 class GhostBrainManual {
     static get GHOST_STATE_WANDER() { return ghost_state_wander; }
     static get GHOST_STATE_HOLDING_PIN() { return ghost_state_holding_pin; }
     static get GHOST_STATE_ATTACK() { return ghost_state_attack; }
     static get GHOST_STATE_SCARED() { return ghost_state_scared; }
+    static get GHOST_STATE_DEAD() { return ghost_state_dead; }
+
+    static _nextKillScore = 100;
+    static get nextKillScore() {
+        GhostBrainManual._nextKillScore *= 2;
+        return GhostBrainManual._nextKillScore;
+    }
+
+    static resetNextKillScore() {
+        GhostBrainManual._nextKillScore = 100;
+    }
 
     constructor() {
         this._ghostBrainStrategyHoldingPin = new GhostBrainStrategyHoldingPin();
         this._ghostBrainStrategyWander = new GhostBrainStrategyWander();
         this._ghostBrainStrategyAttack = new GhostBrainStrategyAttack();
         this._ghostBrainStrategyScared = new GhostBrainStrategyScared();
+        this._ghostBrainStrategyDead = new GhostBrainStrategyDead();
+        this._currentGhostBrainStrategy = null;
 
         this._currentState = null;
         this._endHoldingPinTime = null;
         this._attackStateExpiration = moment();
-        this._holdingPinDuration = 15.0;
+        this._holdingPinDuration = 10.0;
 
         this.enterState(GhostBrainManual.GHOST_STATE_HOLDING_PIN);
     }
 
     getNextDirection(ghost, player, level) {
         this._changeStateIfNeeded(ghost, player, level);
-
-        let toRet = null;
-
-        if (this._currentState === GhostBrainManual.GHOST_STATE_HOLDING_PIN) {
-            toRet = this._ghostBrainStrategyHoldingPin.getNextDirection(ghost, player, level);
-        } else if (this._currentState === GhostBrainManual.GHOST_STATE_WANDER) {
-            toRet = this._ghostBrainStrategyWander.getNextDirection(ghost, player, level);
-        } else if (this._currentState === GhostBrainManual.GHOST_STATE_ATTACK) {
-            toRet = this._ghostBrainStrategyAttack.getNextDirection(ghost, player, level);
-        } else if (this._currentState === GhostBrainManual.GHOST_STATE_SCARED) {
-            toRet = this._ghostBrainStrategyScared.getNextDirection(ghost, player, level);
+        if (player.attackModeFinishTime <= moment()) {
+            GhostBrainManual.resetNextKillScore();
         }
 
-        if ((typeof(toRet) === "undefined") || (toRet === null)) {
-            throw new Error("direction is undefined");
-        }
-
-        return toRet;
+        return this._currentGhostBrainStrategy.getNextDirection(ghost, player, level);
     }
 
     get cellTransitionDuration() {
-        if (this._currentState === GhostBrainManual.GHOST_STATE_HOLDING_PIN) {
-            return this._ghostBrainStrategyHoldingPin.cellTransitionDuration;
-        }
-
-        if (this._currentState === GhostBrainManual.GHOST_STATE_WANDER) {
-            return this._ghostBrainStrategyWander.cellTransitionDuration;
-        }
-
-        if (this._currentState === GhostBrainManual.GHOST_STATE_ATTACK) {
-            return this._ghostBrainStrategyAttack.cellTransitionDuration;
-        }
-
-        if (this._currentState === GhostBrainManual.GHOST_STATE_SCARED) {
-            return this._ghostBrainStrategyScared.cellTransitionDuration;
-        }
-
-        throw new Error("You should never get here");
+        return this._currentGhostBrainStrategy.cellTransitionDuration;
     }
 
     enterState(state) {
@@ -79,16 +65,23 @@ class GhostBrainManual {
             case GhostBrainManual.GHOST_STATE_HOLDING_PIN:
                 let randomValue = Math.floor(Math.random() * this._holdingPinDuration);
                 this._endHoldingPinTime = moment().add(randomValue, "s");
+                this._currentGhostBrainStrategy = this._ghostBrainStrategyHoldingPin;
                 break;
             case GhostBrainManual.GHOST_STATE_WANDER:
+                this._currentGhostBrainStrategy = this._ghostBrainStrategyWander;
                 break;
             case GhostBrainManual.GHOST_STATE_ATTACK:
                 this._attackStateExpiration = moment().add(this._ghostBrainStrategyAttack.attackExpirationDuration, "s");
+                this._currentGhostBrainStrategy = this._ghostBrainStrategyAttack;
                 break;
             case GhostBrainManual.GHOST_STATE_SCARED:
-
+                this._currentGhostBrainStrategy = this._ghostBrainStrategyScared;
+                break;
+            case GhostBrainManual.GHOST_STATE_DEAD:
+                this._currentGhostBrainStrategy = this._ghostBrainStrategyDead;
                 break;
             default:
+                throw new Error("Unknown Strategy");
                 break;
         }
     }
@@ -120,7 +113,16 @@ class GhostBrainManual {
                 }
                 break;
             case GhostBrainManual.GHOST_STATE_SCARED:
-                if (moment() >= player.attackModeFinishTime) {
+                if (!ghost.isAlive) {
+                    this.enterState(GhostBrainManual.GHOST_STATE_DEAD);
+                    player.score += GhostBrainManual.nextKillScore;
+                } else if (moment() >= player.attackModeFinishTime) {
+                    this.enterState(GhostBrainManual.GHOST_STATE_WANDER);
+                }
+                break;
+            case GhostBrainManual.GHOST_STATE_DEAD:
+                if (ghost.location.equals(ghost.spawnLocation)) {
+                    ghost.isAlive = true;
                     this.enterState(GhostBrainManual.GHOST_STATE_WANDER);
                 }
                 break;

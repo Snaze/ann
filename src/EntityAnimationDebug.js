@@ -79,7 +79,7 @@ class EntityAnimationDebug extends Component {
                         animating={this.props.animating} />
                 <Entity designator={Entity.DESIGNATOR_ORANGE_GHOST}
                         modifier={Entity.MODIFIER_DIRECTION_RIGHT}
-                         />
+                        animating={this.props.animating} />
                 <Entity designator={Entity.DESIGNATOR_ORANGE_GHOST}
                         modifier={Entity.MODIFIER_DIRECTION_DOWN}
                         animating={this.props.animating} />
