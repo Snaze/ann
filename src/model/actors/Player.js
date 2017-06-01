@@ -32,10 +32,9 @@ class Player extends ActorBase {
         this._score = 0;
         this._dotsEaten = 0;
         this._attackModeDuration = 8;
-        // this._attackModeDuration = 60;
         this._attackModeFinishTime = moment();
         this._prevLocation = this.location.clone();
-        // this.debug = true;
+        this._numLives = 3;
     }
 
     _nestedDataSourceChanged(e) {
@@ -132,6 +131,14 @@ class Player extends ActorBase {
 
     get dotsEaten() {
         return this._dotsEaten;
+    }
+
+    get numLives() {
+        return this._numLives;
+    }
+
+    set numLives(value) {
+        this._setValueAndRaiseOnChange("_numLives", value);
     }
 }
 

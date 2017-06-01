@@ -1,10 +1,19 @@
 import GameObjectContainer from "./GameObjectContainer";
 import Level from "./Level";
 import Location from "./Location";
+// import Player from "./actors/Player";
 
 it ("Constructor works", () => {
     let theLevel = new Level();
     new GameObjectContainer(theLevel);
+});
+
+it ("Player2 is not undefined", () => {
+    let theLevel = new Level();
+    let goc = new GameObjectContainer(theLevel);
+
+    expect(goc.player2 !== null).toBe(true);
+    expect(goc.player2.numLives > 0).toBe(true);
 });
 
 it ("Get Level works", () => {

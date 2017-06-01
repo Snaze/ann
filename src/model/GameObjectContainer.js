@@ -9,6 +9,7 @@ class GameObjectContainer extends DataSourceBase {
         super();
 
         this._player = this._wireUp("_player", new Player(level, Player.MR_PAC_MAN));
+        this._player2 = this._wireUp("_player2", new Player(level, Player.MRS_PAC_MAN));
         this._ghostRed = this._wireUp("_ghostRed", new Ghost(level, Ghost.RED, this._player));
         this._ghostBlue = this._wireUp("_ghostBlue", new Ghost(level, Ghost.BLUE, this._player));
         this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
@@ -16,6 +17,7 @@ class GameObjectContainer extends DataSourceBase {
 
         this._gameObjects = [
             this._player,
+            this._player2,
             this._ghostRed,
             this._ghostBlue,
             this._ghostPink,
@@ -52,6 +54,10 @@ class GameObjectContainer extends DataSourceBase {
 
     get player() {
         return this._player;
+    }
+
+    get player2() {
+        return this._player2;
     }
 
     get ghostRed() {

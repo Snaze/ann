@@ -1,4 +1,4 @@
-import DataSourceBase from "./DataSourceBase"
+import DataSourceBase from "./DataSourceBase";
 
 class GameHeader extends DataSourceBase {
     constructor(player1, player2) {

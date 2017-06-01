@@ -2,6 +2,7 @@ import LevelFactory from "./LevelFactory";
 import DataSourceBase from "./DataSourceBase";
 import GameObjectContainer from "./GameObjectContainer";
 import GameHeader from "./GameHeader";
+import GameFooter from "./GameFooter";
 
 class Game extends DataSourceBase {
     constructor(levelName="Level1") {
@@ -13,10 +14,17 @@ class Game extends DataSourceBase {
         this._gameObjectContainer = new GameObjectContainer(this._level);
         this._editPanelEnabled = true;
         this._gameHeader = new GameHeader(this._gameObjectContainer.player, null);
+        this._gameFooter = new GameFooter(this._gameObjectContainer.player,
+                                          this._gameObjectContainer.player2,
+                                          1, GameFooter.ACTIVE_PLAYER_1);
     }
 
     get editPanelEnabled() {
         return this._editPanelEnabled;
+    }
+
+    get gameFooter() {
+        return this._gameFooter;
     }
 
     set editPanelEnabled(value) {

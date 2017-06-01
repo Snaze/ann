@@ -7,6 +7,7 @@ import DataSourceComponent from "./DataSourceComponent";
 import "./Game.css";
 import ContextMenu from "./ContextMenu";
 import GameHeader from "./GameHeader";
+import GameFooter from "./GameFooter";
 
 class Game extends DataSourceComponent {
 
@@ -16,6 +17,10 @@ class Game extends DataSourceComponent {
 
     get gameObjectContainer() {
         return this.game.gameObjectContainer;
+    }
+
+    get gameFooter() {
+        return this.game.gameFooter;
     }
 
     get gameHeader() {
@@ -60,6 +65,11 @@ class Game extends DataSourceComponent {
                         <tr>
                             <td>
                                 <Level dataSource={this.level} gameObjectContainer={this.gameObjectContainer} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <GameFooter dataSource={this.gameFooter} />
                             </td>
                         </tr>
                     </tbody>
