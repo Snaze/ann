@@ -3,6 +3,7 @@ import Player from "./actors/Player";
 import Ghost from "./actors/Ghost";
 import GameTimer from "./GameTimer";
 import moment from "../../node_modules/moment/moment";
+import PowerUp from "./actors/PowerUp";
 
 class GameObjectContainer extends DataSourceBase {
     constructor(level) {
@@ -14,6 +15,8 @@ class GameObjectContainer extends DataSourceBase {
         this._ghostBlue = this._wireUp("_ghostBlue", new Ghost(level, Ghost.BLUE, this._player));
         this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
         this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE, this._player));
+        // this._powerUp = this._wireUp("_powerUp", new PowerUp(level, PowerUp.POWER_UP_CHERRY));
+        // YOU ARE HERE, WIRING UP THE POWER UP
 
         this._gameObjects = [
             this._player,
@@ -22,6 +25,7 @@ class GameObjectContainer extends DataSourceBase {
             this._ghostBlue,
             this._ghostPink,
             this._ghostOrange
+            // this._powerUp
         ];
 
         this._gameTimerTickFinishedRef = (e) => this.gameTimerTickFinished(e);

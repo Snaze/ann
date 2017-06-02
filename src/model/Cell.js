@@ -314,6 +314,34 @@ class Cell extends DataSourceBase {
 
         return false;
     }
+
+    isTeleportCell(width, height) {
+        if (!this.solidBorder.top &&
+            !this.partialBorder.top &&
+            (this.location.y === 0)) {
+            return true;
+        }
+
+        if (!this.solidBorder.left &&
+            !this.partialBorder.left &&
+            (this.location.x === 0)) {
+            return true;
+        }
+
+        if (!this.solidBorder.bottom &&
+            !this.partialBorder.bottom &&
+            (this.location.y === (height - 1))) {
+            return true;
+        }
+
+        if (!this.solidBorder.right &&
+            !this.partialBorder.right &&
+            (this.location.x === (width - 1))) {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 export default Cell;

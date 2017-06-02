@@ -18,11 +18,11 @@ const modifierMap = {
 
 class GameFooter extends DataSourceComponent {
 
-    constructor(props) {
-        super(props);
-
-        this.debug = true;
-    }
+    // constructor(props) {
+    //     super(props);
+    //
+    //     // this.debug = true;
+    // }
 
     get gameFooter() {
         return this.dataSource;

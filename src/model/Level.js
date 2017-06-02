@@ -5,9 +5,19 @@ import DataSourceBase from "./DataSourceBase";
 import {default as LocationModel} from "./Location";
 import KeyEventer from "../utils/KeyEventer";
 import FloydWarshall from "./util/FloydWarshall";
+import Dot from "./Dot";
 
 const default_width = 26;
 const default_height = 26;
+const powerUps = [
+    "Cherry",
+    "Strawberry",
+    "Orange",
+    "Pretzel",
+    "Apple",
+    "Pear",
+    "Banana"
+];
 
 class Level extends DataSourceBase {
 
@@ -38,6 +48,7 @@ class Level extends DataSourceBase {
         let width = jsonObject._width;
         let height = jsonObject._height;
         let toRet = new Level(width, height);
+
         let currentCell = null;
         let currentDataCell = null;
         let conditionalAssignCell = function(property) {
@@ -94,6 +105,14 @@ class Level extends DataSourceBase {
             toRet._borderIsDirty = false;
         }
 
+        if (typeof(jsonObject._numDots) !== "undefined") {
+            toRet._numDots = jsonObject._numDots;
+        }
+
+        if (typeof(jsonObject._powerUpSpawns) !== "undefined") {
+            toRet._powerUpSpawns = jsonObject._powerUpSpawns;
+        }
+
         // let conditionalAssignEntityLocation = function (jsonObject, jsonObjectProperty, toRetProperty) {
         //     if (typeof(jsonObject[jsonObjectProperty]) !== "undefined") {
         //         let x = jsonObject[jsonObjectProperty]._x;
@@ -111,16 +130,20 @@ class Level extends DataSourceBase {
         return toRet;
     }
 
-    constructor(width=default_width, height=default_height) {
+    constructor(width=default_width, height=default_height, levelNum=1) {
         super();
 
         this._width = width;
         this._height = height;
+        this._levelNum = levelNum;
         let theGameMatrix = Level.constructGameMatrix(this._width, this._height);
         this._wireUpGameMatrix(theGameMatrix);
         this._gameMatrix = theGameMatrix;
         this._floydWarshall = null;
         this._borderIsDirty = true;
+        this._numDots = null;
+        this._powerUpSpawns = null;
+        this._powerUps = null;
 
         this._playerSpawnLocation = this._wireUp("_playerSpawnLocation", new LocationModel(-1, -1));
         this._ghostRedLocation = this._wireUp("_ghostRedLocation", new LocationModel(-1, -1));
@@ -154,7 +177,9 @@ class Level extends DataSourceBase {
             _ghostBlueLocation: this._ghostBlueLocation.toJSON(),
             _ghostOrangeLocation: this._ghostOrangeLocation.toJSON(),
             _ghostPinkLocation: this._ghostPinkLocation.toJSON(),
-            _selectedLocation: this._selectedLocation.toJSON()
+            _selectedLocation: this._selectedLocation.toJSON(),
+            _numDots: this._numDots,
+            _powerUpSpawns: this._powerUpSpawns
         };
 
         if (this._floydWarshall !== null) {
@@ -170,6 +195,31 @@ class Level extends DataSourceBase {
         }
 
         return toRet;
+    }
+
+    get powerUps() {
+        if (this._powerUps === null) {
+            let toSet = [];
+            let self = this;
+
+            powerUps.forEach(function (pu, index) {
+                if (index < self.levelNum) {
+                    toSet.push(pu);
+                }
+            });
+
+            this._powerUps = toSet;
+        }
+
+        return this._powerUps;
+    }
+
+    get levelNum() {
+        return this._levelNum;
+    }
+
+    set levelNum(value) {
+        this._setValueAndRaiseOnChange("_levelNum", value);
     }
 
     get gameMatrix() { return this._gameMatrix; }
@@ -229,6 +279,8 @@ class Level extends DataSourceBase {
         if (value && (this._editMode !== value)) {
             KeyEventer.instance.addCallback(this._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
             KeyEventer.instance.addCallback(this._onKeyUpRef, KeyEventer.CALLBACK_KEYUP);
+            this._powerUpSpawns = null;
+            this._numDots = null;
         } else if (!value && (this._editMode !== value)) {
             KeyEventer.instance.removeCallback(this._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
             KeyEventer.instance.removeCallback(this._onKeyUpRef, KeyEventer.CALLBACK_KEYUP);
@@ -275,6 +327,59 @@ class Level extends DataSourceBase {
         }
 
         return this._activeCells;
+    }
+
+
+    get level_num() {
+        return this._levelNum;
+    }
+
+    set level_num(value) {
+        this._setValueAndRaiseOnChange("_level_num", value);
+    }
+
+    get numDots() {
+        if (this._numDots === null) {
+            this.populateDotsAndSpawns();
+        }
+
+        return this._numDots;
+    }
+
+    get powerUpSpawns() {
+        if (this._powerUpSpawns === null) {
+            this.populateDotsAndSpawns();
+        }
+
+        return this._powerUpSpawns;
+    }
+
+    // TODO: Refactor this.  I know this is sloppy
+    populateDotsAndSpawns() {
+        let theNumDots = 0;
+        let thePowerUpSpawns = [];
+        let self = this;
+
+        this.iterateOverCells(function (cell) {
+            if (cell.dotType !== Dot.NONE) {
+                theNumDots++;
+            }
+
+            if (cell.isTeleportCell(self.width, self.height)) {
+                thePowerUpSpawns.push(cell.id);
+            }
+        });
+
+        this._numDots = theNumDots;
+        this._powerUpSpawns = thePowerUpSpawns;
+    }
+
+    getRandomPowerUpSpawnLocation() {
+        let numPowerUpSpawns = this.powerUpSpawns.length;
+        let randomIndex = Math.floor(Math.random() * numPowerUpSpawns);
+        let cellId = this.powerUpSpawns[randomIndex];
+        let cell = this.getCellById(cellId);
+        return cell.location;
     }
 
     getRandomActiveCellLocation() {

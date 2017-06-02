@@ -7,6 +7,7 @@ class Location extends DataSourceBase {
 
         this._x = x;
         this._y = y;
+        this._cellId = null;
     }
 
     toJSON() {
@@ -23,16 +24,19 @@ class Location extends DataSourceBase {
     // Perhaps this class should be immutable.
     // Let's roll with this and see how it turns out.
     set(x, y) {
+        this._cellId = null;
         this.x = x;
         this.y = y;
     }
 
     setWithLocation(otherLocation) {
+        this._cellId = null;
         this.x = otherLocation.x;
         this.y = otherLocation.y;
     }
 
     reset() {
+        this._cellId = null;
         this.x = -1;
         this.y = -1;
     }
@@ -42,6 +46,7 @@ class Location extends DataSourceBase {
     }
 
     set x(value) {
+        this._cellId = null;
         this._setValueAndRaiseOnChange("_x", value);
     }
 
@@ -50,6 +55,7 @@ class Location extends DataSourceBase {
     }
 
     set y(value) {
+        this._cellId = null;
         this._setValueAndRaiseOnChange("_y", value);
     }
 
@@ -145,8 +151,14 @@ class Location extends DataSourceBase {
         return Direction.NONE;
     }
 
+
     toCellId() {
-        return this.y + "_" + this.x;
+        if (this._cellId === null) {
+            this._cellId = this.y + "_" + this.x;
+        }
+
+        return this._cellId;
+        // return this.y + "_" + this.x;
     }
 
     distance(otherLocation) {

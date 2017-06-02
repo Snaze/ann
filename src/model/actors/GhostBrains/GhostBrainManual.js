@@ -40,7 +40,7 @@ class GhostBrainManual {
         this._currentState = null;
         this._endHoldingPinTime = null;
         this._attackStateExpiration = moment();
-        this._holdingPinDuration = 5.0;
+        this._holdingPinDuration = 8.0;
 
         this.enterState(GhostBrainManual.GHOST_STATE_HOLDING_PIN);
     }
@@ -98,16 +98,19 @@ class GhostBrainManual {
                 break;
             case GhostBrainManual.GHOST_STATE_WANDER:
                 if (moment() < player.attackModeFinishTime) {
-                    this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
+                    console.log("SCARED 2");
                     ghost.prevLocation.setWithLocation(level.getRandomActiveCellLocation());
+                    this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
+
                 } else if (this._canGhostSeePlayer(ghost, player, level)) {
                     this.enterState(GhostBrainManual.GHOST_STATE_ATTACK);
                 }
                 break;
             case GhostBrainManual.GHOST_STATE_ATTACK:
                 if (moment() < player.attackModeFinishTime) {
-                    this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
+                    console.log("SCARED 1");
                     ghost.prevLocation.setWithLocation(level.getRandomActiveCellLocation());
+                    this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
                 } else if (this._attackStateExpiration < moment() &&
                     !this._canGhostSeePlayer(ghost, player, level)) {
 

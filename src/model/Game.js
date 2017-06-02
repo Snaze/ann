@@ -17,7 +17,7 @@ class Game extends DataSourceBase {
         this._gameHeader = new GameHeader(this._gameObjectContainer.player, null);
         this._gameFooter = new GameFooter(this._gameObjectContainer.player,
                                           this._gameObjectContainer.player2,
-                                          1, GameFooter.ACTIVE_PLAYER_1);
+                                          this._level, GameFooter.ACTIVE_PLAYER_1);
         this._gameObjectContainer.restartLevel();
     }
 

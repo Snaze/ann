@@ -4,10 +4,10 @@ import Level from "./Level";
 
 it ("get powerups works", () => {
     // SETUP
-    let level = new Level();
+    let level = new Level(10, 10, 1);
     let player1 = new Player(level, Player.MR_PAC_MAN);
     let player2 = new Player(level, Player.MRS_PAC_MAN);
-    let gf = new GameFooter(player1, player2, 1, GameFooter.ACTIVE_PLAYER_1);
+    let gf = new GameFooter(player1, player2, level, GameFooter.ACTIVE_PLAYER_1);
 
     // CALL
     let powerups = gf.powerUps;
@@ -19,10 +19,10 @@ it ("get powerups works", () => {
 
 it ("get powerups works for level > 7", () => {
     // SETUP
-    let level = new Level();
+    let level = new Level(10, 10, 8);
     let player1 = new Player(level, Player.MR_PAC_MAN);
     let player2 = new Player(level, Player.MRS_PAC_MAN);
-    let gf = new GameFooter(player1, player2, 8, GameFooter.ACTIVE_PLAYER_1);
+    let gf = new GameFooter(player1, player2, level, GameFooter.ACTIVE_PLAYER_1);
 
     // CALL
     let powerups = gf.powerUps;

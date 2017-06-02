@@ -3,7 +3,7 @@ import moment from "../../node_modules/moment/moment";
 
 let _singleton = Symbol();
 
-const tickFrequency = 25;
+const tickFrequency = 5;
 
 const time_25ms = 0;
 const time_50ms = 1;
@@ -96,13 +96,13 @@ class GameTimer {
         }
 
         // LEAVE THIS COMMENT IN HERE.  YOU MAY WANT THIS AT SOME POINT
-        this._iterateOverIntervalEventer(function (intervalObject) {
-            if (now >= intervalObject.nextTime) {
-                intervalObject.eventer.raiseEvent(this);
-                intervalObject.tickFinishedEventer.raiseEvent(this);
-                intervalObject.nextTime = moment().add(intervalObject.timeInMilliSec, "ms");
-            }
-        });
+        // this._iterateOverIntervalEventer(function (intervalObject) {
+        //     if (now >= intervalObject.nextTime) {
+        //         intervalObject.eventer.raiseEvent(this);
+        //         intervalObject.tickFinishedEventer.raiseEvent(this);
+        //         intervalObject.nextTime = moment().add(intervalObject.timeInMilliSec, "ms");
+        //     }
+        // });
 
         this._eventer.raiseEvent(this._steps);
         this._tickFinishedEventer.raiseEvent(this);

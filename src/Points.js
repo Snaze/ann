@@ -30,6 +30,15 @@ class Points extends DataSourceComponent {
         }
     };
 
+    _dataSourceUpdated(e) {
+        super._dataSourceUpdated(e);
+
+        if (e.source === "_pointsState") {
+            console.log("forceUpdate");
+            this.forceUpdate();
+        }
+    }
+
     get points() {
         return this.dataSource;
     }

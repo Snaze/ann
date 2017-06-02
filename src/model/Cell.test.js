@@ -363,3 +363,35 @@ it ("canTraverseTo non adjacent test", () => {
     expect(retVal).toBe(false);
 });
 
+it ("is teleport cell", () => {
+    // SETUP
+    let topCell = new Cell("0_1");
+    let leftCell = new Cell("1_0");
+    let bottomCell = new Cell("9_1");
+    let rightCell = new Cell("8_9");
+
+    // ASSERT
+    expect(topCell.isTeleportCell(10, 10)).toBe(true);
+    expect(leftCell.isTeleportCell(10, 10)).toBe(true);
+    expect(bottomCell.isTeleportCell(10, 10)).toBe(true);
+    expect(rightCell.isTeleportCell(10, 10)).toBe(true);
+});
+
+it ("is not teleport cell", () => {
+    // SETUP
+    let topCell = new Cell("0_1");
+    topCell.solidBorder.top = true;
+    let leftCell = new Cell("1_0");
+    leftCell.solidBorder.left = true;
+    let bottomCell = new Cell("9_1");
+    bottomCell.solidBorder.bottom = true;
+    let rightCell = new Cell("8_9");
+    rightCell.solidBorder.right = true;
+
+    // ASSERT
+    expect(topCell.isTeleportCell(10, 10)).toBe(false);
+    expect(leftCell.isTeleportCell(10, 10)).toBe(false);
+    expect(bottomCell.isTeleportCell(10, 10)).toBe(false);
+    expect(rightCell.isTeleportCell(10, 10)).toBe(false);
+});
+

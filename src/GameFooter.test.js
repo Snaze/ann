@@ -10,7 +10,7 @@ it ("Game Renders", () => {
     let level = new Level();
     let player = new Player(level, Player.MR_PAC_MAN);
     let player2 = new Player(level, Player.MRS_PAC_MAN);
-    let gfm = new GameFooterModel(player, player2, 1, GameFooterModel.ACTIVE_PLAYER_1);
+    let gfm = new GameFooterModel(player, player2, level, GameFooterModel.ACTIVE_PLAYER_1);
 
     ReactDOM.render(<GameFooter dataSource={gfm} />, div);
 });

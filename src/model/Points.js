@@ -32,8 +32,8 @@ class Points extends DataSourceBase {
         this._fadeTime = moment();
         this._vanishTime = moment();
         this._timerTickRef = (e) => this._timerTick(e);
-        GameTimer.instance.addIntervalCallback(this._timerTickRef, 250);
-
+        GameTimer.instance.addCallback(this._timerTickRef);
+        this._nextTick = moment().add(250, "ms");
     }
 
     reset() {
@@ -45,21 +45,22 @@ class Points extends DataSourceBase {
     removeAllCallbacks() {
         super.removeAllCallbacks();
 
-        GameTimer.instance.removeIntervalCallback(this._timerTickRef, 250);
+        GameTimer.instance.removeCallback(this._timerTickRef);
     }
 
     _timerTick(e) {
         let now = moment();
 
-        if (this._vanishTime <= now) {
-            this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_INVISIBLE);
-            // console.log("timer - invisible");
-        } else if (this._fadeTime <= now) {
-            this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_FADE);
-            // console.log("timer - fade");
-        } else {
-            this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_VISIBLE);
-            // console.log("timer - visible");
+        if (now >= this._nextTick) {
+            if (this._vanishTime <= now) {
+                this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_INVISIBLE);
+            } else if (this._fadeTime <= now) {
+                this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_FADE);
+            } else {
+                this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_VISIBLE);
+            }
+
+            this._nextTick = moment().add(250, "ms");
         }
     }
 

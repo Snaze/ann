@@ -48,24 +48,25 @@ class Player extends ActorBase {
         } else if (e.object === this.location) {
             // HMMMM, maybe make a copy of the location and pass it in
             // if this gives you trouble.
-            setTimeout((e) => this.handleLocationChanged(e),
+            setTimeout((e) => this.handleLocationChanged(this.location.clone()),
                         ((this._cellTransitionDuration * 1000.0) / 2.0));
         }
 
         super._nestedDataSourceChanged(e);
     }
 
-    handleLocationChanged(e) {
-        let cell = this.level.getCellByLocation(this.location);
+    handleLocationChanged(theLocation) {
+        let cell = this.level.getCellByLocation(theLocation);
         if (cell.dotType === Dot.LITTLE) {
             this.score = this.score + 10;
             cell.dotType = Dot.NONE;
             this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
         } else if (cell.dotType === Dot.BIG) {
+            console.log("DotType = BIG");
             this.score = this.score + 50;
             cell.dotType = Dot.NONE;
-            this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
             this._setValueAndRaiseOnChange("_attackModeFinishTime", moment().add(this._attackModeDuration, "s"));
+            this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
         }
     }
 
