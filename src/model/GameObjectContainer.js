@@ -20,7 +20,7 @@ class GameObjectContainer extends DataSourceBase {
 
         this._gameObjects = [
             this._player,
-            this._player2,
+            // this._player2,
             this._ghostRed,
             this._ghostBlue,
             this._ghostPink,
@@ -33,6 +33,16 @@ class GameObjectContainer extends DataSourceBase {
 
         this._currentPlayerDead = false;
         this._restartLevelRef = null;
+    }
+
+    static _nextKillScore = 100;
+    static get nextKillScore() {
+        GameObjectContainer._nextKillScore *= 2;
+        return GameObjectContainer._nextKillScore;
+    }
+
+    static resetNextKillScore() {
+        GameObjectContainer._nextKillScore = 100;
     }
 
     restartLevel(timeout=3000) {
@@ -58,20 +68,27 @@ class GameObjectContainer extends DataSourceBase {
         if (thePlayer.location.equals(theGhost.location)) {
             if (thePlayer.attackModeFinishTime > now) {
                 // GHOST IS DEAD SINCE PLAYER IS ATTACKING
-                theGhost.isAlive = false;
+                if (theGhost.isAlive) {
+                    theGhost.isAlive = false;
+                    theGhost.killScore = GameObjectContainer.nextKillScore;
+                    theGhost.points.show(theGhost.location);
+                    thePlayer.score += theGhost.killScore;
+                }
                 // console.log("Ghost DEAD");
             } else {
                 // PLAYER IS DEAD SINCE PLAYER IS NOT ATTACKING
-                thePlayer.isAlive = false;
-                this.paused = true;
-                this.currentPlayerDead = true;
+                if (thePlayer.isAlive) {
+                    thePlayer.isAlive = false;
+                    this.paused = true;
+                    this.currentPlayerDead = true;
 
-                if (this._restartLevelRef === null) {
-                    this._restartLevelRef = () => this.restartLevel();
-                    let self = this;
-                    setTimeout(function (e) {
-                        self.restartLevel();
-                    }, 3000);
+                    if (this._restartLevelRef === null) {
+                        this._restartLevelRef = () => this.restartLevel();
+                        let self = this;
+                        setTimeout(function (e) {
+                            self.restartLevel();
+                        }, 3000);
+                    }
                 }
             }
         }
@@ -79,12 +96,27 @@ class GameObjectContainer extends DataSourceBase {
 
     // TODO: This fires a lot.  There may be a better way to accomplish this.
     gameTimerTickFinished(e) {
-        let now = moment();
 
-        this._killIfCollision(this.player, this.ghostRed, now);
-        this._killIfCollision(this.player, this.ghostBlue, now);
-        this._killIfCollision(this.player, this.ghostPink, now);
-        this._killIfCollision(this.player, this.ghostOrange, now);
+        let moved = false;
+        this.iterateOverGameObjects(function (gameObj) {
+            let temp = gameObj.executeActorStep(e);
+            if (temp) {
+                moved = true;
+            }
+        });
+
+        if (moved) {
+            if (this.player.attackModeFinishTime <= moment()) {
+                GameObjectContainer.resetNextKillScore();
+            }
+
+            let now = moment();
+
+            this._killIfCollision(this.player, this.ghostRed, now);
+            this._killIfCollision(this.player, this.ghostBlue, now);
+            this._killIfCollision(this.player, this.ghostPink, now);
+            this._killIfCollision(this.player, this.ghostOrange, now);
+        }
     }
 
     get player() {

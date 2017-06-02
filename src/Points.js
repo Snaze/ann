@@ -9,7 +9,7 @@ class Points extends DataSourceComponent {
     constructor(props) {
         super(props);
 
-        this.debug = false;
+        this.debug = true;
     }
 
     static modifierScoreMapping = {
@@ -33,10 +33,11 @@ class Points extends DataSourceComponent {
     _dataSourceUpdated(e) {
         super._dataSourceUpdated(e);
 
-        if (e.source === "_pointsState") {
-            console.log("forceUpdate");
-            this.forceUpdate();
-        }
+        // if (e.source === "_pointsState") {
+        //     console.log("forceUpdate");
+        //     this.forceUpdate();
+        // }
+        this.forceUpdate();
     }
 
     get points() {
@@ -62,6 +63,7 @@ class Points extends DataSourceComponent {
             toRet.top =  (cellLocation.y - 2) + "px";
             toRet.left = (cellLocation.x - 2) + "px";
             toRet.pointerEvents = "none";
+            console.log ("visible or fade at: " + cellLocation.toCellId());
 
             if (this.points.pointsState === PointsModel.POINTS_STATE_FADE) {
                 let transitionStr = "top 2s, left 2s, opacity 2s";
@@ -98,6 +100,7 @@ class Points extends DataSourceComponent {
                 let toRet = Points.modifierScoreMapping["ghost_kill"][this.points.amount];
                 if (typeof(toRet) === "undefined") {
                     this.log("warn: Entity.MODIFIER_NO_MODIFIER 1");
+                    this.log("this.points.amount = " + this.points.amount);
                     return Entity.MODIFIER_NO_MODIFIER;
                 }
                 return toRet;
@@ -105,6 +108,7 @@ class Points extends DataSourceComponent {
                 let toRet2 = Points.modifierScoreMapping["power_up"][this.points.amount];
                 if (typeof(toRet2) === "undefined") {
                     this.log("warn: Entity.MODIFIER_NO_MODIFIER 2");
+                    this.log("this.points.amount = " + this.points.amount);
                     return Entity.MODIFIER_NO_MODIFIER;
                 }
                 return toRet2;

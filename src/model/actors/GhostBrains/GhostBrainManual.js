@@ -19,16 +19,6 @@ class GhostBrainManual {
     static get GHOST_STATE_SCARED() { return ghost_state_scared; }
     static get GHOST_STATE_DEAD() { return ghost_state_dead; }
 
-    static _nextKillScore = 100;
-    static get nextKillScore() {
-        GhostBrainManual._nextKillScore *= 2;
-        return GhostBrainManual._nextKillScore;
-    }
-
-    static resetNextKillScore() {
-        GhostBrainManual._nextKillScore = 100;
-    }
-
     constructor() {
         this._ghostBrainStrategyHoldingPin = new GhostBrainStrategyHoldingPin();
         this._ghostBrainStrategyWander = new GhostBrainStrategyWander();
@@ -47,9 +37,6 @@ class GhostBrainManual {
 
     getNextDirection(ghost, player, level) {
         this._changeStateIfNeeded(ghost, player, level);
-        if (player.attackModeFinishTime <= moment()) {
-            GhostBrainManual.resetNextKillScore();
-        }
 
         return this._currentGhostBrainStrategy.getNextDirection(ghost, player, level);
     }
@@ -70,26 +57,33 @@ class GhostBrainManual {
                 let randomValue = Math.floor(Math.random() * this._holdingPinDuration);
                 this._endHoldingPinTime = moment().add(randomValue, "s");
                 this._currentGhostBrainStrategy = this._ghostBrainStrategyHoldingPin;
+                // console.log("enter Holding Pin Strat");
                 break;
             case GhostBrainManual.GHOST_STATE_WANDER:
                 this._currentGhostBrainStrategy = this._ghostBrainStrategyWander;
+                // console.log("enter wander Strat");
                 break;
             case GhostBrainManual.GHOST_STATE_ATTACK:
                 this._attackStateExpiration = moment().add(this._ghostBrainStrategyAttack.attackExpirationDuration, "s");
                 this._currentGhostBrainStrategy = this._ghostBrainStrategyAttack;
+                // console.log("enter attack Strat");
                 break;
             case GhostBrainManual.GHOST_STATE_SCARED:
                 this._currentGhostBrainStrategy = this._ghostBrainStrategyScared;
+                // console.log("enter scared Strat");
                 break;
             case GhostBrainManual.GHOST_STATE_DEAD:
                 this._currentGhostBrainStrategy = this._ghostBrainStrategyDead;
+                // console.log("enter dead Strat");
                 break;
             default:
                 throw new Error("Unknown Strategy");
         }
     }
 
+    // TODO: move some of this logic into the GameObjectContainer
     _changeStateIfNeeded(ghost, player, level) {
+
         switch (this._currentState) {
             case GhostBrainManual.GHOST_STATE_HOLDING_PIN:
                 if (this._endHoldingPinTime < moment()) {
@@ -98,7 +92,7 @@ class GhostBrainManual {
                 break;
             case GhostBrainManual.GHOST_STATE_WANDER:
                 if (moment() < player.attackModeFinishTime) {
-                    console.log("SCARED 2");
+                    // console.log("SCARED 2");
                     ghost.prevLocation.setWithLocation(level.getRandomActiveCellLocation());
                     this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
 
@@ -108,7 +102,7 @@ class GhostBrainManual {
                 break;
             case GhostBrainManual.GHOST_STATE_ATTACK:
                 if (moment() < player.attackModeFinishTime) {
-                    console.log("SCARED 1");
+                    // console.log("SCARED 1");
                     ghost.prevLocation.setWithLocation(level.getRandomActiveCellLocation());
                     this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
                 } else if (this._attackStateExpiration < moment() &&
@@ -121,8 +115,6 @@ class GhostBrainManual {
             case GhostBrainManual.GHOST_STATE_SCARED:
                 if (!ghost.isAlive) {
                     this.enterState(GhostBrainManual.GHOST_STATE_DEAD);
-                    ghost.killScore = GhostBrainManual.nextKillScore;
-                    player.score += ghost.killScore;
                 } else if (moment() >= player.attackModeFinishTime) {
                     this.enterState(GhostBrainManual.GHOST_STATE_WANDER);
                 }
@@ -136,6 +128,12 @@ class GhostBrainManual {
                 break;
             default:
                 break;
+        }
+
+        if (player.attackModeFinishTime > moment() &&
+            (this._currentState !== GhostBrainManual.GHOST_STATE_SCARED &&
+            this._currentState !== GhostBrainManual.GHOST_STATE_DEAD)) {
+            console.log("This ghost should be scared: " + this._currentState);
         }
     }
 

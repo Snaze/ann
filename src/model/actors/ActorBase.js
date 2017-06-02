@@ -2,7 +2,6 @@ import DataSourceBase from "../DataSourceBase";
 import Direction from "../../utils/Direction";
 import Location from "../Location";
 import moment from "../../../node_modules/moment/moment";
-import GameTimer from "../GameTimer";
 import Level from "../Level";
 
 /**
@@ -28,10 +27,6 @@ class ActorBase extends DataSourceBase {
         this._editMode = false;
         this._paused = false;
         this._isAlive = true;
-
-        this._timerCallbackHandle = (e) => this._timerCallback(e);
-        GameTimer.instance.addCallback(this._timerCallbackHandle);
-        // this.debug = true;
     }
 
     /**
@@ -43,7 +38,13 @@ class ActorBase extends DataSourceBase {
         console.log("This method should be overridden in child classes.");
     }
 
-    _timerCallback(e) {
+    executeActorStep(e) {
+
+        let toRet = false;
+
+        if (this.paused) {
+            return toRet;
+        }
 
         let currentMoment = moment();
         let lastTickPlusDuration = this._lastTick.clone().add(this._cellTransitionDuration, "s");
@@ -52,14 +53,16 @@ class ActorBase extends DataSourceBase {
 
             this.timerTick(e);
             this._lastTick = moment();
+            toRet = true;
         }
+
+        return toRet;
     }
 
     removeAllCallbacks() {
         super.removeAllCallbacks();
 
         this._location.removeOnChangeCallback(this._locationOnChangeCallbackRef);
-        GameTimer.instance.removeCallback(this._timerCallbackHandle);
     }
 
     get direction() {
@@ -164,12 +167,6 @@ class ActorBase extends DataSourceBase {
     }
 
     set paused(value) {
-        if (!value && this._paused) {
-            GameTimer.instance.addCallback(this._timerCallbackHandle);
-        } else if (value && !this._paused) {
-            GameTimer.instance.removeCallback(this._timerCallbackHandle);
-        }
-
         this._setValueAndRaiseOnChange("_paused", value);
     }
 

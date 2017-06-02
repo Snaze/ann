@@ -1,7 +1,6 @@
 import DataSourceBase from "./DataSourceBase";
 import Location from "./Location";
 import moment from "../../node_modules/moment/moment";
-import GameTimer from "./GameTimer";
 
 const points_type_ghost_kill = 0;
 const points_type_power_up = 1;
@@ -22,57 +21,68 @@ class Points extends DataSourceBase {
     static get POINTS_STATE_FADE() { return points_state_fade; }
     static get POINTS_STATE_INVISIBLE() { return points_state_invisible; }
 
-    constructor() {
+    constructor(pointsType) {
         super();
 
-        this._pointsType = Points.POINTS_TYPE_NONE;
+        this._pointsType = pointsType;
         this._amount = 0;
+        if (this.pointsType === Points.POINTS_TYPE_GHOST_KILL) {
+            this._amount = 200;
+        }
         this._location = this._wireUp("_location", new Location(-1, -1));
         this._pointsState = Points.POINTS_STATE_INVISIBLE;
         this._fadeTime = moment();
         this._vanishTime = moment();
-        this._timerTickRef = (e) => this._timerTick(e);
-        GameTimer.instance.addCallback(this._timerTickRef);
         this._nextTick = moment().add(250, "ms");
     }
 
     reset() {
-        this.pointsType = Points.POINTS_TYPE_NONE;
-        this.amount = 0;
-        this.location.set(-1, -1);
+        let self = this;
+        setTimeout(function () {
+            self.amount = 200;
+            self.location.set(-1, -1);
+            self._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_INVISIBLE);
+        }, 4000);
     }
 
     removeAllCallbacks() {
         super.removeAllCallbacks();
 
-        GameTimer.instance.removeCallback(this._timerTickRef);
     }
 
-    _timerTick(e) {
+    timerTick(e) {
         let now = moment();
+        let toRet = false;
 
         if (now >= this._nextTick) {
             if (this._vanishTime <= now) {
                 this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_INVISIBLE);
+                // console.log("timerTick - invisible");
             } else if (this._fadeTime <= now) {
                 this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_FADE);
+                console.log("timerTick - fade");
             } else {
                 this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_VISIBLE);
+                console.log("timerTick - visible");
             }
 
             this._nextTick = moment().add(250, "ms");
+            toRet = true;
         }
+
+        return toRet;
     }
 
-    _resetFadeTime() {
+    show(theLocation) {
         let now = moment();
         this._fadeTime = now.clone().add(2, "s");
         this._vanishTime = now.clone().add(4, "s");
+        this.location.setWithLocation(theLocation);
     }
 
     _nestedDataSourceChanged(e) {
 
-        this._resetFadeTime();
+        // this._resetFadeTime();
         super._nestedDataSourceChanged(e);
     }
 
@@ -80,14 +90,14 @@ class Points extends DataSourceBase {
         return this._pointsType;
     }
 
-    set pointsType(value) {
-        if (valid_points_type.indexOf(value) < 0) {
-            throw new Error("Invalid Points Type");
-        }
-
-        this._resetFadeTime();
-        this._setValueAndRaiseOnChange("_pointsType", value);
-    }
+    // set pointsType(value) {
+    //     if (valid_points_type.indexOf(value) < 0) {
+    //         throw new Error("Invalid Points Type");
+    //     }
+    //
+    //     // this._resetFadeTime();
+    //     this._setValueAndRaiseOnChange("_pointsType", value);
+    // }
 
     get amount() {
         return this._amount;
@@ -98,7 +108,7 @@ class Points extends DataSourceBase {
             throw new Error("Points should be positive");
         }
 
-        this._resetFadeTime();
+        // this._resetFadeTime();
         this._setValueAndRaiseOnChange("_amount", value);
     }
 

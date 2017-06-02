@@ -67,7 +67,8 @@ class Ghost extends ActorBase {
         this._scaredState = Ghost.SCARED_STATE_NOT_SCARED;
         this._prevLocation = this.location.clone();
         this._killScore = 0;
-        this._points = this._wireUp("_points", new Points());
+        this._points = this._wireUp("_points", new Points(Points.POINTS_TYPE_GHOST_KILL));
+        this._previouslyKilled = false;
     }
 
     _nestedDataSourceChanged(e) {
@@ -117,6 +118,14 @@ class Ghost extends ActorBase {
         return super.canMoveInDirection(sourceLocation, direction);
     }
 
+    executeActorStep(e) {
+        let toRet = super.executeActorStep(e);
+
+        this.points.timerTick(e);
+
+        return toRet;
+    }
+
     timerTick(e) {
         let theDirection = this._ghostBrain.getNextDirection(this, this.player, this.level);
         this.cellTransitionDuration = this._ghostBrain.cellTransitionDuration;
@@ -145,7 +154,7 @@ class Ghost extends ActorBase {
     set killScore(value) {
         if (value !== this._killScore) {
             this.points.amount = value;
-            this.points.pointsType = Points.POINTS_TYPE_GHOST_KILL;
+            // this.points.pointsType = Points.POINTS_TYPE_GHOST_KILL;
             this.points.location.setWithLocation(this.location);
         }
         this._setValueAndRaiseOnChange("_killScore", value);
@@ -165,6 +174,15 @@ class Ghost extends ActorBase {
 
     get points() {
         return this._points;
+    }
+
+
+    get previouslyKilled() {
+        return this._previouslyKilled;
+    }
+
+    set previouslyKilled(value) {
+        this._setValueAndRaiseOnChange("_previouslyKilled", value);
     }
 }
 
