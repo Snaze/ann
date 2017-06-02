@@ -33,7 +33,7 @@ class Game extends DataSourceComponent {
 
     levelEditPanel_onLoadComplete(theLevel) {
         this.game.level = theLevel;
-        this.game.editMode = true;
+        // this.game.editMode = true;
     }
 
     buttonToggleEdit_Click(e) {

@@ -110,7 +110,13 @@ class GameObjectContainer extends DataSourceBase {
         }
     }
 
-    // TODO: This fires a lot.  There may be a better way to accomplish this.
+    _checkIfAllDotsEaten(thePlayer, theLevel) {
+        if (thePlayer.dotsEaten === theLevel.numDots) {
+            this.paused = true;
+            alert("You win!");
+        }
+    }
+
     gameTimerTickFinished(e) {
 
         let moved = false;
@@ -136,6 +142,8 @@ class GameObjectContainer extends DataSourceBase {
             this._killIfCollision(this.player, this.ghostOrange, now);
 
             this._pickUpPowerUpIfCollision(this.player, this.powerUp);
+
+            this._checkIfAllDotsEaten(this.player, this.level);
         }
     }
 
