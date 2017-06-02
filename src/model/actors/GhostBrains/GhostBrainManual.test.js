@@ -3,7 +3,7 @@ import Ghost from "../Ghost";
 import Player from "../Player";
 import GhostBrainManual from "./GhostBrainManual";
 import Direction from "../../../utils/Direction";
-
+import moment from "../../../../node_modules/moment/moment";
 
 it ("_canGhostSeePlayer works", () => {
     // SETUP
@@ -103,4 +103,52 @@ it ("_canGhostSeePlayer works (same col - can see)", () => {
 
     // ASSERT
     expect(result).toBe(false);
+});
+
+it ("_changeStateIfNeeded wont go into scared mode if already killed during current attack mode", () => {
+    // SETUP
+    let level = new Level(2, 2);
+    let player = new Player(level, Player.MR_PAC_MAN);
+    player.location.set(0, 0);
+    player.direction = Direction.RIGHT;
+    player._attackModeId = 1;
+    player._attackModeFinishTime = moment().add(120, "s");
+
+    let ghost = new Ghost(level, Ghost.RED, player);
+    ghost.location.set(1, 1);
+    ghost.direction = Direction.LEFT;
+    ghost.prevKilledByAttackModeId = 1;
+
+    let gbm = new GhostBrainManual();
+    gbm._currentState = GhostBrainManual.GHOST_STATE_WANDER;
+
+    // CALL
+    gbm._changeStateIfNeeded(ghost, player, level);
+
+    // ASSERT
+    expect(gbm._currentState).toBe(GhostBrainManual.GHOST_STATE_WANDER);
+});
+
+it ("_changeStateIfNeeded will go into scared mode if not already killed during current attack mode", () => {
+    // SETUP
+    let level = new Level(2, 2);
+    let player = new Player(level, Player.MR_PAC_MAN);
+    player.location.set(0, 0);
+    player.direction = Direction.RIGHT;
+    player._attackModeId = 2;
+    player._attackModeFinishTime = moment().add(120, "s");
+
+    let ghost = new Ghost(level, Ghost.RED, player);
+    ghost.location.set(1, 1);
+    ghost.direction = Direction.LEFT;
+    ghost.prevKilledByAttackModeId = 1;
+
+    let gbm = new GhostBrainManual();
+    gbm._currentState = GhostBrainManual.GHOST_STATE_WANDER;
+
+    // CALL
+    gbm._changeStateIfNeeded(ghost, player, level);
+
+    // ASSERT
+    expect(gbm._currentState).toBe(GhostBrainManual.GHOST_STATE_SCARED);
 });

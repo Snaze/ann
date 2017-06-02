@@ -1,6 +1,8 @@
 import Player from "./Player";
 import Level from "../Level";
 import Location from "../Location";
+import Dot from "../Dot";
+import moment from "../../../node_modules/moment/moment";
 
 it ("Player gender is valid", () => {
 
@@ -67,4 +69,37 @@ it ("player spawn location updates on _nestedDataSourceChanged in editMode", () 
     // ASSERT
     expect(player._spawnLocation.isEqualTo(1, 2)).toBe(true);
     expect(player.location.isEqualTo(1, 2)).toBe(true);
+});
+
+it ("handleLocationChange should increment attackModeId", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.playerSpawnLocation.set(0, 1);
+    let theCell = theLevel.getCellByLocation(new Location(1, 1));
+    theCell.dotType = Dot.BIG;
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    let origAttackModeId = player.attackModeId;
+
+    // CALL
+    player.handleLocationChanged(new Location(1, 1));
+
+    // ASSERT
+    expect(player.attackModeId).toBe(origAttackModeId + 1);
+});
+
+it ("handleLocationChange should not increment attackModeId when its already active", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.playerSpawnLocation.set(0, 1);
+    let theCell = theLevel.getCellByLocation(new Location(1, 1));
+    theCell.dotType = Dot.BIG;
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    player._attackModeFinishTime = moment().add(120, "s");
+    let origAttackModeId = player.attackModeId;
+
+    // CALL
+    player.handleLocationChanged(new Location(1, 1));
+
+    // ASSERT
+    expect(player.attackModeId).toBe(origAttackModeId);
 });

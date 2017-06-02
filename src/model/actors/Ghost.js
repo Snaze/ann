@@ -68,7 +68,7 @@ class Ghost extends ActorBase {
         this._prevLocation = this.location.clone();
         this._killScore = 0;
         this._points = this._wireUp("_points", new Points(Points.POINTS_TYPE_GHOST_KILL));
-        this._previouslyKilled = false;
+        this._prevKilledByAttackModeId = -1;
     }
 
     _nestedDataSourceChanged(e) {
@@ -177,12 +177,12 @@ class Ghost extends ActorBase {
     }
 
 
-    get previouslyKilled() {
-        return this._previouslyKilled;
+    get prevKilledByAttackModeId() {
+        return this._prevKilledByAttackModeId;
     }
 
-    set previouslyKilled(value) {
-        this._setValueAndRaiseOnChange("_previouslyKilled", value);
+    set prevKilledByAttackModeId(value) {
+        this._setValueAndRaiseOnChange("_prevKilledByAttackModeId", value);
     }
 }
 

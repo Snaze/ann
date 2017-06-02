@@ -18,6 +18,8 @@ class Player extends ActorBase {
         return valid_gender.indexOf(theGender) > -1;
     }
 
+    static _nextAttackModeId = 1;
+
     constructor(level, gender) {
         super(level);
 
@@ -32,7 +34,7 @@ class Player extends ActorBase {
         this._score = 0;
         this._dotsEaten = 0;
         this._attackModeDuration = 20;
-        // this._attackModeDuration = 60;
+        this._attackModeId = Player._nextAttackModeId++;
         this._attackModeFinishTime = moment();
         this._prevLocation = this.location.clone();
         this._numLives = 3;
@@ -65,6 +67,11 @@ class Player extends ActorBase {
             // console.log("DotType = BIG");
             this.score = this.score + 50;
             cell.dotType = Dot.NONE;
+            // only increment if this is a new attack mode.
+            // and not and extension of the existing one.
+            if (moment() >= this._attackModeFinishTime) {
+                this._attackModeId = Player._nextAttackModeId++;
+            }
             this._setValueAndRaiseOnChange("_attackModeFinishTime", moment().add(this._attackModeDuration, "s"));
             this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
         }
@@ -141,6 +148,10 @@ class Player extends ActorBase {
 
     set numLives(value) {
         this._setValueAndRaiseOnChange("_numLives", value);
+    }
+
+    get attackModeId() {
+        return this._attackModeId;
     }
 }
 

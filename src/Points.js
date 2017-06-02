@@ -6,11 +6,6 @@ import Cell from "./Cell";
 import Entity from "./Entity";
 
 class Points extends DataSourceComponent {
-    // constructor(props) {
-    //     super(props);
-    //
-    //     // this.debug = true;
-    // }
 
     static modifierScoreMapping = {
         "ghost_kill": {
@@ -32,8 +27,6 @@ class Points extends DataSourceComponent {
 
     _dataSourceUpdated(e) {
         super._dataSourceUpdated(e);
-
-        // this.forceUpdate();
     }
 
     get points() {
@@ -69,9 +62,6 @@ class Points extends DataSourceComponent {
                 toRet.left = (cellLocation.x + 16) + "px";
                 toRet.opacity = 0;
 
-                // console.log("component - fade");
-            } else {
-                // console.log("component - visible");
             }
         }
 

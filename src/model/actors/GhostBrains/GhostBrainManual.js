@@ -91,7 +91,8 @@ class GhostBrainManual {
                 }
                 break;
             case GhostBrainManual.GHOST_STATE_WANDER:
-                if (moment() < player.attackModeFinishTime) {
+                if (ghost.prevKilledByAttackModeId !== player.attackModeId &&
+                    moment() < player.attackModeFinishTime) {
                     // console.log("SCARED 2");
                     ghost.prevLocation.setWithLocation(level.getRandomActiveCellLocation());
                     this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
@@ -101,7 +102,8 @@ class GhostBrainManual {
                 }
                 break;
             case GhostBrainManual.GHOST_STATE_ATTACK:
-                if (moment() < player.attackModeFinishTime) {
+                if (ghost.prevKilledByAttackModeId !== player.attackModeId &&
+                    moment() < player.attackModeFinishTime) {
                     // console.log("SCARED 1");
                     ghost.prevLocation.setWithLocation(level.getRandomActiveCellLocation());
                     this.enterState(GhostBrainManual.GHOST_STATE_SCARED);
@@ -124,16 +126,11 @@ class GhostBrainManual {
                     ghost.isAlive = true;
                     ghost.points.reset();
                     this.enterState(GhostBrainManual.GHOST_STATE_WANDER);
+                    this._ghostBrainStrategyWander.resetDestination(ghost, player, level);
                 }
                 break;
             default:
                 break;
-        }
-
-        if (player.attackModeFinishTime > moment() &&
-            (this._currentState !== GhostBrainManual.GHOST_STATE_SCARED &&
-            this._currentState !== GhostBrainManual.GHOST_STATE_DEAD)) {
-            console.log("This ghost should be scared: " + this._currentState);
         }
     }
 

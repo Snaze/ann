@@ -76,6 +76,7 @@ class GameObjectContainer extends DataSourceBase {
                     theGhost.isAlive = false;
                     theGhost.killScore = GameObjectContainer.nextKillScore;
                     theGhost.points.show(theGhost.location);
+                    theGhost.prevKilledByAttackModeId = thePlayer.attackModeId;
                     thePlayer.score += theGhost.killScore;
                 }
                 // console.log("Ghost DEAD");

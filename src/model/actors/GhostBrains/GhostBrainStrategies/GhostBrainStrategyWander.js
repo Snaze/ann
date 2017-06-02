@@ -15,6 +15,10 @@ class GhostBrainStrategyWander {
         return toRet;
     }
 
+    resetDestination(ghost, player, level) {
+        this._destinationLocation = GhostBrainStrategyWander._getRandomLocation(ghost.location, level);
+    }
+
     getNextDirection(ghost, player, level) {
         if (this._destinationLocation === null)  {
             this._destinationLocation = ghost.location;
@@ -22,7 +26,8 @@ class GhostBrainStrategyWander {
 
         if ((this._destinationLocation.equals(ghost.location)) ||
             (ghost.prevLocation.equals(ghost.location))) { // THIS CHECK HERE IS SO THEY DONT GET STUCK ON PARTIAL BORDER
-            this._destinationLocation = GhostBrainStrategyWander._getRandomLocation(ghost.location, level);
+            // this._destinationLocation = GhostBrainStrategyWander._getRandomLocation(ghost.location, level);
+            this.resetDestination(ghost, player, level);
         }
 
         let fromCellId = ghost.location.toCellId();
