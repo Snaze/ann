@@ -360,7 +360,7 @@ class Level extends DataSourceBase {
         let thePowerUpSpawns = [];
         let self = this;
 
-        this.iterateOverCells(function (cell) {
+        this.activeCells.forEach(function (cell) {
             if (cell.dotType !== Dot.NONE) {
                 theNumDots++;
             }

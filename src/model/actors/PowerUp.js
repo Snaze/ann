@@ -1,5 +1,6 @@
 import ActorBase from "./ActorBase";
 import Points from "../Points";
+import Direction from "../../utils/Direction";
 
 const cherry = 100;
 const strawberry = 200;
@@ -33,8 +34,9 @@ class PowerUp extends ActorBase {
         this._spawnLocation = this.location.clone();
         this._prevLocation = this.location.clone();
         this._destinationLocation = this.location.clone();
-        this._points = this._wireUp("_points", new Points());
-        this._cellTransitionDuration = 0.4;
+        this._points = this._wireUp("_points", new Points(Points.POINTS_TYPE_POWER_UP));
+        this._points.amount = powerUpType;
+        this._cellTransitionDuration = 0.6;
     }
 
     _getRandomLocation() {
@@ -50,7 +52,7 @@ class PowerUp extends ActorBase {
     getNextDirection() {
 
         if (!this.location.isValid) {
-            return;
+            return Direction.NONE;
         }
 
         if (!this._destinationLocation.isValid) {
@@ -66,6 +68,14 @@ class PowerUp extends ActorBase {
         let toCellId = this._destinationLocation.toCellId();
 
         return this.level.floydWarshall.getDirection(fromCellId, toCellId);
+    }
+
+    executeActorStep(e) {
+        let toRet = super.executeActorStep(e);
+
+        this.points.timerTick(e);
+
+        return toRet;
     }
 
     timerTick(e) {
@@ -85,6 +95,20 @@ class PowerUp extends ActorBase {
 
     get powerUpType() {
         return this._powerUpType;
+    }
+
+    get powerUpValue() {
+        return this.powerUpType;
+    }
+
+    set powerUpType(value) {
+        if (validPowerUps.indexOf(value) < 0) {
+            throw new Error("Invalid Power up");
+        }
+
+        this.points.amount = value;
+
+        this._setValueAndRaiseOnChange("_powerUpType", value);
     }
 }
 

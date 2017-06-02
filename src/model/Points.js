@@ -5,7 +5,7 @@ import moment from "../../node_modules/moment/moment";
 const points_type_ghost_kill = 0;
 const points_type_power_up = 1;
 const points_type_none = 2;
-const valid_points_type = [points_type_ghost_kill, points_type_power_up, points_type_none];
+// const valid_points_type = [points_type_ghost_kill, points_type_power_up, points_type_none];
 
 const points_state_visible = 0;
 const points_state_fade = 1;
@@ -60,10 +60,10 @@ class Points extends DataSourceBase {
                 // console.log("timerTick - invisible");
             } else if (this._fadeTime <= now) {
                 this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_FADE);
-                console.log("timerTick - fade");
+                // console.log("timerTick - fade");
             } else {
                 this._setValueAndRaiseOnChange("_pointsState", Points.POINTS_STATE_VISIBLE);
-                console.log("timerTick - visible");
+                // console.log("timerTick - visible");
             }
 
             this._nextTick = moment().add(250, "ms");
@@ -89,15 +89,6 @@ class Points extends DataSourceBase {
     get pointsType() {
         return this._pointsType;
     }
-
-    // set pointsType(value) {
-    //     if (valid_points_type.indexOf(value) < 0) {
-    //         throw new Error("Invalid Points Type");
-    //     }
-    //
-    //     // this._resetFadeTime();
-    //     this._setValueAndRaiseOnChange("_pointsType", value);
-    // }
 
     get amount() {
         return this._amount;

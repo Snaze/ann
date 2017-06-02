@@ -5,6 +5,8 @@ import GameTimer from "./GameTimer";
 import moment from "../../node_modules/moment/moment";
 import PowerUp from "./actors/PowerUp";
 
+const max_power_up_spawn_time = 90.0;
+
 class GameObjectContainer extends DataSourceBase {
     constructor(level) {
         super();
@@ -15,7 +17,9 @@ class GameObjectContainer extends DataSourceBase {
         this._ghostBlue = this._wireUp("_ghostBlue", new Ghost(level, Ghost.BLUE, this._player));
         this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
         this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE, this._player));
-        // this._powerUp = this._wireUp("_powerUp", new PowerUp(level, PowerUp.POWER_UP_CHERRY));
+        this._powerUp = this._wireUp("_powerUp", new PowerUp(level, PowerUp.POWER_UP_CHERRY));
+        this._powerUpActive = false;
+        this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
         // YOU ARE HERE, WIRING UP THE POWER UP
 
         this._gameObjects = [
@@ -24,8 +28,8 @@ class GameObjectContainer extends DataSourceBase {
             this._ghostRed,
             this._ghostBlue,
             this._ghostPink,
-            this._ghostOrange
-            // this._powerUp
+            this._ghostOrange,
+            this._powerUp
         ];
 
         this._gameTimerTickFinishedRef = (e) => this.gameTimerTickFinished(e);
@@ -94,6 +98,17 @@ class GameObjectContainer extends DataSourceBase {
         }
     }
 
+    _pickUpPowerUpIfCollision(thePlayer, thePowerup) {
+        if (thePlayer.location.equals(thePowerup.location)) {
+            thePowerup.points.show(thePowerup.location);
+            thePlayer.score += thePowerup.powerUpValue;
+            thePowerup.isAlive = false;
+            this._powerUpActive = false;
+            this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
+            thePowerup.moveBackToSpawn();
+        }
+    }
+
     // TODO: This fires a lot.  There may be a better way to accomplish this.
     gameTimerTickFinished(e) {
 
@@ -112,11 +127,31 @@ class GameObjectContainer extends DataSourceBase {
 
             let now = moment();
 
+            this.checkAndSpawnPowerUp(now);
+
             this._killIfCollision(this.player, this.ghostRed, now);
             this._killIfCollision(this.player, this.ghostBlue, now);
             this._killIfCollision(this.player, this.ghostPink, now);
             this._killIfCollision(this.player, this.ghostOrange, now);
+
+            this._pickUpPowerUpIfCollision(this.player, this.powerUp);
         }
+    }
+
+    checkAndSpawnPowerUp(now) {
+        if (this._powerUpActive) {
+            return;
+        }
+
+        if (now > this._powerUpSpawnTime) {
+            this._powerUp.isAlive = true;
+            this._powerUp.location.setWithLocation(this.level.getRandomPowerUpSpawnLocation());
+            this._powerUpActive = true;
+        }
+    }
+
+    get powerUp() {
+        return this._powerUp;
     }
 
     get player() {
@@ -170,7 +205,14 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     moveAllBackToSpawn() {
+        let self = this;
+
         this.iterateOverGameObjects(function (gameObject) {
+            // We want to move everything except the powerup
+            if (gameObject === self.powerUp) {
+                return;
+            }
+
             if (typeof(gameObject.moveBackToSpawn) !== "undefined") {
                 gameObject.moveBackToSpawn();
             }

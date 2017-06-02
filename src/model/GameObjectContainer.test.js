@@ -1,6 +1,7 @@
 import GameObjectContainer from "./GameObjectContainer";
 import Level from "./Level";
 import Location from "./Location";
+import moment from "../../node_modules/moment/moment";
 // import Player from "./actors/Player";
 
 it ("Constructor works", () => {
@@ -77,4 +78,37 @@ it ("moveAllBackToSpawn", () => {
     expect(goc.ghostBlue.location.equals(ghostBlueLocation)).toBe(true);
     expect(goc.ghostPink.location.equals(ghostPinkLocation)).toBe(true);
     expect(goc.ghostOrange.location.equals(ghostOrangeLocation)).toBe(true);
+});
+
+it ("checkAndSpawnPowerUp works correctly", () => {
+    // SETUP
+    let theLevel = new Level();
+    let goc = new GameObjectContainer(theLevel);
+    goc._powerUpActive = false;
+    goc._powerUpSpawnTime = moment().add(120, "s");
+    let originalLocation = goc.powerUp.location.clone();
+    let now = moment();
+
+    // CALL
+    goc.checkAndSpawnPowerUp(now);
+
+    // ASSERT
+    expect(goc.powerUp.location.equals(originalLocation)).toBe(true);
+});
+
+it ("checkAndSpawnPowerUp works correctly 2", () => {
+    // SETUP
+    let theLevel = new Level();
+    let goc = new GameObjectContainer(theLevel);
+    goc._powerUpActive = false;
+    goc._powerUpSpawnTime = moment();
+    goc.powerUp.location.set(-1, -1);
+    let originalLocation = goc.powerUp.location.clone();
+    let now = moment().add(1, "s");
+
+    // CALL
+    goc.checkAndSpawnPowerUp(now);
+
+    // ASSERT
+    expect(!goc.powerUp.location.equals(originalLocation)).toBe(true);
 });
