@@ -94,6 +94,10 @@ class Player extends ActorBase {
 
     timerTick(e) {
 
+        if (!this.location.isValid) {
+            return;
+        }
+
         let newDirection = this.direction;
 
         if (KeyEventer.instance.lastArrowPressed !== null) {

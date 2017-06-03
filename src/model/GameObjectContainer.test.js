@@ -112,3 +112,21 @@ it ("checkAndSpawnPowerUp works correctly 2", () => {
     // ASSERT
     expect(!goc.powerUp.location.equals(originalLocation)).toBe(true);
 });
+
+it ("if player spawn is not set, gameTimerTickFinished shouldn't do anything", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    let goc = new GameObjectContainer(theLevel);
+    let executedActorStep = false;
+    goc._gameObjects = [{
+        executeActorStep: function (e) {
+            executedActorStep = true;
+        }
+    }];
+
+    // CALL
+    goc.gameTimerTickFinished({});
+
+    // ASSERT
+    expect(executedActorStep).toBe(false);
+});

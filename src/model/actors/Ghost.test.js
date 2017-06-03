@@ -98,6 +98,18 @@ it ("ghost spawn location updates on _nestedDataSourceChanged in editMode", () =
     testGhostSpawnLocationChange(Ghost.PINK, "ghostPinkLocation", true);
 });
 
+it ("ghost timer tick doesn't bomb is location is invalid", () => {
+    // SETUP
+    let theLevel = new Level();
+    theLevel.playerSpawnLocation.set(-1, -1);
+    theLevel.ghostRedLocation.set(-1, -1);
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    let ghost = new Ghost(theLevel, Ghost.RED, player);
+
+    // CALL
+    ghost.timerTick({});
+});
+
 
 
 // TODO: Fill out movement unit tests (test timerTick(e))

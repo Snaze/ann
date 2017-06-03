@@ -132,3 +132,14 @@ it ("handleLocationChange shouldnt bomb if the location is -1, -1", () => {
     // ASSERT
     expect(player.location.isEqualTo(-1, -1)).toBe(true);
 });
+
+it ("timerTick doesn't bomb if the player's location isn't set", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    theLevel.playerSpawnLocation.set(-1, -1);
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    expect(player.location.isEqualTo(-1, -1)).toBe(true);
+
+    // CALL
+    player.timerTick({});
+});

@@ -8,7 +8,7 @@ class App extends Component {
     constructor(props) {
         super(props);
 
-        let theGame = new GameModel("Level2WithPaths");
+        let theGame = new GameModel("Level4WithPaths");
         // theGame.editMode = false;
 
         this.state = {

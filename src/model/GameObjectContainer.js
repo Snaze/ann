@@ -119,6 +119,10 @@ class GameObjectContainer extends DataSourceBase {
 
     gameTimerTickFinished(e) {
 
+        if (!this.level.playerSpawnLocation.isValid || this.editMode) {
+            return;
+        }
+
         let moved = false;
         this.iterateOverGameObjects(function (gameObj) {
             let temp = gameObj.executeActorStep(e);
