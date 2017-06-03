@@ -16,7 +16,7 @@ class LevelEditPanel extends DataSourceComponent {
         return this.dataSource;
     }
 
-    onButtonClick(e) {
+    onFormEvent(e) {
         let theLevel = this.level;
 
         switch (e.target.id) {
@@ -38,6 +38,7 @@ class LevelEditPanel extends DataSourceComponent {
                 this.props.onLoadComplete(theLevel);
                 break;
             case "btnSave":
+                theLevel.regeneratePaths();
                 let newTextAreaValue = JSON.stringify(theLevel.toJSON());
                 let newState = {
                     textAreaValue: newTextAreaValue
@@ -51,6 +52,9 @@ class LevelEditPanel extends DataSourceComponent {
                 break;
             case "btnMirrorVertical":
                 theLevel.mirrorVertically();
+                break;
+            case "ddlColor":
+                theLevel.color = parseInt(e.target.value, 10);
                 break;
             default:
                 throw new Error("Unknown ID");
@@ -66,7 +70,7 @@ class LevelEditPanel extends DataSourceComponent {
 
     render() {
         return (
-            <table className="LevelEditPanel" onClick={(e) => this.onButtonClick(e)}>
+            <table className="LevelEditPanel" onClick={(e) => this.onFormEvent(e)}>
                 <tbody>
                 <tr>
                     <td>
@@ -88,6 +92,30 @@ class LevelEditPanel extends DataSourceComponent {
                     </td>
                     <td>
                         <button id="btnAddCol" className="LevelEditButton">+</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colSpan={3}>
+                        <hr />
+                    </td>
+                </tr>
+                <tr>
+                    <td colSpan={1} style={{textAlign: "right"}}>
+                        Color:
+                    </td>
+                    <td colSpan={2}>
+                        <select id="ddlColor" value={this.level.color} onChange={(e) => this.onFormEvent(e)}>
+                            <option value="0">Classic Blue</option>
+                            <option value="1">Pink</option>
+                            <option value="2">Aqua</option>
+                            <option value="3">Orange</option>
+                            <option value="4">Purple</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colSpan={3}>
+                        <hr />
                     </td>
                 </tr>
                 <tr>

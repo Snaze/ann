@@ -1,14 +1,33 @@
 import DataSourceBase from "./DataSourceBase";
 
+const border_color_classic = 0;
+const border_color_pink = 1;
+const border_color_aqua = 2;
+const border_color_orange = 3;
+const border_color_purple = 4;
+const valid_colors = [
+    border_color_classic,
+    border_color_pink,
+    border_color_aqua,
+    border_color_orange,
+    border_color_purple
+];
 
 class Border extends DataSourceBase {
-    constructor(left=false, top=false, right=false, bottom=false) {
+    static get COLOR_CLASSIC() { return border_color_classic; }
+    static get COLOR_PINK() { return border_color_pink; }
+    static get COLOR_AQUA() { return border_color_aqua; }
+    static get COLOR_ORANGE() { return border_color_orange; }
+    static get COLOR_PURPLE() { return border_color_purple; }
+
+    constructor(left=false, top=false, right=false, bottom=false, color=border_color_classic) {
         super();
 
         this._left = left;
         this._top = top;
         this._right = right;
         this._bottom = bottom;
+        this._color = color;
     }
 
     toJSON() {
@@ -16,21 +35,22 @@ class Border extends DataSourceBase {
             _left: this._left,
             _top: this._top,
             _right: this._right,
-            _bottom: this._bottom
+            _bottom: this._bottom,
+            _color: this._color
         };
     }
 
     clone(direction="none") {
         if (direction === "none") {
-            return new Border(this._left, this._top, this._right, this._bottom);
+            return new Border(this._left, this._top, this._right, this._bottom, this._color);
         }
 
         if (direction === "horizontal") {
-            return new Border(this._right, this._top, this._left, this._bottom);
+            return new Border(this._right, this._top, this._left, this._bottom, this._color);
         }
 
         if (direction === "vertical") {
-            return new Border(this._left, this._bottom, this._right, this._top);
+            return new Border(this._left, this._bottom, this._right, this._top, this._color);
         }
 
         throw new Error("invalid direction found");
@@ -90,11 +110,25 @@ class Border extends DataSourceBase {
     }
     get bottom () {return this._bottom}
 
+
+    get color() {
+        return this._color;
+    }
+
+    set color(value) {
+        if (valid_colors.indexOf(value) < 0) {
+            throw new Error("Invalid Color");
+        }
+
+        this._setValueAndRaiseOnChange("_color", value);
+    }
+
     equals(otherBorder) {
         return this.left === otherBorder.left &&
                 this.top === otherBorder.top &&
                 this.right === otherBorder.right &&
-                this.bottom === otherBorder.bottom;
+                this.bottom === otherBorder.bottom &&
+                this.color === otherBorder.color;
     }
 }
 

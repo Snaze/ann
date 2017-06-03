@@ -1,5 +1,6 @@
 import Level from "./Level";
 import Cell from "./Cell";
+import Border from "./Border";
 import BorderType from "./BorderType";
 import Location from "./Location";
 import _ from "../../node_modules/lodash/lodash";
@@ -603,4 +604,44 @@ it ("selectedCell returns null if selectedLocation is invalid", () => {
 
     // ASSERT
     expect(theSelectedCell).toBe(null);
+});
+
+it ("regeneratePaths works", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    let oldFloydWarshall = theLevel.floydWarshall;
+
+    // CALL
+    let newFloydWarshall = theLevel.regeneratePaths();
+
+    // ASSERT
+    expect(newFloydWarshall !== oldFloydWarshall).toBe(true);
+});
+
+it ("get color works", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    // let oldFloydWarshall = theLevel.floydWarshall;
+
+    // CALL
+    let theColor = theLevel.color;
+
+    // ASSERT
+    expect(theColor).toBe(Border.COLOR_CLASSIC);
+});
+
+it ("set color works", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    // let oldFloydWarshall = theLevel.floydWarshall;
+
+    // CALL
+    theLevel.color = Border.COLOR_PINK;
+
+    // ASSERT
+    expect(theLevel.color).toBe(Border.COLOR_PINK);
+    expect(theLevel.getCell(0, 0).solidBorder.color).toBe(Border.COLOR_PINK);
+    expect(theLevel.getCell(0, 1).solidBorder.color).toBe(Border.COLOR_PINK);
+    expect(theLevel.getCell(1, 0).solidBorder.color).toBe(Border.COLOR_PINK);
+    expect(theLevel.getCell(1, 1).solidBorder.color).toBe(Border.COLOR_PINK);
 });

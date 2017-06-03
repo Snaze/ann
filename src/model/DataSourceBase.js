@@ -30,7 +30,7 @@ class DataSourceBase {
 
         for (let prop in this._nestedDataSources) {
             if (this._nestedDataSources.hasOwnProperty(prop)) {
-                this._unWire(this._nestedDataSources[prop]);
+                this._unWireForDestruction(this._nestedDataSources[prop]);
             }
         }
     }

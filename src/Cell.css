@@ -34,6 +34,76 @@
     border-bottom: Solid 2px #1f1ff2;
 }
 
+
+.CellSolidLeftBorderPink {
+    border-left: Solid 2px #f8e0f8;
+}
+
+.CellSolidTopBorderPink {
+    border-top: Solid 2px #f8e0f8;
+}
+
+.CellSolidRightBorderPink {
+    border-right: Solid 2px #f8e0f8;
+}
+
+.CellSolidBottomBorderPink {
+    border-bottom: Solid 2px #f8e0f8;
+}
+
+
+.CellSolidLeftBorderAqua {
+    border-left: Solid 2px #00f8f8;
+}
+
+.CellSolidTopBorderAqua {
+    border-top: Solid 2px #00f8f8;
+}
+
+.CellSolidRightBorderAqua {
+    border-right: Solid 2px #00f8f8;
+}
+
+.CellSolidBottomBorderAqua {
+    border-bottom: Solid 2px #00f8f8;
+}
+
+
+.CellSolidLeftBorderOrange {
+    border-left: Solid 2px #f89800;
+}
+
+.CellSolidTopBorderOrange {
+    border-top: Solid 2px #f89800;
+}
+
+.CellSolidRightBorderOrange {
+    border-right: Solid 2px #f89800;
+}
+
+.CellSolidBottomBorderOrange {
+    border-bottom: Solid 2px #f89800;
+}
+
+
+.CellSolidLeftBorderPurple {
+    border-left: Solid 2px #0000f8;
+}
+
+.CellSolidTopBorderPurple {
+    border-top: Solid 2px #0000f8;
+}
+
+.CellSolidRightBorderPurple {
+    border-right: Solid 2px #0000f8;
+}
+
+.CellSolidBottomBorderPurple {
+    border-bottom: Solid 2px #0000f8;
+}
+
+
+
 /** PARTIAL **/
 
 .CellPartialLeftBorder {

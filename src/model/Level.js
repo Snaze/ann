@@ -67,11 +67,19 @@ class Level extends DataSourceBase {
                 currentCell.setSolidBorder(BorderType.TOP, currentDataCell._solidBorder._top);
                 currentCell.setSolidBorder(BorderType.RIGHT, currentDataCell._solidBorder._right);
                 currentCell.setSolidBorder(BorderType.BOTTOM, currentDataCell._solidBorder._bottom);
+                if (typeof(currentDataCell._solidBorder._color) !== "undefined" &&
+                    currentDataCell._solidBorder._color !== null) {
+                    currentCell.solidBorder.color = currentDataCell._solidBorder._color;
+                }
 
                 currentCell.setPartialBorder(BorderType.LEFT, currentDataCell._partialBorder._left);
                 currentCell.setPartialBorder(BorderType.TOP, currentDataCell._partialBorder._top);
                 currentCell.setPartialBorder(BorderType.RIGHT, currentDataCell._partialBorder._right);
                 currentCell.setPartialBorder(BorderType.BOTTOM, currentDataCell._partialBorder._bottom);
+                if (typeof(currentDataCell._partialBorder._color) !== "undefined" &&
+                    currentDataCell._partialBorder._color !== null) {
+                    currentCell.partialBorder.color = currentDataCell._partialBorder._color;
+                }
 
                 conditionalAssignCell("_isPlayerSpawn");
                 conditionalAssignCell("_isGhostRedSpawn");
@@ -311,13 +319,17 @@ class Level extends DataSourceBase {
 
     get floydWarshall() {
         if (this._borderIsDirty || (this._floydWarshall === null)) {
-            this._floydWarshall = new FloydWarshall();
-            this._floydWarshall.buildAllPaths(this);
-            this._floydWarshall.convertPathsToDirections(this);
-            this._borderIsDirty = false;
+            this.regeneratePaths();
         }
 
         return this._floydWarshall;
+    }
+
+    regeneratePaths() {
+        this._floydWarshall = new FloydWarshall();
+        this._floydWarshall.buildAllPaths(this);
+        this._floydWarshall.convertPathsToDirections(this);
+        this._borderIsDirty = false;
     }
 
     get activeCells() {
@@ -327,6 +339,18 @@ class Level extends DataSourceBase {
         }
 
         return this._activeCells;
+    }
+
+    get color() {
+        return this.getCell(0, 0).solidBorder.color;
+    }
+
+    set color(value) {
+        let oldValue = this.color;
+        this.iterateOverCells(function (cell) {
+            cell.solidBorder.color = value;
+        });
+        // this._raiseOnChangeCallbacks("color", oldValue, value);
     }
 
 

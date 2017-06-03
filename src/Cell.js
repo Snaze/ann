@@ -5,6 +5,8 @@ import PropTypes from "prop-types";
 import {default as LocationModel} from "./model/Location";
 import DataSourceComponent from "./DataSourceComponent";
 import BorderType from "./model/BorderType";
+// import {default as CellModel} from "./model/Cell";
+import Border from "./model/Border";
 
 const default_cell_width = 24;
 const default_cell_height = 24;
@@ -13,6 +15,19 @@ class Cell extends DataSourceComponent {
 
     static get DEFAULT_CELL_WIDTH() { return default_cell_width; }
     static get DEFAULT_CELL_HEIGHT() { return default_cell_height; }
+    static _colorNameMap = null;
+    static get colorNameMap() {
+        if (Cell._colorNameMap === null) {
+            Cell._colorNameMap = {};
+            Cell._colorNameMap[Border.COLOR_CLASSIC] = "";
+            Cell._colorNameMap[Border.COLOR_PINK] = "Pink";
+            Cell._colorNameMap[Border.COLOR_AQUA] = "Aqua";
+            Cell._colorNameMap[Border.COLOR_ORANGE] = "Orange";
+            Cell._colorNameMap[Border.COLOR_PURPLE] = "Purple";
+        }
+
+        return Cell._colorNameMap;
+    }
 
     constructor(props) {
         super(props);
@@ -88,7 +103,7 @@ class Cell extends DataSourceComponent {
         let self = this;
         let assignBorders = function (propName, solidClassName, partialClassName) {
             if (self.cell.solidBorder[propName]) {
-                toRet += solidClassName + " ";
+                toRet += solidClassName + Cell.colorNameMap[self.cell.solidBorder.color] + " ";
             } else if (self.cell.partialBorder[propName]) {
                 toRet += partialClassName + " ";
             }

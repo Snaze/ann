@@ -71,12 +71,15 @@ class DataSourceComponent extends Component {
     }
 
     componentDidMount() {
-        this.dataSource.addOnChangeCallback(this._callback);
+        if (this.dataSource) {
+            this.dataSource.addOnChangeCallback(this._callback);
+        }
     }
 
     componentWillUnmount() {
-        let ds = this.dataSource;
-        ds.removeOnChangeCallback(this._callback);
+        if (this.dataSource) {
+            this.dataSource.removeOnChangeCallback(this._callback);
+        }
     }
 
     componentWillReceiveProps(nextProps) {
