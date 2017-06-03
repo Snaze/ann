@@ -121,20 +121,6 @@ class Level extends DataSourceBase {
             toRet._powerUpSpawns = jsonObject._powerUpSpawns;
         }
 
-        // let conditionalAssignEntityLocation = function (jsonObject, jsonObjectProperty, toRetProperty) {
-        //     if (typeof(jsonObject[jsonObjectProperty]) !== "undefined") {
-        //         let x = jsonObject[jsonObjectProperty]._x;
-        //         let y = jsonObject[jsonObjectProperty]._y;
-        //         toRet[toRetProperty].location.set(x, y);
-        //     }
-        // };
-        //
-        // conditionalAssignEntityLocation(jsonObject, "_playerSpawnLocation", "_player");
-        // conditionalAssignEntityLocation(jsonObject, "_ghostRedLocation", "_ghostRed");
-        // conditionalAssignEntityLocation(jsonObject, "_ghostBlueLocation", "_ghostBlue");
-        // conditionalAssignEntityLocation(jsonObject, "_ghostPinkLocation", "_ghostPink");
-        // conditionalAssignEntityLocation(jsonObject, "_ghostOrangeLocation", "_ghostOrange");
-
         return toRet;
     }
 
@@ -518,6 +504,8 @@ class Level extends DataSourceBase {
 
                 currentCell = this.gameMatrix[y][x];
                 currentClonedCell = currentCell.clone(y + "_" + currentNewXIndex, "horizontal");
+                currentClonedCell.selected = false;
+                currentClonedCell.location.set(currentNewXIndex, y);
 
                 this._wireUp(Level._getGameMatrixPropName(currentNewXIndex, y), currentClonedCell);
                 this.gameMatrix[y][currentNewXIndex++] = currentClonedCell;
@@ -541,6 +529,9 @@ class Level extends DataSourceBase {
 
                 currentCell = this.gameMatrix[y][x];
                 currentClonedCell = currentCell.clone(currentNewYIndex + "_" + x, "vertical");
+                currentClonedCell.selected = false;
+                currentClonedCell.location.set(x, currentNewYIndex);
+
                 this._wireUp(Level._getGameMatrixPropName(x, currentNewYIndex), currentClonedCell);
                 this.gameMatrix[currentNewYIndex][x] = currentClonedCell;
             }
@@ -569,6 +560,8 @@ class Level extends DataSourceBase {
         for (let x = 0; x < this.width; x++) {
             let currentId = this.height + "_" + x;
             let currentCell = new Cell(currentId);
+            currentCell.solidBorder.color = this.color;
+            currentCell.editMode = this.editMode;
             this._wireUp(Level._getGameMatrixPropName(x, this._height), currentCell);
             this.gameMatrix[this.height][x] = currentCell;
         }
@@ -576,14 +569,16 @@ class Level extends DataSourceBase {
         this._setValueAndRaiseOnChange("_height", this.height + 1);
     }
 
-    /**
-     * TODO: If you remove a row that contains a spawn location, reset the spawn location
-     */
     removeRow() {
+        if (this.height === 1) {
+            return;
+        }
+
         let self = this;
         let currentRow = this._gameMatrix.pop();
         currentRow.forEach(function (cell) {
-            self._unWire(cell);
+            cell.setAllSpawnValuesFalse();
+            self._unWireForDestruction(cell);
             cell.removeAllCallbacks();
         });
 
@@ -594,6 +589,8 @@ class Level extends DataSourceBase {
         for (let y = 0; y < this.height; y++) {
             let currentId = y + "_" + this.width;
             let currentCell = new Cell(currentId);
+            currentCell.solidBorder.color = this.color;
+            currentCell.editMode = this.editMode;
             this._wireUp(Level._getGameMatrixPropName(this.width, y), currentCell);
 
             this.gameMatrix[y][this.width] = currentCell;
@@ -602,14 +599,16 @@ class Level extends DataSourceBase {
         this.width = this.width + 1;
     }
 
-    /**
-     * TODO: If you remove a column that contains a spawn location, reset the spawn location
-     */
     removeColumn() {
+
+        if (this.width === 1) {
+            return;
+        }
 
         for (let y = 0; y < this.height; y++) {
             let currentCell = this.gameMatrix[y].pop();
-            this._unWire(currentCell);
+            currentCell.setAllSpawnValuesFalse();
+            this._unWireForDestruction(currentCell);
             currentCell.removeAllCallbacks();
         }
 
@@ -617,6 +616,10 @@ class Level extends DataSourceBase {
     }
 
     getCellByLocation(location) {
+        if (location.x >= this.width || location.y >= this.height) {
+            return null;
+        }
+
         return this.gameMatrix[location.y][location.x];
     }
 

@@ -103,3 +103,32 @@ it ("handleLocationChange should not increment attackModeId when its already act
     // ASSERT
     expect(player.attackModeId).toBe(origAttackModeId);
 });
+
+it ("handleLocationChange should reset location if cell doesn't exist", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    theLevel.playerSpawnLocation.set(0, 0);
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    expect(player.location.isEqualTo(0, 0)).toBe(true);
+
+    // CALL
+    player.handleLocationChanged(new Location(1, 1));
+
+    // ASSERT
+    expect(player.location.isEqualTo(-1, -1)).toBe(true);
+});
+
+it ("handleLocationChange shouldnt bomb if the location is -1, -1", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    theLevel.playerSpawnLocation.set(0, 0);
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    expect(player.location.isEqualTo(0, 0)).toBe(true);
+    player.location.set(-1, -1);
+
+    // CALL
+    player.handleLocationChanged(player.location);
+
+    // ASSERT
+    expect(player.location.isEqualTo(-1, -1)).toBe(true);
+});

@@ -58,7 +58,18 @@ class Player extends ActorBase {
     }
 
     handleLocationChanged(theLocation) {
+
+        if (!theLocation.isValid) {
+            return;
+        }
+
         let cell = this.level.getCellByLocation(theLocation);
+
+        if (cell === null) {
+            this.location.set(-1, -1);
+            return;
+        }
+
         if (cell.dotType === Dot.LITTLE) {
             this.score = this.score + 10;
             cell.dotType = Dot.NONE;

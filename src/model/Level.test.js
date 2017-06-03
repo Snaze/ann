@@ -645,3 +645,160 @@ it ("set color works", () => {
     expect(theLevel.getCell(1, 0).solidBorder.color).toBe(Border.COLOR_PINK);
     expect(theLevel.getCell(1, 1).solidBorder.color).toBe(Border.COLOR_PINK);
 });
+
+it ("removeColumn removes spawn values if they are in that col", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    let cell_1_0 = theLevel.getCell(1, 0);
+    cell_1_0.isPlayerSpawn = true;
+    expect(theLevel.playerSpawnLocation.isEqualTo(1, 0)).toBe(true);
+
+    // CALL
+    theLevel.removeColumn();
+
+    // ASSERT
+    expect(theLevel.playerSpawnLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(cell_1_0.isPlayerSpawn).toBe(false);
+});
+
+it ("removeColumn doesnt let less than 1 col", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+
+    // CALL
+    theLevel.removeColumn();
+
+    // ASSERT
+    expect(theLevel.width).toBe(1);
+});
+
+it ("addColumn adds cell of the same color", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    let cell_0_0 = theLevel.getCell(0, 0);
+    theLevel.color = Border.COLOR_AQUA;
+    expect(cell_0_0.solidBorder.color === Border.COLOR_AQUA).toBe(true);
+
+    // CALL
+    theLevel.addColumn();
+
+    // ASSERT
+    let cell_1_0 = theLevel.getCell(1, 0);
+    expect(cell_1_0.solidBorder.color === Border.COLOR_AQUA).toBe(true);
+});
+
+it ("removeRow removes spawn values if they are in that row", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    let cell_0_1 = theLevel.getCell(0, 1);
+    cell_0_1.isPlayerSpawn = true;
+    expect(theLevel.playerSpawnLocation.isEqualTo(0, 1)).toBe(true);
+
+    // CALL
+    theLevel.removeRow();
+
+    // ASSERT
+    expect(theLevel.playerSpawnLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(cell_0_1.isPlayerSpawn).toBe(false);
+});
+
+it ("removeRow doesnt let less than 1 row", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+
+    // CALL
+    theLevel.removeRow();
+
+    // ASSERT
+    expect(theLevel.height).toBe(1);
+});
+
+it ("addRow adds cell of the same color", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    let cell_0_0 = theLevel.getCell(0, 0);
+    theLevel.color = Border.COLOR_AQUA;
+    expect(cell_0_0.solidBorder.color === Border.COLOR_AQUA).toBe(true);
+
+    // CALL
+    theLevel.addRow();
+
+    // ASSERT
+    let cell_0_1 = theLevel.getCell(0, 1);
+    expect(cell_0_1.solidBorder.color === Border.COLOR_AQUA).toBe(true);
+});
+
+it ("addRow should add the cells in edit mode", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    let cell_0_0 = theLevel.getCell(0, 0);
+    theLevel.editMode = true;
+
+    // CALL
+    theLevel.addRow();
+
+    // ASSERT
+    let cell_0_1 = theLevel.getCell(0, 1);
+    expect(cell_0_1.editMode).toBe(true);
+});
+
+it ("addColumn should add the cells in edit mode", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    let cell_0_0 = theLevel.getCell(0, 0);
+    theLevel.editMode = true;
+
+    // CALL
+    theLevel.addColumn();
+
+    // ASSERT
+    let cell_1_0 = theLevel.getCell(1, 0);
+    expect(cell_1_0.editMode).toBe(true);
+});
+
+it ("getCellByLocation returns null if cell doesn't exist", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+
+    // CALL
+    let theValue = theLevel.getCellByLocation(new Location(2, 2));
+
+    // ASSERT
+    expect(theValue === null).toBe(true);
+});
+
+it ("mirrorHorizontal assigns new ids and locations to clone cells", () => {
+    // SETUP
+    let theLevel = new Level(2, 1);
+    let cell_0_0 = theLevel.getCell(0, 0);
+    let cell_1_0 = theLevel.getCell(1, 0);
+    expect(cell_0_0.id).toBe("0_0");
+    expect(cell_1_0.id).toBe("0_1");
+
+    // CALL
+    theLevel.mirrorHorizontally();
+
+    // ASSERT
+    expect(theLevel.getCell(2, 0).id).toBe("0_2");
+    expect(theLevel.getCell(2, 0).location.isEqualTo(2, 0)).toBe(true);
+    expect(theLevel.getCell(3, 0).id).toBe("0_3");
+    expect(theLevel.getCell(3, 0).location.isEqualTo(3, 0)).toBe(true);
+});
+
+it ("mirrorVertical assigns new ids and locations to clone cells", () => {
+    // SETUP
+    let theLevel = new Level(1, 2);
+    let cell_0_0 = theLevel.getCell(0, 0);
+    let cell_0_1 = theLevel.getCell(0, 1);
+    expect(cell_0_0.id).toBe("0_0");
+    expect(cell_0_1.id).toBe("1_0");
+
+    // CALL
+    theLevel.mirrorVertically();
+
+    // ASSERT
+    expect(theLevel.getCell(0, 2).id).toBe("2_0");
+    expect(theLevel.getCell(0, 2).location.isEqualTo(0, 2)).toBe(true);
+    expect(theLevel.getCell(0, 3).id).toBe("3_0");
+    expect(theLevel.getCell(0, 3).location.isEqualTo(0, 3)).toBe(true);
+});

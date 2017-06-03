@@ -28,7 +28,6 @@ class Cell extends DataSourceBase {
         let y = parseInt(tempArray[0], 10);
         this._location = this._wireUp("_location", new Location(x, y));
         this._editMode = false;
-        this._screenLocation = this._wireUp("_screenLocation", new Location(-1, -1));
     }
 
     toJSON() {
@@ -63,9 +62,6 @@ class Cell extends DataSourceBase {
         toRet._isActive = this._isActive;
         toRet._location = this._location.clone();
         toRet._editMode = this._editMode;
-        if (null !== this._screenLocation) {
-            toRet._screenLocation = this._screenLocation.clone();
-        }
 
         // I'LL LEAVE IT AS THE RESPONSIBLITY OF THE CALLER TO RE-ASSIGN
         // THE EVENT HANDLERS
@@ -73,7 +69,7 @@ class Cell extends DataSourceBase {
         return toRet;
     }
 
-    _setAllSpawnValuesFalse(fromProperty) {
+    setAllSpawnValuesFalse(fromProperty="") {
 
         if (fromProperty !== "isPlayerSpawn") {
             this.isPlayerSpawn = false;
@@ -102,7 +98,7 @@ class Cell extends DataSourceBase {
 
     set isPlayerSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse("isPlayerSpawn");
+            this.setAllSpawnValuesFalse("isPlayerSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isPlayerSpawn", value);
@@ -114,7 +110,7 @@ class Cell extends DataSourceBase {
 
     set isGhostRedSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse("isGhostRedSpawn");
+            this.setAllSpawnValuesFalse("isGhostRedSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostRedSpawn", value);
@@ -126,7 +122,7 @@ class Cell extends DataSourceBase {
 
     set isGhostPinkSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse("isGhostPinkSpawn");
+            this.setAllSpawnValuesFalse("isGhostPinkSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostPinkSpawn", value);
@@ -138,7 +134,7 @@ class Cell extends DataSourceBase {
 
     set isGhostBlueSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse("isGhostBlueSpawn");
+            this.setAllSpawnValuesFalse("isGhostBlueSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostBlueSpawn", value);
@@ -150,7 +146,7 @@ class Cell extends DataSourceBase {
 
     set isGhostOrangeSpawn(value) {
         if (value) {
-            this._setAllSpawnValuesFalse("isGhostOrangeSpawn");
+            this.setAllSpawnValuesFalse("isGhostOrangeSpawn");
         }
 
         this._setValueAndRaiseOnChange("_isGhostOrangeSpawn", value);
@@ -289,10 +285,6 @@ class Cell extends DataSourceBase {
 
     set editMode(value) {
         this._setValueAndRaiseOnChange("_editMode", value);
-    }
-
-    get screenLocation() {
-        return this._screenLocation;
     }
 
     canTraverseTo(otherCell, maxWidth, maxHeight) {
