@@ -70,18 +70,14 @@ class GameObjectContainer extends DataSourceBase {
 
     _killIfCollision(thePlayer, theGhost, now) {
         if (thePlayer.location.equals(theGhost.location)) {
-            if (thePlayer.attackModeFinishTime > now) {
+            if (thePlayer.attackModeFinishTime > now && theGhost.isScared) {
                 // GHOST IS DEAD SINCE PLAYER IS ATTACKING
                 if (theGhost.isAlive) {
-                    theGhost.isAlive = false;
-                    theGhost.killScore = GameObjectContainer.nextKillScore;
-                    theGhost.points.show(theGhost.location);
-                    theGhost.prevKilledByAttackModeId = thePlayer.attackModeId;
-                    thePlayer.score += theGhost.killScore;
+                    theGhost.kill(this.player, GameObjectContainer.nextKillScore);
                 }
-                // console.log("Ghost DEAD");
-            } else {
+            } else if (theGhost.isAlive) {
                 // PLAYER IS DEAD SINCE PLAYER IS NOT ATTACKING
+                // OR GHOST IS NOT SCARED
                 if (thePlayer.isAlive) {
                     thePlayer.isAlive = false;
                     this.paused = true;
@@ -157,6 +153,10 @@ class GameObjectContainer extends DataSourceBase {
         }
 
         if (now > this._powerUpSpawnTime) {
+            let powerUps = this.level.powerUps;
+            let powerUpIndex = Math.floor(Math.random() * powerUps.length);
+            let randomPowerUp = this.level.powerUps[powerUpIndex];
+            this._powerUp.setPowerUpTypeByName(randomPowerUp);
             this._powerUp.isAlive = true;
             this._powerUp.location.setWithLocation(this.level.getRandomPowerUpSpawnLocation());
             this._powerUpActive = true;

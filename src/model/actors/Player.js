@@ -168,6 +168,16 @@ class Player extends ActorBase {
     get attackModeId() {
         return this._attackModeId;
     }
+
+    get isAlive() {
+        return super.isAlive;
+    }
+
+    set isAlive(value) {
+        this._attackModeFinishTime = moment().add(-1, "s");
+
+        super.isAlive = value;
+    }
 }
 
 export default Player;

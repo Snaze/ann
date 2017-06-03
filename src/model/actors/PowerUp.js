@@ -13,6 +13,16 @@ const validPowerUps = [
     cherry, strawberry, orange, pretzel, apple, pear, banana
 ];
 
+const powerUpNameMap = {
+    "cherry": cherry,
+    "strawberry": strawberry,
+    "orange": orange,
+    "pretzel": pretzel,
+    "apple": apple,
+    "pear": pear,
+    "banana": banana
+};
+
 class PowerUp extends ActorBase {
 
     static get POWER_UP_CHERRY() { return cherry; }
@@ -109,6 +119,10 @@ class PowerUp extends ActorBase {
         this.points.amount = value;
 
         this._setValueAndRaiseOnChange("_powerUpType", value);
+    }
+
+    setPowerUpTypeByName(name) {
+        this.powerUpType = powerUpNameMap[name.toLowerCase()];
     }
 }
 

@@ -147,6 +147,11 @@ class Ghost extends ActorBase {
         this._setValueAndRaiseOnChange("_scaredState", value);
     }
 
+    get isScared() {
+        return this._scaredState === Ghost.SCARED_STATE_SCARED ||
+            this._scaredState === Ghost.SCARED_STATE_SCARED_FLASH;
+    }
+
     get prevLocation() {
         return this._prevLocation;
     }
@@ -187,6 +192,18 @@ class Ghost extends ActorBase {
 
     set prevKilledByAttackModeId(value) {
         this._setValueAndRaiseOnChange("_prevKilledByAttackModeId", value);
+    }
+
+    kill(player, killScore) {
+        if (!this.isAlive || !this.isScared) {
+            throw new Error("You can only kill a live and scared ghost");
+        }
+
+        this.isAlive = false;
+        this.killScore = killScore;
+        this.points.show(this.location);
+        this.prevKilledByAttackModeId = player.attackModeId;
+        player.score += this.killScore;
     }
 }
 

@@ -143,3 +143,17 @@ it ("timerTick doesn't bomb if the player's location isn't set", () => {
     // CALL
     player.timerTick({});
 });
+
+it ("setting isAlive to false resets _attackModeFinishTime", () => {
+    // SETUP
+    let theLevel = new Level(1, 1);
+    theLevel.playerSpawnLocation.set(0, 0);
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    player._attackModeFinishTime = moment().add(120, "s");
+
+    // CALL
+    player.isAlive = false;
+
+    // ASSERT
+    expect(player._attackModeFinishTime <= moment()).toBe(true);
+});

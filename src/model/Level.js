@@ -332,7 +332,7 @@ class Level extends DataSourceBase {
     }
 
     set color(value) {
-        let oldValue = this.color;
+        // let oldValue = this.color;
         this.iterateOverCells(function (cell) {
             cell.solidBorder.color = value;
         });

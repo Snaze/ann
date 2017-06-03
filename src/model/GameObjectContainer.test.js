@@ -2,6 +2,8 @@ import GameObjectContainer from "./GameObjectContainer";
 import Level from "./Level";
 import Location from "./Location";
 import moment from "../../node_modules/moment/moment";
+import Ghost from "./actors/Ghost";
+import GhostBrainManual from "./actors/GhostBrains/GhostBrainManual";
 // import Player from "./actors/Player";
 
 it ("Constructor works", () => {
@@ -129,4 +131,70 @@ it ("if player spawn is not set, gameTimerTickFinished shouldn't do anything", (
 
     // ASSERT
     expect(executedActorStep).toBe(false);
+});
+
+it ("_killIfCollision will not kill a non-scared ghost", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    let goc = new GameObjectContainer(theLevel);
+    goc.ghostRed.scaredState = Ghost.SCARED_STATE_NOT_SCARED;
+    goc.ghostRed.location.set(0, 0);
+    goc.player._attackModeFinishTime = moment().add(120, "s");
+    goc.player.location.set(0, 0);
+
+    // CALL
+    goc._killIfCollision(goc.player, goc.ghostRed, moment());
+
+    // ASSERT
+    expect(goc.ghostRed.isAlive).toBe(true);
+});
+
+it ("_killIfCollision will kill a scared ghost", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    let goc = new GameObjectContainer(theLevel);
+    goc.ghostRed.scaredState = Ghost.SCARED_STATE_SCARED;
+    goc.ghostRed.location.set(0, 0);
+    goc.player._attackModeFinishTime = moment().add(120, "s");
+    goc.player.location.set(0, 0);
+
+    // CALL
+    goc._killIfCollision(goc.player, goc.ghostRed, moment());
+
+    // ASSERT
+    expect(goc.ghostRed.isAlive).toBe(false);
+});
+
+it ("_killIfCollision will not kill player with dead ghost", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    let goc = new GameObjectContainer(theLevel);
+    goc.ghostRed.scaredState = Ghost.SCARED_STATE_NOT_SCARED;
+    goc.ghostRed.isAlive = false;
+    goc.ghostRed.location.set(0, 0);
+    goc.player._attackModeFinishTime = moment().add(120, "s");
+    goc.player.location.set(0, 0);
+
+    // CALL
+    goc._killIfCollision(goc.player, goc.ghostRed, moment());
+
+    // ASSERT
+    expect(goc.player.isAlive).toBe(true);
+});
+
+it ("checkAndSpawnPowerUp picks a random power up and sets it", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    theLevel.levelNum = 8;
+    let goc = new GameObjectContainer(theLevel);
+    goc._powerUpActive = false;
+    goc._powerUpSpawnTime = moment().add(-1, "s");
+    let wasCalled = false;
+    goc.powerUp._powerUpType = -1;
+
+    // CALL
+    goc.checkAndSpawnPowerUp(moment());
+
+    // ASSERT
+    expect(goc.powerUp._powerUpType !== -1).toBe(true);
 });
