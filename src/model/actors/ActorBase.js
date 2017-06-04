@@ -59,12 +59,6 @@ class ActorBase extends DataSourceBase {
         return toRet;
     }
 
-    removeAllCallbacks() {
-        super.removeAllCallbacks();
-
-        this._location.removeOnChangeCallback(this._locationOnChangeCallbackRef);
-    }
-
     get direction() {
         return this._direction;
     }

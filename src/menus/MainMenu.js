@@ -1,38 +1,43 @@
-import React, {Component} from 'react';
+import React from 'react';
 import './MainMenu.css';
 import KeyEventer from "../utils/KeyEventer";
 import Entity from "../Entity";
 import PropTypes from 'prop-types';
+import DataSourceComponent from "../DataSourceComponent";
+import {default as MainMenuModel} from "../model/menus/MainMenu";
 
-class MainMenu extends Component {
+class MainMenu extends DataSourceComponent {
 
     constructor(props) {
         super(props);
 
-        this.state = {
-            selectedPlayer: 1
-        };
         this.keyDownRef = (e) => this.keyDown(e);
     }
 
+    get mainMenu() {
+        return this.dataSource;
+    }
+
     componentDidMount() {
+        super.componentDidMount();
+
         KeyEventer.instance.addCallback(this.keyDownRef, KeyEventer.CALLBACK_KEYDOWN);
     }
 
     componentWillUnmount() {
+        super.componentWillUnmount();
+
         KeyEventer.instance.removeCallback(this.keyDownRef, KeyEventer.CALLBACK_KEYDOWN);
     }
 
     togglePlayer() {
-        let currentSelectedPlayer = this.state.selectedPlayer;
-        let otherPlayer = 2;
+        let currentSelectedPlayer = this.mainMenu.selectedPlayer;
+        let otherPlayer = MainMenuModel.SELECTED_PLAYERS_2;
         if (currentSelectedPlayer === 2) {
-            otherPlayer = 1;
+            otherPlayer = MainMenuModel.SELECTED_PLAYERS_1;
         }
 
-        this.setState({
-            selectedPlayer: otherPlayer
-        });
+        this.mainMenu.selectedPlayer = otherPlayer;
     }
 
     keyDown(key) {
@@ -46,11 +51,7 @@ class MainMenu extends Component {
                 break;
             case "Enter":
             case " ":
-                if (this.props.onSelectionCallback) {
-                    this.props.onSelectionCallback({
-                        selectedPlayer: this.state.selectedPlayer
-                    });
-                }
+                this.mainMenu.selectionConfirmed = true;
                 break;
             default:
                 break;
@@ -59,7 +60,7 @@ class MainMenu extends Component {
     }
 
     getSelectionSpan(theNum) {
-        if (this.state.selectedPlayer === theNum) {
+        if (this.mainMenu.selectedPlayer === theNum) {
             return (<span className="MainMenuBlink">»</span>)
         }
 
@@ -131,7 +132,7 @@ class MainMenu extends Component {
 }
 
 MainMenu.propTypes = {
-    onSelectionCallback: PropTypes.func.isRequired
+    dataSource: PropTypes.instanceOf(MainMenuModel).isRequired
 };
 
 export default MainMenu;

@@ -4,6 +4,18 @@ it("Test Constructor Doesnt Bomb", () => {
     // SETUP
 
     // CALL
-    let theGame = new Game("Level1");
+    let theGame = new Game();
 
+});
+
+it ("test getLevelName", () => {
+    // SETUP
+
+    // CALL
+    let levelName = Game.getLevelName(0);
+    let levelName2 = Game.getLevelName(14);
+
+    // ASSERT
+    expect(levelName).toBe("Level2WithPaths");
+    expect(levelName2).toBe("Level2WithPaths");
 });

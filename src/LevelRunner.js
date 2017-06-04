@@ -1,47 +1,46 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {default as GameModel} from "./model/Game";
+import {default as LevelRunnerModel} from "./model/LevelRunner";
 import Level from "./Level";
 import LevelEditPanel from "./LevelEditPanel";
 import DataSourceComponent from "./DataSourceComponent";
-import "./Game.css";
+import "./LevelRunner.css";
 import ContextMenu from "./ContextMenu";
 import GameHeader from "./GameHeader";
 import GameFooter from "./GameFooter";
 
-class Game extends DataSourceComponent {
+class LevelRunner extends DataSourceComponent {
 
     get level() {
-        return this.game.level;
+        return this.levelRunner.level;
     }
 
     get gameObjectContainer() {
-        return this.game.gameObjectContainer;
+        return this.levelRunner.gameObjectContainer;
     }
 
     get gameFooter() {
-        return this.game.gameFooter;
+        return this.levelRunner.gameFooter;
     }
 
     get gameHeader() {
-        return this.game.gameHeader;
+        return this.levelRunner.gameHeader;
     }
 
-    get game() {
+    get levelRunner() {
         return this.dataSource;
     }
 
     levelEditPanel_onLoadComplete(theLevel) {
-        this.game.level = theLevel;
-        // this.game.editMode = true;
+        this.levelRunner.level = theLevel;
     }
 
     buttonToggleEdit_Click(e) {
-        this.game.editMode = !this.game.editMode;
+        this.levelRunner.editMode = !this.levelRunner.editMode;
     }
 
     editPanelStyle() {
-        if (this.game.editPanelEnabled) {
+        if (this.levelRunner.editPanelEnabled) {
             return {
                 display: "inline"
             };
@@ -53,9 +52,9 @@ class Game extends DataSourceComponent {
     }
 
     render() {
-        return (<div className="Game">
-            <div className="GameLevel">
-                <table className="GameArea">
+        return (<div className="LevelRunner">
+            <div className="LevelRunnerLevel">
+                <table className="LevelRunnerArea">
                     <tbody>
                         <tr>
                             <td>
@@ -76,18 +75,18 @@ class Game extends DataSourceComponent {
                 </table>
             </div>
             <div style={this.editPanelStyle()}>
-                <div className={this.game.editMode ? "GameLevelEditorPanel" : "GameLevelEditorPanelHide"}>
+                <div className={this.levelRunner.editMode ? "LevelRunnerLevelEditorPanel" : "LevelRunnerLevelEditorPanelHide"}>
                     <div className="ButtonToggleEdit"
                          onClick={(e) => this.buttonToggleEdit_Click(e)}>
                         <div className="ButtonToggleEditText">
-                            {this.game.editMode ? "Play!" : "Edit!"}
+                            {this.levelRunner.editMode ? "Play!" : "Edit!"}
                         </div>
                     </div>
-                    <div className="GamePanel">
+                    <div className="LevelRunnerPanel">
                         <LevelEditPanel dataSource={this.level}
                                         onLoadComplete={(e) => this.levelEditPanel_onLoadComplete(e)}/>
                     </div>
-                    <div className="GamePanel">
+                    <div className="LevelRunnerPanel">
                         <ContextMenu dataSource={this.level.selectedCell} editMode={this.level.editMode}/>
                     </div>
                 </div>
@@ -96,8 +95,8 @@ class Game extends DataSourceComponent {
     }
 }
 
-Game.propTypes = {
-    dataSource: PropTypes.instanceOf(GameModel).isRequired
+LevelRunner.propTypes = {
+    dataSource: PropTypes.instanceOf(LevelRunnerModel).isRequired
 };
 
-export default Game;
+export default LevelRunner;

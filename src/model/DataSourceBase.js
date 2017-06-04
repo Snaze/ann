@@ -15,6 +15,8 @@ class DataSourceBase {
         this._nestedDataSources = {};
         this._debug = false;
         this._toIgnore = [];
+        this._wireCount = 0;
+        this._unWireCount = 0;
     }
 
     addOnChangeCallback(callback) {
@@ -26,12 +28,45 @@ class DataSourceBase {
     }
 
     removeAllCallbacks() {
-        this._eventer.removeAllCallbacks();
+        if (this._eventer) {
+            this._eventer.removeAllCallbacks();
+        }
 
         for (let prop in this._nestedDataSources) {
             if (this._nestedDataSources.hasOwnProperty(prop)) {
                 this._unWireForDestruction(this._nestedDataSources[prop]);
             }
+        }
+    }
+
+    _doTheDisposal(propName, self) {
+        if (typeof(self[propName]) === "undefined" || self[propName] === null) {
+            return;
+        }
+
+        if (typeof(self[propName].dispose) !== "undefined") {
+            self[propName].dispose();
+        }
+
+        self[propName] = null;
+    }
+
+    dispose() {
+        this.removeAllCallbacks();
+
+        // this._doTheDisposal("_dataSourceId", this);
+        // this._doTheDisposal("_ownerPropName", this);
+        // this._doTheDisposal("_eventer", this);
+        // this._doTheDisposal("_nestDataSourceChangedRef", this);
+        // this._doTheDisposal("_nestedDataSources", this);
+        // this._doTheDisposal("_debug", this);
+        // this._doTheDisposal("_toIgnore", this);
+        for (let prop in this) {
+            this._doTheDisposal(prop, this);
+        }
+
+        if (this._wireCount !== this._unWireCount) {
+            throw new Error("Wire and Unwire counts don't match")
         }
     }
 
@@ -92,6 +127,8 @@ class DataSourceBase {
 
         nestedObject._ownerPropName = propName;
 
+        this._wireCount++;
+
         return nestedObject;
     }
 
@@ -101,12 +138,14 @@ class DataSourceBase {
         }
 
         if (typeof(this._nestedDataSources[nestedObject.dataSourceId]) === "undefined") {
-            throw new Error("this._nestDataSource does not contain nestedObject.dataSourceId = '" + nestedObject.dataSourceId + "'");
+            this.log("this._nestDataSource does not contain nestedObject.dataSourceId = '" + nestedObject.dataSourceId + "'");
+            return;
         }
 
         nestedObject.removeOnChangeCallback(this._nestDataSourceChangedRef);
         nestedObject._ownerPropName = null;
         delete this._nestedDataSources[nestedObject.dataSourceId];
+        this._unWireCount++;
     }
 
     _unWireForDestruction(nestedObject) {

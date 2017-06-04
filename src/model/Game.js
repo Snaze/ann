@@ -1,82 +1,91 @@
 import LevelFactory from "./LevelFactory";
 import DataSourceBase from "./DataSourceBase";
-import GameObjectContainer from "./GameObjectContainer";
-import GameHeader from "./GameHeader";
-import GameFooter from "./GameFooter";
+import MainMenu from "./menus/MainMenu";
+import LevelRunner from "./LevelRunner";
+
+const levelNumToLevelMap = {
+    0: "Level2WithPaths",
+    1: "Level2WithPaths",
+
+    2: "Level3WithPaths",
+    3: "Level3WithPaths",
+    4: "Level3WithPaths",
+
+    5: "Level4WithPaths",
+    6: "Level4WithPaths",
+    7: "Level4WithPaths",
+    8: "Level4WithPaths",
+
+    9: "Level5WithPaths",
+    10: "Level5WithPaths",
+    11: "Level5WithPaths",
+    12: "Level5WithPaths",
+    13: "Level5WithPaths"
+};
 
 class Game extends DataSourceBase {
-    constructor(levelName="Level1") {
+    static getLevelName(levelNum) {
+        let keys = Object.keys(levelNumToLevelMap);
+        let keysAsNumbers = keys.map(function (item) {
+            return parseInt(item, 10);
+        });
+        let maxValue = Math.max(...keysAsNumbers);
+
+        let theKey = levelNum % (maxValue + 1);
+        return levelNumToLevelMap[theKey];
+    }
+
+    constructor() {
         super();
 
-        this._levelName = levelName;
-        this._editMode = false;
-        this._level = this._wireUp("_level", LevelFactory.createLevel(levelName));
-        this._gameObjectContainer = new GameObjectContainer(this._level);
-        this._gameObjectContainer.paused = true;
-        this._editPanelEnabled = true;
-        this._gameHeader = new GameHeader(this._gameObjectContainer.player, null);
-        this._gameFooter = new GameFooter(this._gameObjectContainer.player,
-                                          this._gameObjectContainer.player2,
-                                          this._level, GameFooter.ACTIVE_PLAYER_1);
-        this._gameObjectContainer.restartLevel();
+        this._levelNum = 0;
+        this._mainMenu = this._wireUp("_mainMenu", new MainMenu());
+        this._levelRunner = this._wireUp("_levelRunner", new LevelRunner(Game.getLevelName(this._levelNum)));
+        this._gameStarted = false;
+        this._numPlayers = 1;
     }
 
-    get editPanelEnabled() {
-        return this._editPanelEnabled;
+    _nestedDataSourceChanged(e) {
+        if (e.object === this._mainMenu) {
+            if (e.source === "_selectionConfirmed" && this._mainMenu.selectionConfirmed) {
+                this._mainMenu.selectionConfirmed = false;
+                this.numPlayers = this._mainMenu.numPlayers;
+
+            }
+        }
+
+        super._nestedDataSourceChanged(e);
     }
 
-    get gameFooter() {
-        return this._gameFooter;
-    }
+    startGame() {
+        this._gameStarted = true;
+        let levelName = Game.getLevelName(this._levelNum);
 
-    set editPanelEnabled(value) {
-        this._setValueAndRaiseOnChange("_editPanelEnabled", value);
+
     }
 
     get level() {
-        return this._level;
+        return this._levelRunner.level;
     }
 
-    set level(value) {
-        if (this._level !== null) {
-            this._unWireForDestruction(this._level);
-            this._level = null;
-        }
-
-        let toSet = this._wireUp("_level", value);
-        this._gameObjectContainer.level = toSet;
-        this._setValueAndRaiseOnChange("_level", toSet);
+    get levelNum() {
+        return this._levelNum;
     }
 
-    get editMode() {
-        return this._editMode;
+    set levelNum(value) {
+        this._setValueAndRaiseOnChange("_levelNum", value);
     }
 
-    set editMode(value) {
-        if (value) {
-            this.reloadLevel();
-            this.level.getCell(0, 0).selected = true;
-        }
-
-        this.level.editMode = value;
-        this.gameObjectContainer.editMode = value;
-        this._setValueAndRaiseOnChange("_editMode", value);
+    get numPlayers() {
+        return this._numPlayers;
     }
 
-    get levelName() {
-        return this._levelName;
+    set numPlayers(value) {
+        this._setValueAndRaiseOnChange("_numPlayers", value);
     }
 
-    get gameObjectContainer() {
-        return this._gameObjectContainer;
-    }
-
-    reloadLevel() {
-        this.level = LevelFactory.createLevel(this._levelName);
-    }
-
-    get gameHeader() {
-        return this._gameHeader;
+    get gameStarted() {
+        return this._gameStarted;
     }
 }
 

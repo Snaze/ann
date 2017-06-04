@@ -1,26 +1,25 @@
 import React, {Component} from 'react';
 import './App.css';
-import Game from "./Game";
-import {default as GameModel} from "./model/Game";
+import LevelRunner from "./LevelRunner";
+import {default as LevelRunnerModel} from "./model/LevelRunner";
 
 class App extends Component {
 
     constructor(props) {
         super(props);
 
-        let theGame = new GameModel("Level5WithPaths");
-        theGame.level.levelNum = 3;
+        let levelRunner = new LevelRunnerModel("Level5WithPaths");
         // theGame.editMode = false;
 
         this.state = {
-            game: theGame
+            levelRunner: levelRunner
         };
     }
 
     render() {
         return (
             <div className="App" style={{backgroundColor: "Gray"}}>
-                <Game dataSource={this.state.game} />
+                <LevelRunner dataSource={this.state.levelRunner} />
             </div>
         );
     }

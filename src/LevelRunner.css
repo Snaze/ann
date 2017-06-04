@@ -1,47 +1,47 @@
-.Game {
+.LevelRunner {
     overflow: hidden;
 
 }
 
-.GameLevel {
+.LevelRunnerLevel {
 
 }
 
-.GamePanel {
+.LevelRunnerPanel {
     display: inline-block;
     vertical-align: top;
     margin-right: 2px;
 }
 
-.GameLevelEditorPanel {
+.LevelRunnerLevelEditorPanel {
     text-align: left;
     display: inline-block;
     position: fixed;
     top: 0;
     width: 500px;
     right: -500px;
-    animation: GameLevelEditorPanelShowAnimation 1s forwards;
-    -webkit-animation: GameLevelEditorPanelShowAnimation 1s forwards;
+    animation: LevelRunnerLevelEditorPanelShowAnimation 1s forwards;
+    -webkit-animation: LevelRunnerLevelEditorPanelShowAnimation 1s forwards;
 }
 
-@keyframes GameLevelEditorPanelShowAnimation {
+@keyframes LevelRunnerLevelEditorPanelShowAnimation {
     100% {
         right: 0;
     }
 }
 
-.GameLevelEditorPanelHide {
+.LevelRunnerLevelEditorPanelHide {
     text-align: left;
     display: inline-block;
     position: fixed;
     top: 0;
     right: 0;
     width: 500px;
-    animation: GameLevelEditorPanelHideAnimation 1s forwards;
-    -webkit-animation: GameLevelEditorPanelHideAnimation 1s forwards;
+    animation: LevelRunnerLevelEditorPanelHideAnimation 1s forwards;
+    -webkit-animation: LevelRunnerLevelEditorPanelHideAnimation 1s forwards;
 }
 
-@keyframes GameLevelEditorPanelHideAnimation {
+@keyframes LevelRunnerLevelEditorPanelHideAnimation {
     100% {
         right: -500px;
     }
@@ -82,6 +82,6 @@
     transform: rotate(-90deg) translateX(-90px);
 }
 
-.GameArea {
+.LevelRunnerArea {
     background: black;
 }
