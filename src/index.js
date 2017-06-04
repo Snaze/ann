@@ -26,3 +26,15 @@ ReactDOM.render(
 //   <EntityAnimationTest />,
 //   document.getElementById('root')
 // );
+
+// import Modal from "./Modal";
+// ReactDOM.render(
+//   <Modal />,
+//   document.getElementById('root')
+// );
+
+// import ModalTest from "./tests/ModalTest";
+// ReactDOM.render(
+//     <ModalTest />,
+//     document.getElementById('root')
+// );
