@@ -38,6 +38,10 @@ class ActorBase extends DataSourceBase {
         console.log("This method should be overridden in child classes.");
     }
 
+    resetLocations() {
+        console.log("This method should be overridden in child classes.");
+    }
+
     executeActorStep(e) {
 
         let toRet = false;
@@ -112,11 +116,12 @@ class ActorBase extends DataSourceBase {
 
     set level(value) {
         if (value !== this._level) {
-            this._unWireForDestruction(this._level);
+            this._unWire(this._level);
             this._wireUp("_level", value);
         }
 
         this._setValueAndRaiseOnChange("_level", value);
+        this.resetLocations();
     }
 
     canMoveInDirection(sourceLocation, direction) {

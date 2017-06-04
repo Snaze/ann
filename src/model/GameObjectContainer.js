@@ -37,6 +37,7 @@ class GameObjectContainer extends DataSourceBase {
 
         this._currentPlayerDead = false;
         this._restartLevelRef = null;
+        this._levelFinishedCallback = null;
     }
 
     static _nextKillScore = 100;
@@ -49,7 +50,7 @@ class GameObjectContainer extends DataSourceBase {
         GameObjectContainer._nextKillScore = 100;
     }
 
-    restartLevel(timeout=3000) {
+    startOrRestartLevel(timeout=3000) {
         this.moveAllBackToSpawn();
 
         if (!this.player.isAlive) {
@@ -84,10 +85,10 @@ class GameObjectContainer extends DataSourceBase {
                     this.currentPlayerDead = true;
 
                     if (this._restartLevelRef === null) {
-                        this._restartLevelRef = () => this.restartLevel();
+                        this._restartLevelRef = () => this.startOrRestartLevel();
                         let self = this;
                         setTimeout(function (e) {
-                            self.restartLevel();
+                            self.startOrRestartLevel();
                         }, 3000);
                     }
                 }
@@ -107,9 +108,12 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     _checkIfAllDotsEaten(thePlayer, theLevel) {
-        if (thePlayer.dotsEaten === theLevel.numDots) {
+        // if (thePlayer.dotsEaten === theLevel.numDots) {
+        if (thePlayer.dotsEaten >= 2 && !this.paused) {
             this.paused = true;
-            alert("You win!");
+            if (this.levelFinishedCallback) {
+                this.levelFinishedCallback(this);
+            }
         }
     }
 
@@ -246,6 +250,9 @@ class GameObjectContainer extends DataSourceBase {
         });
     }
 
+    get paused() {
+        return this._gameObjects[0].paused;
+    }
 
     get currentPlayerDead() {
         return this._currentPlayerDead;
@@ -254,6 +261,25 @@ class GameObjectContainer extends DataSourceBase {
     set currentPlayerDead(value) {
         this._setValueAndRaiseOnChange("_currentPlayerDead", value);
     }
+
+    get levelFinishedCallback() {
+        return this._levelFinishedCallback;
+    }
+
+    set levelFinishedCallback(value) {
+        this._levelFinishedCallback = value;
+    }
+
+    get gameOverCallback() {
+        return this._gameOverCallback;
+    }
+
+    set gameOverCallback(value) {
+        this._gameOverCallback = value;
+    }
+
+
+
 }
 
 export default GameObjectContainer;

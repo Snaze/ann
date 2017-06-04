@@ -85,6 +85,19 @@ class GameFooter extends DataSourceBase {
     set numLives(value) {
         this._setValueAndRaiseOnChange("_numLives", value);
     }
+
+    get level() {
+        return this._level;
+    }
+
+    set level(value) {
+        if (this._level) {
+            this._unWire(this._level);
+            this._level = null;
+        }
+
+        this._setValueAndRaiseOnChange("_level", value);
+    }
 }
 
 export default GameFooter;

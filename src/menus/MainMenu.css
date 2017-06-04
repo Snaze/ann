@@ -69,3 +69,13 @@ html, body {
     display: inline-block;
     width: 32px;
 }
+
+.MainMenuTableCellLeft {
+    vertical-align: middle;
+    text-align: right;
+}
+
+.MainMenuTableCellRight {
+    vertical-align: middle;
+    text-align: left;
+}

@@ -157,3 +157,22 @@ it ("setting isAlive to false resets _attackModeFinishTime", () => {
     // ASSERT
     expect(player._attackModeFinishTime <= moment()).toBe(true);
 });
+
+it ("when the level changes reset the player's location and dotsEaten", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.playerSpawnLocation.set(1, 1);
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    player._dotsEaten = 2;
+    let theLevel2 = new Level(3, 3);
+    theLevel2.playerSpawnLocation.set(2, 2);
+
+    // CALL
+    player.level = theLevel2;
+
+    // ASSERT
+    expect(player.location.isEqualTo(2, 2)).toBe(true);
+    expect(player.spawnLocation.isEqualTo(2, 2)).toBe(true);
+    expect(player.dotsEaten).toBe(0);
+
+});

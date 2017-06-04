@@ -40,6 +40,11 @@ class Player extends ActorBase {
         this._numLives = 3;
     }
 
+    resetLocations() {
+        this.location.setWithLocation(this.level.playerSpawnLocation);
+        this._spawnLocation.setWithLocation(this.location);
+    }
+
     _nestedDataSourceChanged(e) {
 
         if (_.startsWith(e.source, "_playerSpawnLocation")) {
@@ -177,6 +182,16 @@ class Player extends ActorBase {
         this._attackModeFinishTime = moment().add(-1, "s");
 
         super.isAlive = value;
+    }
+
+    get level() {
+        return this._level;
+    }
+
+    set level(value) {
+        super.level = value;
+
+        this._dotsEaten = 0;
     }
 }
 

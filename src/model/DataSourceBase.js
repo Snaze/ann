@@ -20,11 +20,15 @@ class DataSourceBase {
     }
 
     addOnChangeCallback(callback) {
-        this._eventer.addCallback(callback);
+        if (this._eventer) {
+            this._eventer.addCallback(callback);
+        }
     }
 
     removeOnChangeCallback(callback) {
-        this._eventer.removeCallback(callback);
+        if (this._eventer) {
+            this._eventer.removeCallback(callback);
+        }
     }
 
     removeAllCallbacks() {

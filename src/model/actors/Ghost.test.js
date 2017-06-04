@@ -110,6 +110,22 @@ it ("ghost timer tick doesn't bomb is location is invalid", () => {
     ghost.timerTick({});
 });
 
-
-
 // TODO: Fill out movement unit tests (test timerTick(e))
+
+it ("reset locations when setting a new level", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.ghostRedLocation.set(2, 2);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    let ghostRed = new Ghost(theLevel, Ghost.RED, thePlayer);
+    let secondLevel = new Level(3, 3);
+    secondLevel.ghostRedLocation.set(1, 1);
+
+    // CALL
+    ghostRed.level = secondLevel;
+
+    // ASSERT
+    expect(ghostRed.location.isEqualTo(1, 1)).toBe(true);
+    expect(ghostRed.spawnLocation.isEqualTo(1, 1)).toBe(true);
+    expect(ghostRed.prevLocation.isEqualTo(1, 1)).toBe(true);
+});

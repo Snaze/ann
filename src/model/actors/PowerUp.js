@@ -49,6 +49,13 @@ class PowerUp extends ActorBase {
         this._cellTransitionDuration = 0.6;
     }
 
+    resetLocations() {
+        this.location.set(-1, -1);
+        this._spawnLocation.set(-1, -1);
+        this._prevLocation.set(-1, -1);
+        this._destinationLocation.set(-1, -1);
+    }
+
     _getRandomLocation() {
         let toRet = this.location;
 

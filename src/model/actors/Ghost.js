@@ -46,29 +46,37 @@ class Ghost extends ActorBase {
 
         this._player = player;
         this._color = color;
-        switch(this._color) {
-            case Ghost.RED:
-                this.location.setWithLocation(level.ghostRedLocation);
-                break;
-            case Ghost.BLUE:
-                this.location.setWithLocation(level.ghostBlueLocation);
-                break;
-            case Ghost.PINK:
-                this.location.setWithLocation(level.ghostPinkLocation);
-                break;
-            case Ghost.ORANGE:
-                this.location.setWithLocation(level.ghostOrangeLocation);
-                break;
-            default:
-                throw new Error("Unknown Ghost color detected");
-        }
+
+        this.location.setWithLocation(Ghost.getSpawnLocationFromLevel(level, color));
         this._spawnLocation = this.location.clone();
+        this._prevLocation = this.location.clone();
+
         this._ghostBrain = new GhostBrainManual();
         this._scaredState = Ghost.SCARED_STATE_NOT_SCARED;
-        this._prevLocation = this.location.clone();
         this._killScore = 0;
         this._points = this._wireUp("_points", new Points(Points.POINTS_TYPE_GHOST_KILL));
         this._prevKilledByAttackModeId = -1;
+    }
+
+    resetLocations() {
+        this.location.setWithLocation(Ghost.getSpawnLocationFromLevel(this.level, this.color));
+        this.spawnLocation.setWithLocation(this.location);
+        this._prevLocation.setWithLocation(this.location);
+    }
+
+    static getSpawnLocationFromLevel(level, color) {
+        switch (color) {
+            case Ghost.RED:
+                return level.ghostRedLocation;
+            case Ghost.BLUE:
+                return level.ghostBlueLocation;
+            case Ghost.PINK:
+                return level.ghostPinkLocation;
+            case Ghost.ORANGE:
+                return level.ghostOrangeLocation;
+            default:
+                throw new Error("Unknown Ghost color detected");
+        }
     }
 
     _nestedDataSourceChanged(e) {
@@ -173,18 +181,9 @@ class Ghost extends ActorBase {
         this._ghostBrain.reset();
     }
 
-    // set isAlive(value) {
-    //     if (value) {
-    //         this.points.reset();
-    //     }
-    //
-    //     this._setValueAndRaiseOnChange("_isAlive", value);
-    // }
-
     get points() {
         return this._points;
     }
-
 
     get prevKilledByAttackModeId() {
         return this._prevKilledByAttackModeId;

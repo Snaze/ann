@@ -1,4 +1,3 @@
-import LevelFactory from "./LevelFactory";
 import DataSourceBase from "./DataSourceBase";
 import MainMenu from "./menus/MainMenu";
 import LevelRunner from "./LevelRunner";
@@ -38,7 +37,7 @@ class Game extends DataSourceBase {
     constructor() {
         super();
 
-        this._levelNum = 0;
+        this._levelNum = 1;
         this._mainMenu = this._wireUp("_mainMenu", new MainMenu());
         this._levelRunner = this._wireUp("_levelRunner", new LevelRunner(Game.getLevelName(this._levelNum)));
         this._gameStarted = false;
@@ -48,9 +47,17 @@ class Game extends DataSourceBase {
     _nestedDataSourceChanged(e) {
         if (e.object === this._mainMenu) {
             if (e.source === "_selectionConfirmed" && this._mainMenu.selectionConfirmed) {
-                this._mainMenu.selectionConfirmed = false;
+                // this._mainMenu.selectionConfirmed = false;
                 this.numPlayers = this._mainMenu.numPlayers;
+                this.startGame();
+            }
+        } else if (e.object === this._levelRunner) {
+            if (e.source === "_levelFinished" &&
+                this.levelRunner.levelFinished) {
+                this._levelNum++;
 
+                let levelName = Game.getLevelName(this._levelNum);
+                this._levelRunner.startLevel(levelName, true, this._levelNum);
             }
         }
 
@@ -58,10 +65,10 @@ class Game extends DataSourceBase {
     }
 
     startGame() {
-        this._gameStarted = true;
+        this._setValueAndRaiseOnChange("_gameStarted", true);
+
         let levelName = Game.getLevelName(this._levelNum);
-
-
+        this._levelRunner.startLevel(levelName, false, this._levelNum);
     }
 
     get level() {
@@ -86,6 +93,22 @@ class Game extends DataSourceBase {
 
     get gameStarted() {
         return this._gameStarted;
+    }
+
+    get editMode() {
+        return this._levelRunner.editMode;
+    }
+
+    set editMode(value) {
+        this._levelRunner.editMode = value;
+    }
+
+    get levelRunner() {
+        return this._levelRunner;
+    }
+
+    get mainMenu() {
+        return this._mainMenu;
     }
 }
 

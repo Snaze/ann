@@ -13,6 +13,15 @@ class Level extends DataSourceComponent {
         return this.dataSource;
     }
 
+    componentWillReceiveProps(nextProps) {
+        //TODO: FIX THIS --> THIS IS KIND OF HACKY
+        if (this.dataSource !== nextProps.dataSource) {
+            Cell.resetCellLocationCache();
+        }
+
+        super.componentWillReceiveProps(nextProps);
+    }
+
     renderCells(rowIndex) {
         let toRet = [];
 
@@ -31,25 +40,6 @@ class Level extends DataSourceComponent {
         for (let rowIndex = 0; rowIndex < this.level.gameMatrix.length; rowIndex++) {
             let key = "Level_row_" + rowIndex;
             toRet.push(<tr key={key}>{this.renderCells(rowIndex)}</tr>);
-        }
-
-        return toRet;
-    }
-
-    getEntityStyle(spawnLocation) {
-        let toRet = {
-            display: "none"
-        };
-
-        if (spawnLocation.isValid) {
-            let cellModel = this.level.gameMatrix[spawnLocation.y][spawnLocation.x];
-            let cellLocation = Cell.getCellLocation(cellModel);
-
-            toRet.display = "block";
-            toRet.position = "absolute";
-            toRet.top =  (cellLocation.y - 2) + "px";
-            toRet.left = (cellLocation.x - 2) + "px";
-            toRet.pointerEvents = "none";
         }
 
         return toRet;

@@ -109,18 +109,18 @@ class MainMenu extends DataSourceComponent {
                 <table>
                     <tbody>
                         <tr>
-                            <td>
+                            <td className="MainMenuTableCellLeft">
                                 {this.getSelectionSpan(1)}
                             </td>
-                            <td>
+                            <td className="MainMenuTableCellRight">
                                 <div>1 Player</div>
                             </td>
                         </tr>
                         <tr>
-                            <td>
+                            <td className="MainMenuTableCellLeft">
                                 {this.getSelectionSpan(2)}
                             </td>
-                            <td>
+                            <td className="MainMenuTableCellRight">
                                 <div>2 Players</div>
                             </td>
                         </tr>

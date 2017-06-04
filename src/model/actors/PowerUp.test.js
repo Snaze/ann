@@ -56,3 +56,22 @@ it ("setPowerUpTypeByName works", () => {
     expect(powerUp.powerUpType === PowerUp.POWER_UP_BANANA).toBe(true);
 
 });
+
+it ("locations get reset on level set", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    let powerUp = new PowerUp(theLevel, PowerUp.POWER_UP_BANANA);
+    powerUp.location.set(2, 2);
+    powerUp._spawnLocation.set(2, 2);
+    powerUp._prevLocation.set(2, 2);
+    powerUp._destinationLocation.set(2, 2);
+
+    // CALL
+    powerUp.level = new Level(4, 4);
+
+    // ASSERT
+    expect(powerUp.location.isEqualTo(-1, -1)).toBe(true);
+    expect(powerUp._spawnLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(powerUp._prevLocation.isEqualTo(-1, -1)).toBe(true);
+    expect(powerUp._destinationLocation.isEqualTo(-1, -1)).toBe(true);
+});

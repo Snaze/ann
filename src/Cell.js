@@ -57,6 +57,10 @@ class Cell extends DataSourceComponent {
         return Cell._cellLocationCache[cellId];
     }
 
+    static resetCellLocationCache() {
+        Cell._cellLocationCache = {};
+    }
+
     get cell() {
         return this.dataSource;
     }
