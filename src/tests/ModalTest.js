@@ -45,12 +45,15 @@ class ModalTest extends Component {
             <div>Last Button Clicked: {this.state.lastButtonClicked}</div>
             <button onClick={(e) => this.onClick(e)} >{this.buttonText}</button>
             <Modal title={"GAME OVER"}
-                   message="Would you like to play again"
-                    yesButtonText={"Yes"}
-                    noButtonText={"No"}
+                    yesButtonText={"YES"}
+                    noButtonText={"NO"}
                     show={this.state.show}
                     height={256}
-                    buttonClick={(e) => this.modalButtonClick(e)}/>
+                    buttonClick={(e) => this.modalButtonClick(e)}>
+                <div>
+                    WOULD YOU LIKE TO PLAY AGAIN
+                </div>
+            </Modal>
         </div>);
     }
 

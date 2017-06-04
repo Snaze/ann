@@ -138,6 +138,9 @@ class KeyEventer {
             case "Q":
                 this._q = true;
                 break;
+            case "Enter":
+            case " ":
+                break;
             default:
                 return; // Quit when this doesn't handle the key event.
         }
@@ -194,6 +197,9 @@ class KeyEventer {
             case "q":
             case "Q":
                 this._q = false;
+                break;
+            case "Enter":
+            case " ":
                 break;
             default:
                 return; // Quit when this doesn't handle the key event.

@@ -12,12 +12,6 @@ class Modal extends React.Component {
     static get BUTTON_YES() { return buttonTypeYes; }
     static get BUTTON_NO() { return buttonTypeNo; }
 
-    constructor(props) {
-        super(props);
-
-    }
-
-
     get style() {
         let self = this;
 
@@ -30,7 +24,7 @@ class Modal extends React.Component {
 
     get noButton() {
         if (this.props.noButtonText !== "") {
-            return (<button id="modalNoButton" className="ModalButton" onClick={(e) => this.buttonClick(e)}>{this.props.noButtonText.toUpperCase()}</button>);
+            return (<button id="modalNoButton" className="ModalButton" onClick={(e) => this.buttonClick(e)}>{this.props.noButtonText}</button>);
         }
 
         return null;
@@ -38,7 +32,7 @@ class Modal extends React.Component {
 
     get header() {
         if (this.props.title !== "") {
-            return (<div className="ModalHeader">{this.props.title.toUpperCase()}</div>);
+            return (<div className="ModalHeader">{this.props.title}</div>);
         }
 
         return null;
@@ -63,10 +57,10 @@ class Modal extends React.Component {
         if (this.props.show) {
             return (<div key="TEST" className="ModalContent" style={this.style}>
                 {this.header}
-                <div className="ModalText">{this.props.message.toUpperCase()}</div>
+                <div className="ModalText">{this.props.children}</div>
                 <div className="ModalButtons">
                     <div style={{position: "relative", width: "100%"}}>
-                        <button id="modalYesButton" className="ModalButton" onClick={(e) => this.buttonClick(e)}>{this.props.yesButtonText.toUpperCase()}</button>
+                        <button id="modalYesButton" className="ModalButton" onClick={(e) => this.buttonClick(e)}>{this.props.yesButtonText}</button>
                         {this.noButton}
                     </div>
                 </div>
@@ -98,7 +92,6 @@ Modal.propTypes = {
     noButtonText: PropTypes.string,
     fontSize: PropTypes.number,
     title: PropTypes.string,
-    message: PropTypes.string,
     show: PropTypes.bool,
     buttonClick: PropTypes.func
 };
@@ -110,7 +103,6 @@ Modal.defaultProps = {
     noButtonText: "CANCEL",
     fontSize: 24,
     title: "TITLE",
-    message: "MESSAGE",
     show: true,
     buttonClick: null
 };
