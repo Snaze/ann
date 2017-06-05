@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Modal from "../Modal";
+import {default as ModalModel} from "../model/Modal";
 
 class ModalTest extends Component {
 
@@ -7,13 +8,15 @@ class ModalTest extends Component {
         super(props);
 
         this.state = {
-            show: false,
             lastButtonClicked: ""
         };
+
+        this._modal = new ModalModel();
+        this._modal.buttonClick = (e) => this.modalButtonClick(e);
     }
 
     get buttonText() {
-        if (!this.state.show) {
+        if (!this._modal.show) {
             return "Show";
         }
 
@@ -21,22 +24,20 @@ class ModalTest extends Component {
     }
 
     onClick(e) {
-        this.setState({
-            show: !this.state.show
-        });
+        this._modal.show = !this._modal.show;
     }
 
     modalButtonClick(e) {
         if (e.buttonType === Modal.BUTTON_YES) {
             this.setState({
-                lastButtonClicked: "YES",
-                show: false
+                lastButtonClicked: "YES"
             });
+            this._modal.show = false;
         } else {
             this.setState({
-                lastButtonClicked: "NO",
-                show: false
+                lastButtonClicked: "NO"
             });
+            this._modal.show = false;
         }
     }
 
@@ -44,12 +45,7 @@ class ModalTest extends Component {
         return (<div>
             <div>Last Button Clicked: {this.state.lastButtonClicked}</div>
             <button onClick={(e) => this.onClick(e)} >{this.buttonText}</button>
-            <Modal title={"GAME OVER"}
-                    yesButtonText={"YES"}
-                    noButtonText={"NO"}
-                    show={this.state.show}
-                    height={256}
-                    buttonClick={(e) => this.modalButtonClick(e)}>
+            <Modal dataSource={this._modal}>
                 <div>
                     WOULD YOU LIKE TO PLAY AGAIN
                 </div>
