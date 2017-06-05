@@ -204,6 +204,16 @@ class Ghost extends ActorBase {
         this.prevKilledByAttackModeId = player.attackModeId;
         player.score += this.killScore;
     }
+
+    get level() {
+        return super.level;
+    }
+
+    set level(value) {
+        super.level = value;
+
+        this._ghostBrain.reset();
+    }
 }
 
 export default Ghost;

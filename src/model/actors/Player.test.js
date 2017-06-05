@@ -239,3 +239,17 @@ it ("player constructor should set cellDuration midRange", () => {
     expect(player.cellTransitionDuration < Player.MAX_CELL_DURATION).toBe(true);
     expect(player.cellTransitionDuration > Player.MIN_CELL_DURATION).toBe(true);
 });
+
+it ("setting level should reset the attackModeFinishTime", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.levelNum = 2;
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    player._attackModeFinishTime = moment().add(120, "s");
+
+    // CALL
+    player.level = new Level(2, 2);
+
+    // ASSERT
+    expect(player._attackModeFinishTime < moment()).toBe(true);
+});

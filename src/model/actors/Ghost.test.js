@@ -1,6 +1,7 @@
 import Ghost from "./Ghost";
 import Level from "../Level";
 import Player from "./Player";
+import GhostBrainManual from "./GhostBrains/GhostBrainManual";
 
 const moveInDirectionCallback_DoesNothing = function (newLocation) {
     // TO NOTHING
@@ -128,4 +129,22 @@ it ("reset locations when setting a new level", () => {
     expect(ghostRed.location.isEqualTo(1, 1)).toBe(true);
     expect(ghostRed.spawnLocation.isEqualTo(1, 1)).toBe(true);
     expect(ghostRed.prevLocation.isEqualTo(1, 1)).toBe(true);
+});
+
+it ("reset ghost brain when setting a new level", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.ghostRedLocation.set(2, 2);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    let ghostRed = new Ghost(theLevel, Ghost.RED, thePlayer);
+    ghostRed._ghostBrain.enterState(GhostBrainManual.GHOST_STATE_ATTACK);
+    let secondLevel = new Level(3, 3);
+    secondLevel.ghostRedLocation.set(1, 1);
+
+    // CALL
+    ghostRed.level = secondLevel;
+
+    // ASSERT
+    expect(ghostRed._ghostBrain._currentState === GhostBrainManual.GHOST_STATE_HOLDING_PIN).toBe(true);
+
 });

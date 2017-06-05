@@ -205,6 +205,7 @@ class Player extends ActorBase {
     set level(value) {
         this._dotsEaten = 0;
         this._cellTransitionDuration = Player.getCellTransitionDuration(value);
+        this._attackModeFinishTime = moment().add(-1, "s");
 
         super.level = value;
     }
