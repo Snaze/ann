@@ -19,7 +19,6 @@ class GameObjectContainer extends DataSourceBase {
         this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE, this._player));
         this._powerUp = this._wireUp("_powerUp", new PowerUp(level, PowerUp.POWER_UP_CHERRY));
         this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
-        // YOU ARE HERE, WIRING UP THE POWER UP
 
         this._gameObjects = [
             this._player,
