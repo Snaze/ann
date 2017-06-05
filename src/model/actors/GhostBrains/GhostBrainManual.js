@@ -5,6 +5,7 @@ import Direction from "../../../utils/Direction";
 import GhostBrainStrategyAttack from "./GhostBrainStrategies/GhostBrainStrategyAttack";
 import GhostBrainStrategyScared from "./GhostBrainStrategies/GhostBrainStrategyScared";
 import GhostBrainStrategyDead from "./GhostBrainStrategies/GhostBrainStrategyDead";
+import EasingFunctions from "../../../utils/EasingFunctions";
 
 const ghost_state_wander = 0;
 const ghost_state_holding_pin = 1;
@@ -18,6 +19,14 @@ class GhostBrainManual {
     static get GHOST_STATE_ATTACK() { return ghost_state_attack; }
     static get GHOST_STATE_SCARED() { return ghost_state_scared; }
     static get GHOST_STATE_DEAD() { return ghost_state_dead; }
+
+    // TODO: This is also in Player.js, refactor to a common location
+    static getCellTransitionDuration(level, minDuration, maxDuration) {
+        let levelNumberAsRange = level.getLevelNumAsTimeRange();
+        levelNumberAsRange = Math.abs(1.0 - levelNumberAsRange);
+        return EasingFunctions.doCalculation(EasingFunctions.easeOutCubic, levelNumberAsRange,
+            minDuration, maxDuration);
+    }
 
     constructor() {
         this._ghostBrainStrategyHoldingPin = new GhostBrainStrategyHoldingPin();
@@ -41,8 +50,10 @@ class GhostBrainManual {
         return this._currentGhostBrainStrategy.getNextDirection(ghost, player, level);
     }
 
-    get cellTransitionDuration() {
-        return this._currentGhostBrainStrategy.cellTransitionDuration;
+    getCellTransitionDuration(level) {
+        return GhostBrainManual.getCellTransitionDuration(level,
+            this._currentGhostBrainStrategy.cellTransitionDurationMin,
+            this._currentGhostBrainStrategy.cellTransitionDurationMax);
     }
 
     reset() {

@@ -9,7 +9,11 @@ class GhostBrainStrategyDead {
         return level.floydWarshall.getDirection(fromCellId, toCellId);
     }
 
-    get cellTransitionDuration() {
+    get cellTransitionDurationMax() {
+        return 0.1;
+    }
+
+    get cellTransitionDurationMin() {
         return 0.1;
     }
 }

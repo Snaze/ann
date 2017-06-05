@@ -176,3 +176,66 @@ it ("when the level changes reset the player's location and dotsEaten", () => {
     expect(player.dotsEaten).toBe(0);
 
 });
+
+it ("when the level changes the cell transition duration should be updated", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.levelNum = 5;
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+    let theLevelMin = new Level(3, 3);
+    theLevelMin.levelNum = 1;
+    let theLevelMax = new Level(3, 3);
+    theLevelMax.levelNum = 17;
+    let theLevelMid = new Level(3, 3);
+    theLevelMid.levelNum = 10;
+
+    // CALL and ASSERT
+    player.level = theLevelMin;
+    expect(player.cellTransitionDuration === Player.MAX_CELL_DURATION).toBe(true);
+
+    // CALL and ASSERT
+    player.level = theLevelMax;
+    expect(player.cellTransitionDuration === Player.MIN_CELL_DURATION).toBe(true);
+
+    // CALL and ASSERT
+    player.level = theLevelMid;
+    expect(player.cellTransitionDuration > Player.MIN_CELL_DURATION).toBe(true);
+    expect(player.cellTransitionDuration < Player.MAX_CELL_DURATION).toBe(true);
+});
+
+it ("player constructor should set cellDuration maxRange", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.levelNum = 1;
+
+    // CALL
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+
+    // ASSERT
+    expect(player.cellTransitionDuration).toBe(Player.MAX_CELL_DURATION);
+});
+
+it ("player constructor should set cellDuration minRange", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.levelNum = 17;
+
+    // CALL
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+
+    // ASSERT
+    expect(player.cellTransitionDuration).toBe(Player.MIN_CELL_DURATION);
+});
+
+it ("player constructor should set cellDuration midRange", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.levelNum = 2;
+
+    // CALL
+    let player = new Player(theLevel, Player.MR_PAC_MAN);
+
+    // ASSERT
+    expect(player.cellTransitionDuration < Player.MAX_CELL_DURATION).toBe(true);
+    expect(player.cellTransitionDuration > Player.MIN_CELL_DURATION).toBe(true);
+});

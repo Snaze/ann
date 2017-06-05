@@ -108,8 +108,8 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     _checkIfAllDotsEaten(thePlayer, theLevel) {
-        // if (thePlayer.dotsEaten === theLevel.numDots) {
-        if (thePlayer.dotsEaten >= 2 && !this.paused) {
+        if (thePlayer.dotsEaten === theLevel.numDots && !this.paused) {
+        // if (thePlayer.dotsEaten >= 2 && !this.paused) {
             this.paused = true;
             if (this.levelFinishedCallback) {
                 this.levelFinishedCallback(this);

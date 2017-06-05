@@ -6,6 +6,7 @@ import {default as LocationModel} from "./Location";
 import KeyEventer from "../utils/KeyEventer";
 import FloydWarshall from "./util/FloydWarshall";
 import Dot from "./Dot";
+import EasingFunctions from "../utils/EasingFunctions";
 
 const default_width = 26;
 const default_height = 26;
@@ -18,11 +19,13 @@ const powerUps = [
     "Pear",
     "Banana"
 ];
+const total_levels = 16;
 
 class Level extends DataSourceBase {
 
     static get DEFAULT_WIDTH() { return default_width; }
     static get DEFAULT_HEIGHT() { return default_height; }
+    static get TOTAL_LEVELS() { return total_levels; }
 
     static _getGameMatrixPropName(x, y) {
         return "_gameMatrix[" + y + "][" + x + "]";
@@ -339,15 +342,6 @@ class Level extends DataSourceBase {
         // this._raiseOnChangeCallbacks("color", oldValue, value);
     }
 
-
-    get level_num() {
-        return this._levelNum;
-    }
-
-    set level_num(value) {
-        this._setValueAndRaiseOnChange("_level_num", value);
-    }
-
     get numDots() {
         if (this._numDots === null) {
             this.populateDotsAndSpawns();
@@ -382,6 +376,18 @@ class Level extends DataSourceBase {
 
         this._numDots = theNumDots;
         this._powerUpSpawns = thePowerUpSpawns;
+    }
+
+    getLevelNumAsTimeRange() {
+        let maxLevelNum = 1 + total_levels;
+        let currentLevelNum = this.levelNum;
+        if (currentLevelNum < 1) {
+            currentLevelNum = 1;
+        } else if (currentLevelNum > maxLevelNum) {
+            currentLevelNum = maxLevelNum;
+        }
+
+        return EasingFunctions.getTime(1, maxLevelNum, currentLevelNum);
     }
 
     getRandomPowerUpSpawnLocation() {

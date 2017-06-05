@@ -802,3 +802,51 @@ it ("mirrorVertical assigns new ids and locations to clone cells", () => {
     expect(theLevel.getCell(0, 3).id).toBe("3_0");
     expect(theLevel.getCell(0, 3).location.isEqualTo(0, 3)).toBe(true);
 });
+
+it ("getLevelNumAsTimeRange basic test", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    theLevel.levelNum = 1;
+
+    // CALL
+    let theValue = theLevel.getLevelNumAsTimeRange();
+
+    // ASSERT
+    expect(theValue).toBe(0);
+});
+
+it ("getLevelNumAsTimeRange basic test 2", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    theLevel.levelNum = 17;
+
+    // CALL
+    let theValue = theLevel.getLevelNumAsTimeRange();
+
+    // ASSERT
+    expect(theValue).toBe(1);
+});
+
+it ("getLevelNumAsTimeRange crazy high level num test", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    theLevel.levelNum = 36;
+
+    // CALL
+    let theValue = theLevel.getLevelNumAsTimeRange();
+
+    // ASSERT
+    expect(theValue).toBe(1);
+});
+
+it ("getLevelNumAsTimeRange low level num test", () => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    theLevel.levelNum = 0;
+
+    // CALL
+    let theValue = theLevel.getLevelNumAsTimeRange();
+
+    // ASSERT
+    expect(theValue).toBe(0);
+});

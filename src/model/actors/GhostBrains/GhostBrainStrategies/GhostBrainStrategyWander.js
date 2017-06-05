@@ -36,8 +36,12 @@ class GhostBrainStrategyWander {
         return level.floydWarshall.getDirection(fromCellId, toCellId);
     }
 
-    get cellTransitionDuration() {
+    get cellTransitionDurationMax() {
         return 0.3;
+    }
+
+    get cellTransitionDurationMin() {
+        return 0.2;
     }
 
     get destinationLocation() {

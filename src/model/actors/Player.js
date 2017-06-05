@@ -4,15 +4,20 @@ import ActorBase from "./ActorBase";
 import _ from "../../../node_modules/lodash/lodash";
 import Dot from "../Dot";
 import moment from "../../../node_modules/moment/moment";
+import EasingFunctions from "../../utils/EasingFunctions";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
 const valid_gender = [mr_pac_man, mrs_pac_man];
+const min_cell_duration = 0.15;
+const max_cell_duration = 0.25;
 
 class Player extends ActorBase {
 
     static get MR_PAC_MAN() { return mr_pac_man; }
     static get MRS_PAC_MAN() { return mrs_pac_man; }
+    static get MAX_CELL_DURATION() { return max_cell_duration; }
+    static get MIN_CELL_DURATION() { return min_cell_duration; }
 
     static genderIsValid(theGender) {
         return valid_gender.indexOf(theGender) > -1;
@@ -38,6 +43,15 @@ class Player extends ActorBase {
         this._attackModeFinishTime = moment();
         this._prevLocation = this.location.clone();
         this._numLives = 3;
+
+        this._cellTransitionDuration = Player.getCellTransitionDuration(this.level); // seconds
+    }
+
+    static getCellTransitionDuration(level) {
+        let levelNumberAsRange = level.getLevelNumAsTimeRange();
+        levelNumberAsRange = Math.abs(1.0 - levelNumberAsRange);
+        return EasingFunctions.doCalculation(EasingFunctions.easeOutCubic, levelNumberAsRange,
+                                             min_cell_duration, max_cell_duration);
     }
 
     resetLocations() {
@@ -189,9 +203,10 @@ class Player extends ActorBase {
     }
 
     set level(value) {
-        super.level = value;
-
         this._dotsEaten = 0;
+        this._cellTransitionDuration = Player.getCellTransitionDuration(value);
+
+        super.level = value;
     }
 }
 

@@ -1,6 +1,11 @@
 import DataSourceBase from "./DataSourceBase";
 
+const high_score_string = "highScore";
+
 class GameHeader extends DataSourceBase {
+
+    static get HIGH_SCORE_STRING() { return high_score_string; }
+
     constructor(player1, player2) {
         super ();
 
@@ -23,7 +28,7 @@ class GameHeader extends DataSourceBase {
         let theHighScore = 0;
 
         try {
-            theHighScore = localStorage.getItem("highScore");
+            theHighScore = localStorage.getItem(GameHeader.HIGH_SCORE_STRING);
 
             if (theHighScore) {
                 return theHighScore;
@@ -38,7 +43,7 @@ class GameHeader extends DataSourceBase {
 
     set localStorageHighScore(value) {
         try {
-            localStorage.setItem("highScore", value);
+            localStorage.setItem(GameHeader.HIGH_SCORE_STRING, value);
         } catch (e) {
             console.log("localStorage not working.");
         }

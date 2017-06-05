@@ -9,8 +9,12 @@ class GhostBrainStrategyAttack {
         return level.floydWarshall.getDirection(fromCellId, toCellId);
     }
 
-    get cellTransitionDuration() {
-        return 0.3;
+    get cellTransitionDurationMax() {
+        return 0.275;
+    }
+
+    get cellTransitionDurationMin() {
+        return 0.175;
     }
 
     get attackExpirationDuration() {

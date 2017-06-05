@@ -140,7 +140,7 @@ class Ghost extends ActorBase {
         }
 
         let theDirection = this._ghostBrain.getNextDirection(this, this.player, this.level);
-        this.cellTransitionDuration = this._ghostBrain.cellTransitionDuration;
+        this.cellTransitionDuration = this._ghostBrain.getCellTransitionDuration(this.level);
         this.scaredState = this._ghostBrain.getScaredState(this, this.player, this.level);
 
         this._prevLocation.setWithLocation(this.location);

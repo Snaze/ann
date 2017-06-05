@@ -73,9 +73,15 @@ class GhostBrainStrategyScared {
         return 0;
     }
 
-    get cellTransitionDuration() {
-        return 0.60;
+    get cellTransitionDurationMax() {
+        return 0.8;
     }
+
+    get cellTransitionDurationMin() {
+        return 0.6;
+    }
+
+
 
 }
 

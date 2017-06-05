@@ -26,6 +26,7 @@ class LevelRunner extends DataSourceBase {
         this._levelFinishedCallbackRef = (e) => this.levelFinishedCallback(e);
         this._gameObjectContainer.levelFinishedCallback = this._levelFinishedCallbackRef;
         this._levelNum = 1;
+        this._level.leveNum = this._levelNum;
     }
 
     levelFinishedCallback(e) {
@@ -53,6 +54,7 @@ class LevelRunner extends DataSourceBase {
             this._gameObjectContainer.level = newLevel;
             this._gameFooter.level = newLevel;
             this._level = newLevel;
+            this._gameHeader.persistHighScore();
             oldLevel.dispose();
             oldLevel = null;
 

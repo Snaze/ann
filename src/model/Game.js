@@ -37,7 +37,7 @@ class Game extends DataSourceBase {
     constructor() {
         super();
 
-        this._levelNum = 1;
+        this._levelNum = 0;
         this._mainMenu = this._wireUp("_mainMenu", new MainMenu());
         this._levelRunner = this._wireUp("_levelRunner", new LevelRunner(Game.getLevelName(this._levelNum)));
         this._gameStarted = false;
@@ -57,7 +57,7 @@ class Game extends DataSourceBase {
                 this._levelNum++;
 
                 let levelName = Game.getLevelName(this._levelNum);
-                this._levelRunner.startLevel(levelName, true, this._levelNum);
+                this._levelRunner.startLevel(levelName, true, this._levelNum + 1);
             }
         }
 
@@ -68,7 +68,7 @@ class Game extends DataSourceBase {
         this._setValueAndRaiseOnChange("_gameStarted", true);
 
         let levelName = Game.getLevelName(this._levelNum);
-        this._levelRunner.startLevel(levelName, false, this._levelNum);
+        this._levelRunner.startLevel(levelName, true, this._levelNum + 1);
     }
 
     get level() {
