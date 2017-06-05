@@ -18,7 +18,6 @@ class GameObjectContainer extends DataSourceBase {
         this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
         this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE, this._player));
         this._powerUp = this._wireUp("_powerUp", new PowerUp(level, PowerUp.POWER_UP_CHERRY));
-        this._powerUpActive = false;
         this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
         // YOU ARE HERE, WIRING UP THE POWER UP
 
@@ -48,6 +47,18 @@ class GameObjectContainer extends DataSourceBase {
 
     static resetNextKillScore() {
         GameObjectContainer._nextKillScore = 100;
+    }
+
+    _nestedDataSourceChanged(e) {
+
+        if (e.object === this._powerUp &&
+            e.source === "_isAlive" &&
+            !e.newValue) {
+            // console.log("_resetPowerUpSpawnTime");
+            this._resetPowerUpSpawnTime();
+        }
+
+        super._nestedDataSourceChanged(e);
     }
 
     startOrRestartLevel(timeout=3000) {
@@ -96,13 +107,16 @@ class GameObjectContainer extends DataSourceBase {
         }
     }
 
+    _resetPowerUpSpawnTime() {
+        this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
+    }
+
     _pickUpPowerUpIfCollision(thePlayer, thePowerup) {
         if (thePlayer.location.equals(thePowerup.location)) {
             thePowerup.points.show(thePowerup.location);
             thePlayer.score += thePowerup.powerUpValue;
             thePowerup.isAlive = false;
-            this._powerUpActive = false;
-            this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
+            this._resetPowerUpSpawnTime();
             thePowerup.moveBackToSpawn();
         }
     }
@@ -152,18 +166,12 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     checkAndSpawnPowerUp(now) {
-        if (this._powerUpActive) {
+        if (this._powerUp.isAlive) {
             return;
         }
 
         if (now > this._powerUpSpawnTime) {
-            let powerUps = this.level.powerUps;
-            let powerUpIndex = Math.floor(Math.random() * powerUps.length);
-            let randomPowerUp = this.level.powerUps[powerUpIndex];
-            this._powerUp.setPowerUpTypeByName(randomPowerUp);
-            this._powerUp.isAlive = true;
-            this._powerUp.location.setWithLocation(this.level.getRandomPowerUpSpawnLocation());
-            this._powerUpActive = true;
+            this._powerUp.spawn(this.level);
         }
     }
 

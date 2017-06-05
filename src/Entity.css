@@ -13,6 +13,14 @@
     display: none;
 }
 
+.EntityBlink {
+    animation: EntityBlinkAnimation 500ms linear infinite;
+}
+
+@keyframes EntityBlinkAnimation {
+    50% { opacity: 0; }
+}
+
 /** MRS PAC MAN **/
 
 .MrsPacManRightOpen {

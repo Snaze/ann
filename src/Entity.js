@@ -314,7 +314,11 @@ class Entity extends Component {
         }
 
         let frameNumber = this.state.stepNumber % frames.length;
-        return frames[frameNumber];
+        let toRet = frames[frameNumber];
+        if (this.props.blink) {
+            toRet += " EntityBlink";
+        }
+        return toRet;
     }
 
     render() {
@@ -326,11 +330,13 @@ class Entity extends Component {
 Entity.propTypes = {
     designator: PropTypes.string.isRequired,
     modifier: PropTypes.string.isRequired,
-    animating: PropTypes.bool
+    animating: PropTypes.bool,
+    blink: PropTypes.bool
 };
 
 Entity.defaultProps = {
-    animating: true
+    animating: true,
+    blink: false
 };
 
 export default Entity;

@@ -68,7 +68,8 @@ class PowerUp extends DataSourceComponent {
             <div className="PowerUp" style={this.getEntityStyle(this.powerup.location)}>
                 <Entity designator={Entity.DESIGNATOR_POWER_UP}
                         modifier={PowerUp.powerUpMap[this.powerup.powerUpType]}
-                        animating={this.props.animating} />
+                        animating={this.props.animating}
+                        blink={this.powerup.blink} />
             </div>);
     }
 }

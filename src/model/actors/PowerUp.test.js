@@ -1,5 +1,6 @@
 import PowerUp from "./PowerUp";
 import Level from "../Level";
+import moment from "../../../node_modules/moment/moment";
 
 it ("Constructor works", () => {
     // SETUP
@@ -74,4 +75,17 @@ it ("locations get reset on level set", () => {
     expect(powerUp._spawnLocation.isEqualTo(-1, -1)).toBe(true);
     expect(powerUp._prevLocation.isEqualTo(-1, -1)).toBe(true);
     expect(powerUp._destinationLocation.isEqualTo(-1, -1)).toBe(true);
+});
+
+it ("spawn set expiration and blink times", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    let powerUp = new PowerUp(theLevel, PowerUp.POWER_UP_BANANA);
+
+    // CALL
+    powerUp.spawn();
+
+    // ASSERT
+    let now = moment();
+    expect(powerUp._blinkTime > now && powerUp._lifeExpirationTime > powerUp._blinkTime).toBe(true);
 });
