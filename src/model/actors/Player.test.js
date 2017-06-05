@@ -253,3 +253,46 @@ it ("setting level should reset the attackModeFinishTime", () => {
     // ASSERT
     expect(player._attackModeFinishTime < moment()).toBe(true);
 });
+
+it ("test getAttackDuration()", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+
+    // CALL
+    theLevel.levelNum = 1;
+    let maxAttackDuration = Player.getAttackDuration(theLevel);
+
+    theLevel.levelNum = Level.TOTAL_LEVELS;
+    let minAttackDuration = Player.getAttackDuration(theLevel);
+
+    theLevel.levelNum = Math.floor(Level.TOTAL_LEVELS / 2);
+    let midAttackDuration = Player.getAttackDuration(theLevel);
+
+    // ASSERT
+    expect(maxAttackDuration).toBe(Player.MAX_ATTACK_DURATION);
+    expect(minAttackDuration).toBe(Player.MIN_ATTACK_DURATION);
+    expect(Player.MAX_ATTACK_DURATION > midAttackDuration && Player.MIN_ATTACK_DURATION < midAttackDuration).toBe(true);
+});
+
+const testEatBigDot = function (levelNum, attackFinishTime) {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.levelNum = levelNum;
+    let theCell = theLevel.getCell(0, 0);
+    theCell.dotType = Dot.BIG;
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    thePlayer.location.set(0, 0);
+
+    // CALL
+    thePlayer._eatBigDot(theCell);
+
+    // ASSERT
+    expect(thePlayer.attackModeFinishTime >= attackFinishTime).toBe(true);
+
+};
+
+it ("test eatBigDot", () => {
+    testEatBigDot(1, moment().add(Player.MAX_ATTACK_DURATION, "s"));
+    testEatBigDot(Math.floor(Level.TOTAL_LEVELS / 2), moment().add(Player.MIN_ATTACK_DURATION, "s"));
+    testEatBigDot(Level.TOTAL_LEVELS, moment().add(Player.MIN_ATTACK_DURATION, "s"));
+});

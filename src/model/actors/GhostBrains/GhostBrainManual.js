@@ -6,6 +6,7 @@ import GhostBrainStrategyAttack from "./GhostBrainStrategies/GhostBrainStrategyA
 import GhostBrainStrategyScared from "./GhostBrainStrategies/GhostBrainStrategyScared";
 import GhostBrainStrategyDead from "./GhostBrainStrategies/GhostBrainStrategyDead";
 import EasingFunctions from "../../../utils/EasingFunctions";
+import Player from "../Player";
 
 const ghost_state_wander = 0;
 const ghost_state_holding_pin = 1;
@@ -185,7 +186,7 @@ class GhostBrainManual {
             return ghost.SCARED_STATE_NOT_SCARED;
         }
 
-        let toSubtract = player.attackModeDuration * 0.2;
+        let toSubtract = Player.getAttackDuration(level) * 0.2;
         let eightyPercentTime = player.attackModeFinishTime.clone().subtract(toSubtract, "s");
 
         if (moment() >= eightyPercentTime) {

@@ -19,7 +19,7 @@ const powerUps = [
     "Pear",
     "Banana"
 ];
-const total_levels = 16;
+const total_levels = 17;
 
 class Level extends DataSourceBase {
 
@@ -379,7 +379,7 @@ class Level extends DataSourceBase {
     }
 
     getLevelNumAsTimeRange() {
-        let maxLevelNum = 1 + total_levels;
+        let maxLevelNum = total_levels;
         let currentLevelNum = this.levelNum;
         if (currentLevelNum < 1) {
             currentLevelNum = 1;

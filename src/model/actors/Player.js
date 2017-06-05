@@ -11,6 +11,8 @@ const mrs_pac_man = 1;
 const valid_gender = [mr_pac_man, mrs_pac_man];
 const min_cell_duration = 0.15;
 const max_cell_duration = 0.25;
+const min_attack_duration = 0.0; // seconds
+const max_attack_duration = 10.0; // seconds
 
 class Player extends ActorBase {
 
@@ -18,6 +20,8 @@ class Player extends ActorBase {
     static get MRS_PAC_MAN() { return mrs_pac_man; }
     static get MAX_CELL_DURATION() { return max_cell_duration; }
     static get MIN_CELL_DURATION() { return min_cell_duration; }
+    static get MAX_ATTACK_DURATION() { return max_attack_duration; }
+    static get MIN_ATTACK_DURATION() { return min_attack_duration; }
 
     static genderIsValid(theGender) {
         return valid_gender.indexOf(theGender) > -1;
@@ -38,7 +42,6 @@ class Player extends ActorBase {
         this._spawnLocation = level.playerSpawnLocation.clone();
         this._score = 0;
         this._dotsEaten = 0;
-        this._attackModeDuration = 20;
         this._attackModeId = Player._nextAttackModeId++;
         this._attackModeFinishTime = moment();
         this._prevLocation = this.location.clone();
@@ -52,6 +55,13 @@ class Player extends ActorBase {
         levelNumberAsRange = Math.abs(1.0 - levelNumberAsRange);
         return EasingFunctions.doCalculation(EasingFunctions.easeOutCubic, levelNumberAsRange,
                                              min_cell_duration, max_cell_duration);
+    }
+
+    static getAttackDuration(level) {
+        let levelNumberAsRange = level.getLevelNumAsTimeRange();
+        levelNumberAsRange = Math.abs(1.0 - levelNumberAsRange);
+        return EasingFunctions.doCalculation(EasingFunctions.easeOutCubic, levelNumberAsRange,
+            min_attack_duration, max_attack_duration);
     }
 
     resetLocations() {
@@ -94,17 +104,23 @@ class Player extends ActorBase {
             cell.dotType = Dot.NONE;
             this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
         } else if (cell.dotType === Dot.BIG) {
-            // console.log("DotType = BIG");
-            this.score = this.score + 50;
-            cell.dotType = Dot.NONE;
-            // only increment if this is a new attack mode.
-            // and not and extension of the existing one.
-            if (moment() >= this._attackModeFinishTime) {
-                this._attackModeId = Player._nextAttackModeId++;
-            }
-            this._setValueAndRaiseOnChange("_attackModeFinishTime", moment().add(this._attackModeDuration, "s"));
-            this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
+            this._eatBigDot(cell);
         }
+    }
+
+    _eatBigDot(cell) {
+        this.score = this.score + 50;
+        cell.dotType = Dot.NONE;
+        // only increment if this is a new attack mode.
+        // and not and extension of the existing one.
+        if (moment() >= this._attackModeFinishTime) {
+            this._attackModeId = Player._nextAttackModeId++;
+        }
+
+        let attackDuration = Player.getAttackDuration(this.level);
+        let attackFinishTime = moment().add(attackDuration, "s");
+        this._setValueAndRaiseOnChange("_attackModeFinishTime", attackFinishTime);
+        this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
     }
 
     removeAllCallbacks() {
@@ -158,14 +174,6 @@ class Player extends ActorBase {
 
     set score(value) {
         this._setValueAndRaiseOnChange("_score", value);
-    }
-
-    get attackModeDuration() {
-        return this._attackModeDuration;
-    }
-
-    set attackModeDuration(value) {
-        this._setValueAndRaiseOnChange("_attackModeDuration", value);
     }
 
     get attackModeFinishTime() {
