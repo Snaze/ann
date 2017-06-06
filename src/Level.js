@@ -4,7 +4,6 @@ import Cell from "./Cell";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "./DataSourceComponent";
 import {default as LevelModel} from "./model/Level";
-import GameObjectContainer from "./model/GameObjectContainer";
 
 class Level extends DataSourceComponent {
 

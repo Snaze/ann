@@ -69,7 +69,7 @@
     background: -moz-linear-gradient(LimeGreen, darkgreen); /* For Firefox 3.6 to 15 */
     background: linear-gradient(LimeGreen, darkgreen); /* Standard syntax */
     color: Orange;
-    font-family: Arial;
+    font-family: Consolas, monospace;
     border: Solid 2px Orange;
     width: 32px;
     height: 200px;
@@ -91,8 +91,6 @@
     left: 50%;
     top: 50%;
 
-    /*margin-left: -25%;*/
-    /*margin-top: -25%;*/
     transform: translate(-50%, -50%);
     background: black;
     border: Solid 2px aqua;

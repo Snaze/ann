@@ -9,7 +9,6 @@ import ContextMenu from "./ContextMenu";
 import GameHeader from "./GameHeader";
 import GameFooter from "./GameFooter";
 import GameEntities from "./GameEntities";
-import Cell from "./Cell";
 
 class LevelRunner extends DataSourceComponent {
 

@@ -14,22 +14,16 @@ class CountDownMenu extends DataSourceComponent {
 
     get countDownMenuContent() {
         if (this.countDownMenu.count > 0) {
-            return this.countDownMenu.count.toString();
+            return (
+                <div key={"countDownMenuNumber" + this.countDownMenu.count.toString()} className="CountDownMenuContent bounceIn animated">
+                    {this.countDownMenu.count.toString()}
+                </div>);
         }
 
-        return this.countDownMenu.finishText;
-    }
-
-    get countDownMenuContentClassName() {
-        if (this.countDownMenu.count > 0) {
-            return "CountDownMenuContent"
-        }
-
-        return "CountDownMenuContent bounceIn animated";
-    }
-
-    getCountDownContent() {
-        return (<div className={this.countDownMenuContentClassName}>{this.countDownMenuContent}</div>);
+        return (
+            <div key="countDownMenuFinishText" className="CountDownMenuContent bounceIn animated">
+                {this.countDownMenu.finishText}
+            </div>);
     }
 
     getAnimation() {
@@ -104,7 +98,7 @@ class CountDownMenu extends DataSourceComponent {
     render() {
         return (<div className="CountDownMenu">
             {this.getAnimation()}
-            {this.getCountDownContent()}
+            {this.countDownMenuContent}
         </div>);
     }
 }
