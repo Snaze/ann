@@ -1,6 +1,6 @@
 .LevelRunner {
     overflow: hidden;
-
+    background-color: Black;
 }
 
 .LevelRunnerLevel {
@@ -83,5 +83,13 @@
 }
 
 .LevelRunnerArea {
+    background: black;
+}
+
+.LevelRunnerAreaCenter {
+    /*position: relative;*/
+    /*top: 50%;*/
+    /*left: 50%;*/
+    /*transform: translate(-50%, -50%);*/
     background: black;
 }

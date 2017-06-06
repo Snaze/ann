@@ -51,10 +51,18 @@ class LevelRunner extends DataSourceComponent {
         };
     }
 
+    get levelRunnerLevelClass() {
+        if (this.levelRunner.editPanelEnabled) {
+            return "LevelRunnerArea";
+        }
+
+        return "LevelRunnerAreaCenter";
+    }
+
     render() {
         return (<div className="LevelRunner">
             <div className="LevelRunnerLevel">
-                <table className="LevelRunnerArea">
+                <table className={this.levelRunnerLevelClass}>
                     <tbody>
                         <tr>
                             <td>

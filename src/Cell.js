@@ -55,6 +55,16 @@ class Cell extends DataSourceComponent {
         }
 
         return Cell._cellLocationCache[cellId];
+
+        // let cellId = Cell.elementIdByLocation(location);
+        // let theCellDOMElement = document.getElementById(cellId);
+        // if (theCellDOMElement) {
+        //     let clientRect = theCellDOMElement.getBoundingClientRect();
+        //     return new LocationModel(clientRect["left"],
+        //         clientRect["top"]);
+        // }
+        //
+        // return new LocationModel(-1, -1);
     }
 
     static resetCellLocationCache() {

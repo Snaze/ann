@@ -18,7 +18,7 @@ class App extends Component {
     render() {
         return (
             <div className="App" style={{backgroundColor: "Gray"}}>
-                <Game dataSource={this.state.game} />
+                <Game className="AppGame" dataSource={this.state.game} />
             </div>
         );
     }
