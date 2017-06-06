@@ -8,20 +8,19 @@ it ("Constructor works", ()  => {
 
 it ("interval tick fires at 0", () => {
     // SETUP
-    let fired = false;
-    let callback = function (e) {
-        fired = true;
-    };
+    // let fired = false;
+    // let callback = function (e) {
+    //     fired = true;
+    // };
 
     let countDownMenu = new CountDownMenu();
     countDownMenu.count = 1;
-    countDownMenu.callback = callback;
 
     // CALL
     countDownMenu.intervalTick({});
 
     // ASSERT
-    expect(fired).toBe(true);
+    expect(countDownMenu._interval === null).toBe(true);
 });
 
 it ("interval tick only fires at 0", () => {

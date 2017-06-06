@@ -65,15 +65,33 @@
 .CountDownMenuMoveDownAnimation {
     position: absolute;
     right: 25%;
-    top: -175%;
+    top: -125%;
     animation: CountDownMenuMoveDown 8s linear infinite;
 }
 
 @keyframes CountDownMenuMoveDown {
-    0% { top: -175%; }
-    20% { top: -175%; }
-    40% { top: -175%; }
-    60% { top: -175%; }
+    0% { top: -125%; }
+    20% { top: -125%; }
+    40% { top: -125%; }
+    60% { top: -125%; }
     80% { top: 175%; }
     100% { top: 175%; }
+}
+
+.CountDownMenuContent-enter {
+    animation: bounce;
+}
+
+.CountDownMenuContent-enter.CountDownMenuContent-enter-active {
+    visibility: visible;
+    transition: visibility 500ms linear;
+}
+
+.CountDownMenuContent-leave {
+    animation: bounce;
+}
+
+.CountDownMenuContent-leave.CountDownMenuContent-leave-active {
+    visibility: hidden;
+    transition: visibility 500ms linear;
 }

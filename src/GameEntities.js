@@ -7,6 +7,8 @@ import DataSourceComponent from "./DataSourceComponent";
 import PropTypes from 'prop-types';
 import Points from "./Points";
 import PowerUp from "./actors/PowerUp";
+import Modal from "./Modal";
+import CountDownMenu from "./menus/CountDownMenu";
 
 class GameEntities extends DataSourceComponent {
 
@@ -39,6 +41,13 @@ class GameEntities extends DataSourceComponent {
 
                 <PowerUp dataSource={this.gameObjectContainer.powerUp} />
                 <Points dataSource={this.gameObjectContainer.powerUp.points} />
+
+                <Modal dataSource={this.gameObjectContainer.modal}>
+                    <div style={{paddingTop: "50px"}}>
+                        <CountDownMenu dataSource={this.gameObjectContainer.countDownMenu} />
+                    </div>
+                </Modal>
+
             </div>);
     }
 }

@@ -4,6 +4,8 @@ import Ghost from "./actors/Ghost";
 import GameTimer from "./GameTimer";
 import moment from "../../node_modules/moment/moment";
 import PowerUp from "./actors/PowerUp";
+import CountDownMenu from "./menus/CountDownMenu";
+import Modal from "./Modal";
 
 const max_power_up_spawn_time = 90.0;
 
@@ -18,6 +20,8 @@ class GameObjectContainer extends DataSourceBase {
         this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
         this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE, this._player));
         this._powerUp = this._wireUp("_powerUp", new PowerUp(level, PowerUp.POWER_UP_CHERRY));
+        this._countDownMenu = this._wireUp("_countDownMenu", new CountDownMenu());
+        this._modal = this._wireUp("_modal", new Modal());
         this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
 
         this._gameObjects = [
@@ -36,6 +40,13 @@ class GameObjectContainer extends DataSourceBase {
         this._currentPlayerDead = false;
         this._restartLevelRef = null;
         this._levelFinishedCallback = null;
+        this._countDownCallbackRef = (e) => this._countDownCallback(e);
+        this._countDownMenu.callback = this._countDownCallbackRef;
+        this._modal.yesButtonText = "";
+        this._modal.noButtonText = "";
+        this._modal.title = "READY!";
+        this._modal.height = 150;
+        this._modal.width = 300;
     }
 
     static _nextKillScore = 100;
@@ -60,6 +71,12 @@ class GameObjectContainer extends DataSourceBase {
         super._nestedDataSourceChanged(e);
     }
 
+    _countDownCallback(e) {
+        this.paused = false;
+        this._restartLevelRef = null;
+        this._modal.show = false;
+    }
+
     startOrRestartLevel(timeout=3000) {
         this.moveAllBackToSpawn();
 
@@ -71,11 +88,9 @@ class GameObjectContainer extends DataSourceBase {
         if (this.player.numLives === 0) {
             alert ('Game Over');
         } else {
-            let self = this;
-            setTimeout(function (e) {
-                self.paused = false;
-                self._restartLevelRef = null;
-            }, timeout);
+            this._countDownMenu.count = 3;
+            this._modal.show = true;
+            this._countDownMenu.start();
         }
     }
 
@@ -285,8 +300,21 @@ class GameObjectContainer extends DataSourceBase {
         this._gameOverCallback = value;
     }
 
+    get countDownMenu() {
+        return this._countDownMenu;
+    }
 
+    set countDownMenu(value) {
+        this._setValueAndRaiseOnChange("_countDownMenu", value);
+    }
 
+    get modal() {
+        return this._modal;
+    }
+
+    set modal(value) {
+        this._setValueAndRaiseOnChange("_modal", value);
+    }
 }
 
 export default GameObjectContainer;

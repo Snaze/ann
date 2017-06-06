@@ -36,6 +36,14 @@ class Modal extends DataSourceComponent {
         return null;
     }
 
+    get yesButton() {
+        if (this.modal.yesButtonText !== "") {
+            return (<button id="modalYesButton" className="ModalButton" onClick={(e) => this.buttonClick(e)}>{this.modal.yesButtonText}</button>);
+        }
+
+        return null;
+    }
+
     get header() {
         if (this.modal.title !== "") {
             return (<div className="ModalHeader">{this.modal.title}</div>);
@@ -66,7 +74,7 @@ class Modal extends DataSourceComponent {
                 <div className="ModalText">{this.props.children}</div>
                 <div className="ModalButtons">
                     <div style={{position: "relative", width: "100%"}}>
-                        <button id="modalYesButton" className="ModalButton" onClick={(e) => this.buttonClick(e)}>{this.modal.yesButtonText}</button>
+                        {this.yesButton}
                         {this.noButton}
                     </div>
                 </div>

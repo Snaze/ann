@@ -36,10 +36,11 @@ class CountDownMenu extends DataSourceComponent {
         return (<div className={this.countDownMenuContentClassName}>{this.countDownMenuContent}</div>);
     }
 
-    render() {
-        return (<div className="CountDownMenu">
-            <table className="CountDownMenuMoveRightAnimation">
-                <tbody>
+    getAnimation() {
+        if (this.countDownMenu.showAnimation) {
+            return (<div style={{width: "100%", height: "100%"}}>
+                <table className="CountDownMenuMoveRightAnimation">
+                    <tbody>
                     <tr>
                         <td>
                             <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
@@ -50,54 +51,63 @@ class CountDownMenu extends DataSourceComponent {
                                     modifier={Entity.MODIFIER_DIRECTION_RIGHT} />
                         </td>
                     </tr>
-                </tbody>
-            </table>
-            <table className="CountDownMenuMoveLeftAnimation">
-                <tbody>
-                <tr>
-                    <td>
-                        <Entity designator={Entity.DESIGNATOR_SCARED_GHOST}
-                                modifier={Entity.MODIFIER_DIRECTION_LEFT} />
-                    </td>
-                    <td>
-                        <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
-                                modifier={Entity.MODIFIER_DIRECTION_LEFT} />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <table className="CountDownMenuMoveUpAnimation">
-                <tbody>
-                <tr>
-                    <td>
-                        <Entity designator={Entity.DESIGNATOR_SCARED_GHOST}
-                                modifier={Entity.MODIFIER_DIRECTION_UP} />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
-                                modifier={Entity.MODIFIER_DIRECTION_UP} />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <table className="CountDownMenuMoveDownAnimation">
-                <tbody>
-                <tr>
-                    <td>
-                        <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
-                                modifier={Entity.MODIFIER_DIRECTION_DOWN} />
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <Entity designator={Entity.DESIGNATOR_SCARED_GHOST}
-                                modifier={Entity.MODIFIER_DIRECTION_DOWN} />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+                <table className="CountDownMenuMoveLeftAnimation">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <Entity designator={Entity.DESIGNATOR_SCARED_GHOST}
+                                    modifier={Entity.MODIFIER_DIRECTION_LEFT} />
+                        </td>
+                        <td>
+                            <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
+                                    modifier={Entity.MODIFIER_DIRECTION_LEFT} />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table className="CountDownMenuMoveUpAnimation">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <Entity designator={Entity.DESIGNATOR_SCARED_GHOST}
+                                    modifier={Entity.MODIFIER_DIRECTION_UP} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
+                                    modifier={Entity.MODIFIER_DIRECTION_UP} />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table className="CountDownMenuMoveDownAnimation">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <Entity designator={Entity.DESIGNATOR_MRS_PAC_MAN}
+                                    modifier={Entity.MODIFIER_DIRECTION_DOWN} />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <Entity designator={Entity.DESIGNATOR_SCARED_GHOST}
+                                    modifier={Entity.MODIFIER_DIRECTION_DOWN} />
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>);
+        }
+
+        return null;
+    }
+
+    render() {
+        return (<div className="CountDownMenu">
+            {this.getAnimation()}
             {this.getCountDownContent()}
         </div>);
     }

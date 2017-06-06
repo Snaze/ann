@@ -9,6 +9,7 @@ class CountDownMenu extends DataSourceBase {
         this._callback = null;
         this._intervalTickRef = (e) => this.intervalTick(e);
         this._interval = null;
+        this._showAnimation = false;
     }
 
     start() {
@@ -28,11 +29,13 @@ class CountDownMenu extends DataSourceBase {
         this.count -= 1;
 
         if (this.count <= 0) {
-            if (this._callback) {
-                this._callback(this);
-            }
-
             this.stop();
+
+            if (this._callback) {
+                setTimeout(function () {
+                    this._callback(this);
+                }.bind(this), 1000);
+            }
         }
     }
 
@@ -58,6 +61,14 @@ class CountDownMenu extends DataSourceBase {
 
     set finishText(value) {
         this._setValueAndRaiseOnChange("_finishText", value);
+    }
+
+    get showAnimation() {
+        return this._showAnimation;
+    }
+
+    set showAnimation(value) {
+        this._setValueAndRaiseOnChange("_showAnimation", value);
     }
 }
 
