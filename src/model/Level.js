@@ -228,10 +228,18 @@ class Level extends DataSourceBase {
         this._setValueAndRaiseOnChange("_width", value);
     }
 
+    get screenWidth() {
+        return this._width * Level.DEFAULT_WIDTH;
+    }
+
     get height() { return this._height; }
 
     set height(value) {
         this._setValueAndRaiseOnChange("_height", value);
+    }
+
+    get screenHeight() {
+        return this._height * Level.DEFAULT_HEIGHT;
     }
 
     get selectedCell() {

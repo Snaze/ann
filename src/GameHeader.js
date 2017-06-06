@@ -18,7 +18,7 @@ class GameHeader extends DataSourceComponent {
     }
 
     render() {
-        return (<table className="GameHeaderTable">
+        return (<div className="GameHeader"><table className="GameHeaderTable">
             <tbody>
                 <tr className="GameHeader">
                     <td className="GameHeaderCell">
@@ -43,7 +43,7 @@ class GameHeader extends DataSourceComponent {
                     </td>
                 </tr>
             </tbody>
-        </table>);
+        </table></div>);
     }
 }
 

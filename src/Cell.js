@@ -43,12 +43,13 @@ class Cell extends DataSourceComponent {
             let theCellDOMElement = document.getElementById(cellId);
             if (theCellDOMElement) {
                 let clientRect = theCellDOMElement.getBoundingClientRect();
-                let screenLocation = new LocationModel(clientRect["left"],
-                                                                     clientRect["top"]);
+                let parent = document.getElementsByClassName("LevelRunnerAreaCenter")[0];
+                let parentRect = parent.getBoundingClientRect();
 
-                // Using the private set so it doesn't kick off the update event
-                // cell._screenLocation = screenLocation;
-                Cell._cellLocationCache[cellId] = screenLocation;
+                let left = Math.abs(clientRect["left"] - parentRect["left"]) - 2;
+                let top = Math.abs(clientRect["top"] - parentRect["top"]) - 2;
+
+                Cell._cellLocationCache[cellId] = new LocationModel(left, top);
             } else {
                 return new LocationModel(-1, -1);
             }

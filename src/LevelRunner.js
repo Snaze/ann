@@ -8,6 +8,8 @@ import "./LevelRunner.css";
 import ContextMenu from "./ContextMenu";
 import GameHeader from "./GameHeader";
 import GameFooter from "./GameFooter";
+import GameEntities from "./GameEntities";
+import Cell from "./Cell";
 
 class LevelRunner extends DataSourceComponent {
 
@@ -59,10 +61,18 @@ class LevelRunner extends DataSourceComponent {
         return "LevelRunnerAreaCenter";
     }
 
+    static getLevelStyle(level) {
+        return {
+            width: level.screenWidth,
+            height: level.screenHeight
+        };
+    }
+
+
     render() {
         return (<div className="LevelRunner">
             <div className="LevelRunnerLevel">
-                <table className={this.levelRunnerLevelClass}>
+                <table id="tblLevelRunner" className={this.levelRunnerLevelClass}>
                     <tbody>
                         <tr>
                             <td>
@@ -72,6 +82,7 @@ class LevelRunner extends DataSourceComponent {
                         <tr>
                             <td>
                                 <Level dataSource={this.level} gameObjectContainer={this.gameObjectContainer} />
+                                <GameEntities dataSource={this.gameObjectContainer} />
                             </td>
                         </tr>
                         <tr>

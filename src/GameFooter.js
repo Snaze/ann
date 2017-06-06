@@ -72,7 +72,7 @@ class GameFooter extends DataSourceComponent {
     }
 
     render() {
-        return (<table className="GameFooter">
+        return (<div className="GameFooter"><table className="GameFooterTable">
             <tbody>
                 <tr className="GameFooterRow">
                     <td className="GameFooterLeft">
@@ -87,7 +87,7 @@ class GameFooter extends DataSourceComponent {
                     </td>
                 </tr>
             </tbody>
-        </table>);
+        </table></div>);
     }
 }
 

@@ -87,9 +87,15 @@
 }
 
 .LevelRunnerAreaCenter {
-    /*position: relative;*/
-    /*top: 50%;*/
-    /*left: 50%;*/
-    /*transform: translate(-50%, -50%);*/
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    /*margin-left: -25%;*/
+    /*margin-top: -25%;*/
+    transform: translate(-50%, -50%);
     background: black;
+    border: Solid 2px aqua;
 }
+
+

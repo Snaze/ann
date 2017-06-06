@@ -3,7 +3,6 @@ import './Level.css';
 import Cell from "./Cell";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "./DataSourceComponent";
-import GameEntities from "./GameEntities";
 import {default as LevelModel} from "./model/Level";
 import GameObjectContainer from "./model/GameObjectContainer";
 
@@ -58,15 +57,13 @@ class Level extends DataSourceComponent {
                 <table cellPadding={0} cellSpacing={0} style={this.tableStyle}>
                     <tbody>{this.renderRows()}</tbody>
                 </table>
-                <GameEntities dataSource={this.props.gameObjectContainer} />
             </div>
         );
     }
 }
 
 Level.propTypes = {
-    dataSource: PropTypes.instanceOf(LevelModel).isRequired,
-    gameObjectContainer: PropTypes.instanceOf(GameObjectContainer).isRequired
+    dataSource: PropTypes.instanceOf(LevelModel).isRequired
 };
 
 export default Level;
