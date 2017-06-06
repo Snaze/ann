@@ -28,6 +28,7 @@ class Cell extends DataSourceBase {
         let y = parseInt(tempArray[0], 10);
         this._location = this._wireUp("_location", new Location(x, y));
         this._editMode = false;
+        this._blinkBorder = false;
     }
 
     toJSON() {
@@ -62,6 +63,7 @@ class Cell extends DataSourceBase {
         toRet._isActive = this._isActive;
         toRet._location = this._location.clone();
         toRet._editMode = this._editMode;
+        toRet._blinkBorder = this._blinkBorder;
 
         // I'LL LEAVE IT AS THE RESPONSIBLITY OF THE CALLER TO RE-ASSIGN
         // THE EVENT HANDLERS
@@ -187,7 +189,8 @@ class Cell extends DataSourceBase {
                 this._isGhostPinkSpawn === otherCell._isGhostPinkSpawn &&
                 this._isGhostBlueSpawn === otherCell._isGhostBlueSpawn &&
                 this._isActive === otherCell._isActive &&
-                this._location.equals(otherCell.location);
+                this._location.equals(otherCell.location) &&
+                this.blinkBorder === otherCell.blinkBorder;
     }
 
     setSolidBorder(borderType, value) {
@@ -285,6 +288,14 @@ class Cell extends DataSourceBase {
 
     set editMode(value) {
         this._setValueAndRaiseOnChange("_editMode", value);
+    }
+
+    get blinkBorder() {
+        return this._blinkBorder;
+    }
+
+    set blinkBorder(value) {
+        this._setValueAndRaiseOnChange("_blinkBorder", value);
     }
 
     canTraverseTo(otherCell, maxWidth, maxHeight) {

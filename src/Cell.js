@@ -137,9 +137,42 @@ class Cell extends DataSourceComponent {
         return toRet;
     }
 
+    get style() {
+        let toRet = {};
+
+        if (!this.cell.blinkBorder) {
+            return toRet;
+        }
+
+        let animation = "";
+
+        if (this.cell.solidBorder.top) {
+            animation += "CellSolidTopBorderBlinkAnimation 500ms linear infinite, "
+        }
+
+        if (this.cell.solidBorder.left) {
+            animation += "CellSolidLeftBorderBlinkAnimation 500ms linear infinite, "
+        }
+
+        if (this.cell.solidBorder.right) {
+            animation += "CellSolidRightBorderBlinkAnimation 500ms linear infinite, "
+        }
+
+        if (this.cell.solidBorder.bottom) {
+            animation += "CellSolidBottomBorderBlinkAnimation 500ms linear infinite, "
+        }
+
+        if (animation !== "") {
+            toRet["animation"] = animation.substr(0, animation.length - 2);
+        }
+
+        return toRet;
+    }
+
     render() {
         return (
             <td id={Cell.elementId(this.cell)}
+                style={this.style}
                 className={this.className}
                 data-cell_id={this.cellId}
                 key={this.cellId}

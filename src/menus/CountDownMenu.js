@@ -7,10 +7,6 @@ import "../../node_modules/animate.css/animate.min.css";
 import Entity from "../Entity";
 
 class CountDownMenu extends DataSourceComponent {
-    constructor(props) {
-        super(props);
-
-    }
 
     get countDownMenu() {
         return this.dataSource;

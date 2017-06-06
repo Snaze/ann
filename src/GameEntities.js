@@ -22,6 +22,14 @@ class GameEntities extends DataSourceComponent {
         this.forceUpdate();
     }
 
+    getModalContent() {
+        if (this.gameObjectContainer.gameOver) {
+            return (<div>{this.gameObjectContainer.gameOverText}</div>);
+        }
+
+        return (<CountDownMenu dataSource={this.gameObjectContainer.countDownMenu} />);
+    }
+
     render() {
         return (
             <div className="GameEntities">
@@ -44,7 +52,7 @@ class GameEntities extends DataSourceComponent {
 
                 <Modal dataSource={this.gameObjectContainer.modal}>
                     <div style={{paddingTop: "50px"}}>
-                        <CountDownMenu dataSource={this.gameObjectContainer.countDownMenu} />
+                        {this.getModalContent()}
                     </div>
                 </Modal>
 

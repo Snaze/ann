@@ -6,13 +6,7 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import "./Modal.css";
 import {default as ModalModel} from "./model/Modal";
 
-const buttonTypeYes = 0;
-const buttonTypeNo = 1;
-
 class Modal extends DataSourceComponent {
-
-    static get BUTTON_YES() { return buttonTypeYes; }
-    static get BUTTON_NO() { return buttonTypeNo; }
 
     get modal() {
         return this.dataSource;
@@ -54,10 +48,10 @@ class Modal extends DataSourceComponent {
 
     buttonClick(e) {
         if (this.modal.buttonClick) {
-            let buttonType = Modal.BUTTON_YES;
+            let buttonType = ModalModel.BUTTON_YES;
 
             if (e.target.id === "modalNoButton") {
-                buttonType = Modal.BUTTON_NO;
+                buttonType = ModalModel.BUTTON_NO;
             }
 
             this.modal.buttonClick({

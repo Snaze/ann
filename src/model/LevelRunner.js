@@ -23,14 +23,21 @@ class LevelRunner extends DataSourceBase {
             this._level, GameFooter.ACTIVE_PLAYER_1);
 
         this._levelFinished = false;
-        this._levelFinishedCallbackRef = (e) => this.levelFinishedCallback(e);
-        this._gameObjectContainer.levelFinishedCallback = this._levelFinishedCallbackRef;
+        this._gameObjectContainerCallbackRef = (e) => this.gameObjectContainerCallback(e);
+        this._gameObjectContainer.callback = this._gameObjectContainerCallbackRef;
         this._levelNum = 1;
         this._level.leveNum = this._levelNum;
+        this._gameOver = false;
     }
 
-    levelFinishedCallback(e) {
-        this.levelFinished = true;
+    gameObjectContainerCallback(e) {
+        if (e.callbackType === GameObjectContainer.CALLBACK_TYPE_LEVEL_FINISHED) {
+            this.levelFinished = true;
+        } else {
+            this.gameOver = true;
+            this.gameObjectContainer.player.resetNumLives();
+            this.gameObjectContainer.player.score = 0;
+        }
     }
 
     startLevel(levelName, forceReload=false, levelNum=1) {
@@ -38,6 +45,7 @@ class LevelRunner extends DataSourceBase {
         this.loadLevel(levelName, forceReload, levelNum);
 
         this.levelFinished = false;
+        this.gameOver = false;
         this._gameObjectContainer.startOrRestartLevel();
     }
 
@@ -114,6 +122,14 @@ class LevelRunner extends DataSourceBase {
 
     get levelNum() {
         return this._levelNum;
+    }
+
+    get gameOver() {
+        return this._gameOver;
+    }
+
+    set gameOver(value) {
+        this._setValueAndRaiseOnChange("_gameOver", value);
     }
 }
 

@@ -850,3 +850,17 @@ it ("getLevelNumAsTimeRange low level num test", () => {
     // ASSERT
     expect(theValue).toBe(0);
 });
+
+it ("BlinkBorder setter works", () => {
+    // SETUP
+    let level = new Level(2, 2);
+
+    // CALL
+    level.blinkBorder = true;
+
+    // ASSERT
+    expect(level.getCell(0, 0).blinkBorder).toBe(true);
+    expect(level.getCell(0, 1).blinkBorder).toBe(true);
+    expect(level.getCell(1, 0).blinkBorder).toBe(true);
+    expect(level.getCell(1, 1).blinkBorder).toBe(true);
+});

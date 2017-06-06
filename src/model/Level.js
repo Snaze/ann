@@ -159,6 +159,7 @@ class Level extends DataSourceBase {
         this._activeCells = null;
         this._activeCellsIsDirty = true;
         this.toIgnore.push("_dotType");
+        this.toIgnore.push("_blinkBorder");
         // this.debug = true;
     }
 
@@ -356,6 +357,16 @@ class Level extends DataSourceBase {
         }
 
         return this._powerUpSpawns;
+    }
+
+    get blinkBorder() {
+        return this.getCell(0, 0).blinkBorder;
+    }
+
+    set blinkBorder(value) {
+        this.iterateOverCells(function (theCell) {
+            theCell.blinkBorder = value;
+        });
     }
 
     // TODO: Refactor this.  I know this is sloppy

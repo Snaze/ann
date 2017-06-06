@@ -395,3 +395,4 @@ it ("is not teleport cell", () => {
     expect(rightCell.isTeleportCell(10, 10)).toBe(false);
 });
 
+

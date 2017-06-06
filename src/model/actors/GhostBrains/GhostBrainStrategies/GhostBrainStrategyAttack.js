@@ -10,11 +10,11 @@ class GhostBrainStrategyAttack {
     }
 
     get cellTransitionDurationMax() {
-        return 0.275;
+        return 0.2;
     }
 
     get cellTransitionDurationMin() {
-        return 0.175;
+        return 0.125;
     }
 
     get attackExpirationDuration() {

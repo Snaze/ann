@@ -58,6 +58,13 @@ class Game extends DataSourceBase {
 
                 let levelName = Game.getLevelName(this._levelNum);
                 this._levelRunner.startLevel(levelName, true, this._levelNum + 1);
+            } else if (e.source === "_gameOver" &&
+                this.levelRunner.gameOver) {
+                this._levelNum = 0;
+
+                this.gameStarted = false;
+                this.mainMenu.selectionConfirmed = false;
+                // this.levelRunner.gameOver = false;
             }
         }
 
@@ -93,6 +100,10 @@ class Game extends DataSourceBase {
 
     get gameStarted() {
         return this._gameStarted;
+    }
+
+    set gameStarted(value) {
+        this._setValueAndRaiseOnChange("_gameStarted", value);
     }
 
     get editMode() {

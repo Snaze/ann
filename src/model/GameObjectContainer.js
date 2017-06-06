@@ -8,8 +8,14 @@ import CountDownMenu from "./menus/CountDownMenu";
 import Modal from "./Modal";
 
 const max_power_up_spawn_time = 90.0;
+const callback_type_level_finished = 0;
+const callback_type_game_over = 1;
 
 class GameObjectContainer extends DataSourceBase {
+
+    static get CALLBACK_TYPE_LEVEL_FINISHED() { return callback_type_level_finished; }
+    static get CALLBACK_TYPE_GAME_OVER() { return callback_type_game_over; }
+
     constructor(level) {
         super();
 
@@ -39,14 +45,16 @@ class GameObjectContainer extends DataSourceBase {
 
         this._currentPlayerDead = false;
         this._restartLevelRef = null;
-        this._levelFinishedCallback = null;
+
+        this._callback = null;
+
         this._countDownCallbackRef = (e) => this._countDownCallback(e);
         this._countDownMenu.callback = this._countDownCallbackRef;
-        this._modal.yesButtonText = "";
-        this._modal.noButtonText = "";
-        this._modal.title = "READY!";
-        this._modal.height = 150;
-        this._modal.width = 300;
+
+        this._modalButtonClickRef = (e) => this.modalButtonClick(e);
+        this._modal.buttonClick = this._modalButtonClickRef;
+        this._gameOver = false;
+        this._gameOverText = "";
     }
 
     static _nextKillScore = 100;
@@ -57,6 +65,38 @@ class GameObjectContainer extends DataSourceBase {
 
     static resetNextKillScore() {
         GameObjectContainer._nextKillScore = 100;
+    }
+
+    modalButtonClick(e) {
+        this.modal.show = false;
+
+        if (this.callback) {
+            this.callback({
+                callbackType: GameObjectContainer.CALLBACK_TYPE_GAME_OVER,
+                object: this
+            });
+        }
+    }
+
+    showCountDownModal() {
+        this._modal.yesButtonText = "";
+        this._modal.noButtonText = "";
+        this._modal.title = "READY!";
+        this._modal.height = 150;
+        this._modal.width = 300;
+        this._modal.show = true;
+
+        this._countDownMenu.count = 3;
+        this._countDownMenu.start();
+    }
+
+    showGameOverModal() {
+        this._modal.yesButtonText = "OK";
+        this._modal.noButtonText = "";
+        this._modal.title = "GAME OVER!";
+        this._modal.height = 200;
+        this._modal.width = 300;
+        this._modal.show = true;
     }
 
     _nestedDataSourceChanged(e) {
@@ -79,6 +119,7 @@ class GameObjectContainer extends DataSourceBase {
 
     startOrRestartLevel(timeout=3000) {
         this.moveAllBackToSpawn();
+        this.gameOver = false;
 
         if (!this.player.isAlive) {
             this.player.isAlive = true;
@@ -86,11 +127,11 @@ class GameObjectContainer extends DataSourceBase {
         }
 
         if (this.player.numLives === 0) {
-            alert ('Game Over');
+            this.gameOver = true;
+            this.gameOverText = "You survived to level " + this.level.levelNum + "!";
+            this.showGameOverModal();
         } else {
-            this._countDownMenu.count = 3;
-            this._modal.show = true;
-            this._countDownMenu.start();
+            this.showCountDownModal();
         }
     }
 
@@ -106,8 +147,9 @@ class GameObjectContainer extends DataSourceBase {
                 // OR GHOST IS NOT SCARED
                 if (thePlayer.isAlive) {
                     thePlayer.isAlive = false;
-                    this.paused = true;
+                    this.resetAllGhostBrains();
                     this.currentPlayerDead = true;
+                    this.paused = true;
 
                     if (this._restartLevelRef === null) {
                         this._restartLevelRef = () => this.startOrRestartLevel();
@@ -138,9 +180,19 @@ class GameObjectContainer extends DataSourceBase {
     _checkIfAllDotsEaten(thePlayer, theLevel) {
         if (thePlayer.dotsEaten === theLevel.numDots && !this.paused) {
         // if (thePlayer.dotsEaten >= 2 && !this.paused) {
+
+            this.level.blinkBorder = true;
+            this.resetAllGhostBrains();
+
             this.paused = true;
-            if (this.levelFinishedCallback) {
-                this.levelFinishedCallback(this);
+
+            if (this.callback) {
+                setTimeout(function () {
+                    this.callback({
+                        callbackType: GameObjectContainer.CALLBACK_TYPE_LEVEL_FINISHED,
+                        object: this
+                    });
+                }.bind(this), 4000);
             }
         }
     }
@@ -243,6 +295,14 @@ class GameObjectContainer extends DataSourceBase {
         });
     }
 
+    resetAllGhostBrains() {
+        this.iterateOverGameObjects(function (gameObject) {
+            if (gameObject instanceof Ghost) {
+                gameObject.resetBrain();
+            }
+        });
+    }
+
     moveAllBackToSpawn() {
         let self = this;
 
@@ -284,12 +344,12 @@ class GameObjectContainer extends DataSourceBase {
         this._setValueAndRaiseOnChange("_currentPlayerDead", value);
     }
 
-    get levelFinishedCallback() {
-        return this._levelFinishedCallback;
+    get callback() {
+        return this._callback;
     }
 
-    set levelFinishedCallback(value) {
-        this._levelFinishedCallback = value;
+    set callback(value) {
+        this._callback = value;
     }
 
     get gameOverCallback() {
@@ -314,6 +374,22 @@ class GameObjectContainer extends DataSourceBase {
 
     set modal(value) {
         this._setValueAndRaiseOnChange("_modal", value);
+    }
+
+    get gameOver() {
+        return this._gameOver;
+    }
+
+    set gameOver(value) {
+        this._setValueAndRaiseOnChange("_gameOver", value);
+    }
+
+    get gameOverText() {
+        return this._gameOverText;
+    }
+
+    set gameOverText(value) {
+        this._setValueAndRaiseOnChange("_gameOverText", value);
     }
 }
 

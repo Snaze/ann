@@ -1,6 +1,13 @@
 import DataSourceBase from "./DataSourceBase";
 
+const buttonTypeYes = 0;
+const buttonTypeNo = 1;
+
 class Modal extends DataSourceBase {
+
+    static get BUTTON_YES() { return buttonTypeYes; }
+    static get BUTTON_NO() { return buttonTypeNo; }
+
     constructor() {
         super();
 

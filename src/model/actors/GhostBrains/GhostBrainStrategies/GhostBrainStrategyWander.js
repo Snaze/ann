@@ -37,11 +37,11 @@ class GhostBrainStrategyWander {
     }
 
     get cellTransitionDurationMax() {
-        return 0.3;
+        return 0.225;
     }
 
     get cellTransitionDurationMin() {
-        return 0.2;
+        return 0.15;
     }
 
     get destinationLocation() {

@@ -9,10 +9,10 @@ import EasingFunctions from "../../utils/EasingFunctions";
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
 const valid_gender = [mr_pac_man, mrs_pac_man];
-const min_cell_duration = 0.15;
-const max_cell_duration = 0.25;
+const min_cell_duration = 0.1;
+const max_cell_duration = 0.175;
 const min_attack_duration = 0.0; // seconds
-const max_attack_duration = 10.0; // seconds
+const max_attack_duration = 8.0; // seconds
 
 class Player extends ActorBase {
 
@@ -45,7 +45,8 @@ class Player extends ActorBase {
         this._attackModeId = Player._nextAttackModeId++;
         this._attackModeFinishTime = moment();
         this._prevLocation = this.location.clone();
-        this._numLives = 3;
+        this._numLives = 1;
+        this._originalNumLives = this._numLives;
 
         this._cellTransitionDuration = Player.getCellTransitionDuration(this.level); // seconds
     }
@@ -111,11 +112,12 @@ class Player extends ActorBase {
     _eatBigDot(cell) {
         this.score = this.score + 50;
         cell.dotType = Dot.NONE;
-        // only increment if this is a new attack mode.
-        // and not and extension of the existing one.
-        if (moment() >= this._attackModeFinishTime) {
-            this._attackModeId = Player._nextAttackModeId++;
-        }
+
+        // This use to be here but ghosts wouldn't turn blue again
+        // when you picked up a new power pellet.
+        // if (moment() >= this._attackModeFinishTime) {
+        this._attackModeId = Player._nextAttackModeId++;
+        // }
 
         let attackDuration = Player.getAttackDuration(this.level);
         let attackFinishTime = moment().add(attackDuration, "s");
@@ -216,6 +218,10 @@ class Player extends ActorBase {
         this._attackModeFinishTime = moment().add(-1, "s");
 
         super.level = value;
+    }
+
+    resetNumLives() {
+        this.numLives = this._originalNumLives;
     }
 }
 
