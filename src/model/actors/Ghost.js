@@ -129,6 +129,9 @@ class Ghost extends ActorBase {
     executeActorStep(e) {
         let toRet = super.executeActorStep(e);
 
+        // I put this here so ghosts become unscared as soon as possible
+        this.scaredState = this._ghostBrain.getScaredState(this, this.player, this.level);
+
         this.points.timerTick(e);
 
         return toRet;
@@ -141,7 +144,6 @@ class Ghost extends ActorBase {
 
         let theDirection = this._ghostBrain.getNextDirection(this, this.player, this.level);
         this.cellTransitionDuration = this._ghostBrain.getCellTransitionDuration(this.level);
-        this.scaredState = this._ghostBrain.getScaredState(this, this.player, this.level);
 
         this._prevLocation.setWithLocation(this.location);
         this.moveInDirection(theDirection);

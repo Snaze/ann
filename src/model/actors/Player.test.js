@@ -296,3 +296,25 @@ it ("test eatBigDot", () => {
     testEatBigDot(Math.floor(Level.TOTAL_LEVELS / 2), moment().add(Player.MIN_ATTACK_DURATION, "s"));
     testEatBigDot(Level.TOTAL_LEVELS, moment().add(Player.MIN_ATTACK_DURATION, "s"));
 });
+
+const testScoreOver10000Increment = function (sourceScore, destScore, shouldIncrement) {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.levelNum = 1;
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    thePlayer._score = sourceScore;
+    thePlayer._numLives = 1;
+
+    // CALL
+    thePlayer.score = destScore;
+
+    // ASSERT
+    expect(thePlayer.numLives > 1).toBe(shouldIncrement);
+};
+
+it ("every 10,000 points pac man gets a new life", () => {
+    testScoreOver10000Increment(9960, 10010, true);
+    testScoreOver10000Increment(9900, 9950, false);
+    testScoreOver10000Increment(29950, 30200, true);
+    testScoreOver10000Increment(0, 100, false);
+});

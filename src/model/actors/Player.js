@@ -13,6 +13,7 @@ const min_cell_duration = 0.1;
 const max_cell_duration = 0.175;
 const min_attack_duration = 0.0; // seconds
 const max_attack_duration = 8.0; // seconds
+const new_life_increment = 10000;
 
 class Player extends ActorBase {
 
@@ -45,7 +46,7 @@ class Player extends ActorBase {
         this._attackModeId = Player._nextAttackModeId++;
         this._attackModeFinishTime = moment();
         this._prevLocation = this.location.clone();
-        this._numLives = 1;
+        this._numLives = 3;
         this._originalNumLives = this._numLives;
 
         this._cellTransitionDuration = Player.getCellTransitionDuration(this.level); // seconds
@@ -175,6 +176,13 @@ class Player extends ActorBase {
     }
 
     set score(value) {
+        let origValue = Math.floor(this.score / new_life_increment);
+        let newValue = Math.floor(value / new_life_increment);
+
+        if (newValue > origValue) {
+            this.numLives = this.numLives + 1;
+        }
+
         this._setValueAndRaiseOnChange("_score", value);
     }
 
