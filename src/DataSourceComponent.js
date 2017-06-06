@@ -40,12 +40,15 @@ class DataSourceComponent extends Component {
     _dataSourceUpdated(e) {
 
         // this._propsModifiedSinceUpdate.push(e.source);
+        if (typeof(e.forceUpdate) !== "undefined" && e.forceUpdate) {
+            this.forceUpdate();
+        } else {
+            this.setState({
+                dataSource: e.object
+            });
 
-        this.setState({
-            dataSource: e.object
-        });
-
-        this.log("_dataSourceUpdated from " + e.source);
+            this.log("_dataSourceUpdated from " + e.source);
+        }
     }
 
     log(toLog) {

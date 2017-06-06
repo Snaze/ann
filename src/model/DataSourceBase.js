@@ -172,6 +172,16 @@ class DataSourceBase {
         this.log("DataSourceBase._raiseOnChangeCallbacks: " + source);
     }
 
+    forceUpdate() {
+        this._eventer.raiseEvent({
+            object: this,
+            source: "",
+            oldValue: this,
+            newValue: this,
+            forceUpdate: true
+        });
+    }
+
     _setValueAndRaiseOnChange(property, newValue) {
         if ((typeof(this[property]) !== 'undefined') &&
             this[property] === newValue) {

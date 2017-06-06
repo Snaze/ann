@@ -4,8 +4,7 @@ import Ghost from "./actors/Ghost";
 import GameTimer from "./GameTimer";
 import moment from "../../node_modules/moment/moment";
 import PowerUp from "./actors/PowerUp";
-import CountDownMenu from "./menus/CountDownMenu";
-import Modal from "./Modal";
+import GameModal from "./GameModal";
 
 const max_power_up_spawn_time = 90.0;
 const callback_type_level_finished = 0;
@@ -26,8 +25,9 @@ class GameObjectContainer extends DataSourceBase {
         this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
         this._ghostOrange = this._wireUp("_ghostOrange", new Ghost(level, Ghost.ORANGE, this._player));
         this._powerUp = this._wireUp("_powerUp", new PowerUp(level, PowerUp.POWER_UP_CHERRY));
-        this._countDownMenu = this._wireUp("_countDownMenu", new CountDownMenu());
-        this._modal = this._wireUp("_modal", new Modal());
+        // this._countDownMenu = this._wireUp("_countDownMenu", new CountDownMenu());
+        // this._modal = this._wireUp("_modal", new Modal());
+        this._gameModal = this._wireUp("_gameModal", new GameModal());
         this._powerUpSpawnTime = moment().add(Math.floor(Math.random() * max_power_up_spawn_time), "s");
 
         this._gameObjects = [
@@ -47,14 +47,7 @@ class GameObjectContainer extends DataSourceBase {
         this._restartLevelRef = null;
 
         this._callback = null;
-
-        this._countDownCallbackRef = (e) => this._countDownCallback(e);
-        this._countDownMenu.callback = this._countDownCallbackRef;
-
-        this._modalButtonClickRef = (e) => this.modalButtonClick(e);
-        this._modal.buttonClick = this._modalButtonClickRef;
         this._gameOver = false;
-        this._gameOverText = "";
     }
 
     static _nextKillScore = 100;
@@ -67,36 +60,18 @@ class GameObjectContainer extends DataSourceBase {
         GameObjectContainer._nextKillScore = 100;
     }
 
-    modalButtonClick(e) {
-        this.modal.show = false;
-
+    _gameModalDismissCallback(e) {
         if (this.callback) {
-            this.callback({
-                callbackType: GameObjectContainer.CALLBACK_TYPE_GAME_OVER,
-                object: this
-            });
+            if (this._gameModal.mode === GameModal.MODAL_MODE_GAME_OVER) {
+                this.callback({
+                    callbackType: GameObjectContainer.CALLBACK_TYPE_GAME_OVER,
+                    object: this
+                });
+            } else if (this._gameModal.mode === GameModal.MODAL_MODE_COUNTDOWN) {
+                this.paused = false;
+                this._restartLevelRef = null;
+            }
         }
-    }
-
-    showCountDownModal() {
-        this._modal.yesButtonText = "";
-        this._modal.noButtonText = "";
-        this._modal.title = "READY!";
-        this._modal.height = 150;
-        this._modal.width = 300;
-        this._modal.show = true;
-
-        this._countDownMenu.count = 3;
-        this._countDownMenu.start();
-    }
-
-    showGameOverModal() {
-        this._modal.yesButtonText = "OK";
-        this._modal.noButtonText = "";
-        this._modal.title = "GAME OVER!";
-        this._modal.height = 200;
-        this._modal.width = 300;
-        this._modal.show = true;
     }
 
     _nestedDataSourceChanged(e) {
@@ -106,15 +81,13 @@ class GameObjectContainer extends DataSourceBase {
             !e.newValue) {
             // console.log("_resetPowerUpSpawnTime");
             this._resetPowerUpSpawnTime();
+        } else if (e.object === this._gameModal &&
+                   e.source === "_visible" &&
+                   !e.newValue) {
+            this._gameModalDismissCallback(this._gameModal);
         }
 
         super._nestedDataSourceChanged(e);
-    }
-
-    _countDownCallback(e) {
-        this.paused = false;
-        this._restartLevelRef = null;
-        this._modal.show = false;
     }
 
     startOrRestartLevel(timeout=3000) {
@@ -127,11 +100,9 @@ class GameObjectContainer extends DataSourceBase {
         }
 
         if (this.player.numLives === 0) {
-            this.gameOver = true;
-            this.gameOverText = "You survived to level " + this.level.levelNum + "!";
-            this.showGameOverModal();
+            this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
         } else {
-            this.showCountDownModal();
+            this.gameModal.showCountDownModal();
         }
     }
 
@@ -390,6 +361,10 @@ class GameObjectContainer extends DataSourceBase {
 
     set gameOverText(value) {
         this._setValueAndRaiseOnChange("_gameOverText", value);
+    }
+
+    get gameModal() {
+        return this._gameModal;
     }
 }
 
