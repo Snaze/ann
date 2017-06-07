@@ -13,6 +13,12 @@ import extrapac_wav from "../sounds/pacman_extrapac.wav";
 import extrapac_mp3 from "../sounds/pacman_extrapac.mp3";
 import intermission_wav from "../sounds/pacman_intermission.wav";
 import intermission_mp3 from"../sounds/pacman_intermission.mp3";
+import chomp_big_wav from "../sounds/ChompBig.wav";
+import chomp_big_mp3 from "../sounds/ChompBig.mp3";
+import chomp_small_wav from "../sounds/ChompSmall.wav";
+import chomp_small_mp3 from "../sounds/ChompSmall.mp3";
+import siren_wav from "../sounds/Siren.wav";
+import siren_mp3 from "../sounds/Siren.mp3";
 
 let _singleton = Symbol();
 
@@ -26,11 +32,14 @@ class SoundPlayer {
         this._playFinishedCallbackRef = (e) => this._playFinishedCallback(e);
         this._beginning = null;
         this._chomp = null;
+        this._chompBig = null;
+        this._chompSmall = null;
         this._death = null;
         this._eatfruit = null;
         this._eatghost = null;
         this._extrapac = null;
         this._intermission = null;
+        this._siren = null;
         this._callbacks = {};
     }
 
@@ -66,10 +75,22 @@ class SoundPlayer {
         }
     }
 
-    play(theSound, callback) {
-        let id = theSound.play();
+    play(theSound, callback, spriteName) {
+
+        let id = null;
+
+        if (spriteName) {
+            id = theSound.play(spriteName);
+        } else {
+            id = theSound.play();
+        }
+
         // is this whack?
-        this._callbacks[id] = callback;
+
+        if (callback) {
+            this._callbacks[id] = callback;
+        }
+
         return id;
     }
 
@@ -83,6 +104,18 @@ class SoundPlayer {
         this._setPropIfNotExists("_chomp", chomp_mp3, chomp_wav);
 
         return this._chomp;
+    }
+
+    get chompBig() {
+        this._setPropIfNotExists("_chompBig", chomp_big_mp3, chomp_big_wav);
+
+        return this._chompBig;
+    }
+
+    get chompSmall() {
+        this._setPropIfNotExists("_chompSmall", chomp_small_mp3, chomp_small_wav);
+
+        return this._chompSmall;
     }
 
     get death() {
@@ -113,6 +146,23 @@ class SoundPlayer {
         this._setPropIfNotExists("_intermission", intermission_mp3, intermission_wav);
 
         return this._intermission;
+    }
+
+    get siren() {
+        if (this._siren === null) {
+            this._siren = new howler.Howl({
+                src: [siren_mp3, siren_wav],
+                format: ['mp3', 'wav'],
+                volume: 1.0,
+                loop: true,
+                rate: 0.5,
+                sprite: {
+                    main: [0, 250],
+                }
+            });
+        }
+
+        return this._siren;
     }
 }
 

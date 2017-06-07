@@ -19,7 +19,7 @@ class MainMenu extends DataSourceBase {
         this._selectedPlayer = MainMenu.SELECTED_PLAYERS_1;
         this._selectionConfirmed = false;
         this._soundCompleteCallbackRef = (e) => this._soundCompleteCallback(e);
-        // SoundPlayer.instance.play(SoundPlayer.instance.beginning, this._soundCompleteCallbackRef);
+        this._soundId = SoundPlayer.instance.play(SoundPlayer.instance.intermission);
     }
 
     _soundCompleteCallback(e) {
@@ -52,11 +52,13 @@ class MainMenu extends DataSourceBase {
     set selectionConfirmed(value) {
         if (!this._selectionConfirmed && value) {
             SoundPlayer.instance.play(SoundPlayer.instance.eatghost);
-            // SoundPlayer.instance.beginning.stop();
+            if (this._soundId !== null) {
+                SoundPlayer.instance.intermission.stop(this._soundId);
+                this._soundId = null;
+            }
         }
 
         this._setValueAndRaiseOnChange("_selectionConfirmed", value);
-
     }
 }
 

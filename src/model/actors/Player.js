@@ -30,6 +30,7 @@ class Player extends ActorBase {
     }
 
     static _nextAttackModeId = 1;
+    static sirenSoundId = null;
 
     constructor(level, gender) {
         super(level);
@@ -106,11 +107,11 @@ class Player extends ActorBase {
             this.score = this.score + 10;
             cell.dotType = Dot.NONE;
             this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
-            // SoundPlayer.instance.play(SoundPlayer.instance.chomp);
+            SoundPlayer.instance.play(SoundPlayer.instance.chompSmall);
         } else if (cell.dotType === Dot.BIG) {
             this._eatBigDot(cell);
             // SoundPlayer.instance.chomp.stop();
-            // SoundPlayer.instance.play(SoundPlayer.instance.chomp);
+            SoundPlayer.instance.play(SoundPlayer.instance.chompBig);
         }
     }
 
@@ -128,10 +129,23 @@ class Player extends ActorBase {
         let attackFinishTime = moment().add(attackDuration, "s");
         this._setValueAndRaiseOnChange("_attackModeFinishTime", attackFinishTime);
         this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
+        if (Player.sirenSoundId === null) {
+            Player.sirenSoundId = SoundPlayer.instance.play(SoundPlayer.instance.siren, null, "main");
+        }
     }
 
-    removeAllCallbacks() {
-        super.removeAllCallbacks();
+    executeActorStep(e) {
+        let toRet = super.executeActorStep(e);
+
+        if (moment() >= this._attackModeFinishTime &&
+            Player.sirenSoundId !== null) {
+            let tempId = Player.sirenSoundId;
+            Player.sirenSoundId = null;
+
+            SoundPlayer.instance.siren.stop(tempId);
+        }
+
+        return toRet;
     }
 
     timerTick(e) {

@@ -13,7 +13,7 @@ class LevelRunner extends DataSourceBase {
         this._level = this._wireUp("_level", LevelFactory.createLevel(levelName));
         this._gameObjectContainer = new GameObjectContainer(this._level);
         this._gameObjectContainer.paused = true;
-        this._editPanelEnabled = true;
+        this._editPanelEnabled = false;
 
         this._gameHeader = new GameHeader(this._gameObjectContainer.player,
             this._gameObjectContainer.player2);

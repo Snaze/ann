@@ -5,6 +5,7 @@ import GameTimer from "./GameTimer";
 import moment from "../../node_modules/moment/moment";
 import PowerUp from "./actors/PowerUp";
 import GameModal from "./GameModal";
+import SoundPlayer from "../utils/SoundPlayer";
 
 const max_power_up_spawn_time = 90.0;
 const callback_type_level_finished = 0;
@@ -48,6 +49,7 @@ class GameObjectContainer extends DataSourceBase {
 
         this._callback = null;
         this._gameOver = false;
+        this._levelFirstStart = true;
     }
 
     static _nextKillScore = 100;
@@ -102,7 +104,14 @@ class GameObjectContainer extends DataSourceBase {
         if (this.player.numLives === 0) {
             this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
         } else {
-            this.gameModal.showCountDownModal();
+            if (!this._levelFirstStart) {
+                this.gameModal.showCountDownModal();
+            } else {
+                this._levelFirstStart = false;
+                SoundPlayer.instance.play(SoundPlayer.instance.beginning, function (id) {
+                    this.gameModal.showCountDownModal();
+                }.bind(this));
+            }
         }
     }
 
@@ -243,9 +252,14 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     set level(value) {
+        if (value !== this.level) {
+            this._levelFirstStart = true;
+        }
+
         this.iterateOverGameObjects(function (gameObject) {
            gameObject.level = value;
         });
+
     }
 
     get editMode() {
