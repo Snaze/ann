@@ -43,7 +43,11 @@ class Cell extends DataSourceComponent {
             let theCellDOMElement = document.getElementById(cellId);
             if (theCellDOMElement) {
                 let clientRect = theCellDOMElement.getBoundingClientRect();
-                let parent = document.getElementsByClassName("LevelRunnerAreaCenter")[0];
+                let parents = document.getElementsByClassName("LevelRunnerAreaCenter");
+                if (parents.length <= 0) {
+                    parents = document.getElementsByClassName("LevelRunnerArea");
+                }
+                let parent = parents[0];
                 let parentRect = parent.getBoundingClientRect();
 
                 let left = Math.abs(clientRect["left"] - parentRect["left"]) - 2;
@@ -135,8 +139,12 @@ class Cell extends DataSourceComponent {
             toRet += "CellLittleDot ";
         }
 
-        if (!this.cell.isActive && this.cell.editMode) {
-            toRet += "CellInActive ";
+        if (!this.cell.isActive) {
+            if (this.cell.editMode) {
+                toRet += "CellInActive ";
+            } else {
+                toRet += "CellBackground" + Cell.colorNameMap[this.cell.solidBorder.color] + " ";
+            }
         }
 
         if (this.state.hover || this.cell.selected) {

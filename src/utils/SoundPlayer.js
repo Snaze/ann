@@ -58,7 +58,7 @@ class SoundPlayer {
     }
 
     _playFinishedCallback(id) {
-        console.log("callback id = " + id);
+        // console.log("callback id = " + id);
 
         if (this._callbacks[id]) {
             this._callbacks[id](id);
