@@ -1,4 +1,5 @@
 import DataSourceBase from "../DataSourceBase";
+import SoundPlayer from "../../utils/SoundPlayer";
 
 const selected_players_1 = 1;
 const selected_players_2 = 2;
@@ -29,6 +30,7 @@ class MainMenu extends DataSourceBase {
         }
 
         this._setValueAndRaiseOnChange("_selectedPlayer", value);
+        SoundPlayer.instance.play(SoundPlayer.instance.eatfruit);
     }
 
     get numPlayers() {
@@ -40,7 +42,12 @@ class MainMenu extends DataSourceBase {
     }
 
     set selectionConfirmed(value) {
+        if (!this._selectionConfirmed && value) {
+            SoundPlayer.instance.play(SoundPlayer.instance.eatghost);
+        }
+
         this._setValueAndRaiseOnChange("_selectionConfirmed", value);
+
     }
 }
 

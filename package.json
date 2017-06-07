@@ -5,6 +5,7 @@
   "dependencies": {
     "animate.css": "^3.5.2",
     "array2d": "^0.0.5",
+    "howler": "^2.0.3",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "prop-types": "^15.5.10",

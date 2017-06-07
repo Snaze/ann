@@ -140,11 +140,9 @@ class GameObjectContainer extends DataSourceBase {
 
     _pickUpPowerUpIfCollision(thePlayer, thePowerup) {
         if (thePlayer.location.equals(thePowerup.location)) {
-            thePowerup.points.show(thePowerup.location);
-            thePlayer.score += thePowerup.powerUpValue;
-            thePowerup.isAlive = false;
+            thePowerup.pickUp(thePlayer);
+
             this._resetPowerUpSpawnTime();
-            thePowerup.moveBackToSpawn();
         }
     }
 

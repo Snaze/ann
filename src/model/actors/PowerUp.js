@@ -2,6 +2,7 @@ import ActorBase from "./ActorBase";
 import Points from "../Points";
 import Direction from "../../utils/Direction";
 import moment from "../../../node_modules/moment/moment";
+import SoundPlayer from "../../utils/SoundPlayer";
 
 const cherry = 100;
 const strawberry = 200;
@@ -174,6 +175,14 @@ class PowerUp extends ActorBase {
         let now = moment();
         this._blinkTime = now.clone().add(blink_time, "s");
         this._lifeExpirationTime = now.clone().add(life_duration, "s");
+    }
+
+    pickUp(thePlayer) {
+        this.points.show(this.location);
+        thePlayer.score += this.powerUpValue;
+        SoundPlayer.instance.play(SoundPlayer.instance.eatfruit);
+        this.isAlive = false;
+        this.moveBackToSpawn();
     }
 }
 

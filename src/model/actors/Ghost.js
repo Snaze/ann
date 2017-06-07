@@ -3,6 +3,7 @@ import _ from "../../../node_modules/lodash/lodash";
 import GhostBrainManual from "./GhostBrains/GhostBrainManual";
 import Player from "./Player";
 import Points from "../Points";
+import SoundPlayer from "../../utils/SoundPlayer";
 
 const red = 0;
 const blue = 1;
@@ -191,6 +192,7 @@ class Ghost extends ActorBase {
         this.points.show(this.location);
         this.prevKilledByAttackModeId = player.attackModeId;
         player.score += killScore;
+        SoundPlayer.instance.play(SoundPlayer.instance.eatghost);
     }
 
     get level() {

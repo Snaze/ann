@@ -5,6 +5,7 @@ import _ from "../../../node_modules/lodash/lodash";
 import Dot from "../Dot";
 import moment from "../../../node_modules/moment/moment";
 import EasingFunctions from "../../utils/EasingFunctions";
+import SoundPlayer from "../../utils/SoundPlayer";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
@@ -105,8 +106,11 @@ class Player extends ActorBase {
             this.score = this.score + 10;
             cell.dotType = Dot.NONE;
             this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
+            // SoundPlayer.instance.play(SoundPlayer.instance.chomp);
         } else if (cell.dotType === Dot.BIG) {
             this._eatBigDot(cell);
+            // SoundPlayer.instance.chomp.stop();
+            // SoundPlayer.instance.play(SoundPlayer.instance.chomp);
         }
     }
 
@@ -181,6 +185,7 @@ class Player extends ActorBase {
 
         if (newValue > origValue) {
             this.numLives = this.numLives + 1;
+            SoundPlayer.instance.play(SoundPlayer.instance.extrapac);
         }
 
         this._setValueAndRaiseOnChange("_score", value);
@@ -212,6 +217,10 @@ class Player extends ActorBase {
 
     set isAlive(value) {
         this._attackModeFinishTime = moment().add(-1, "s");
+
+        if (this._isAlive && !value) {
+            SoundPlayer.instance.play(SoundPlayer.instance.death);
+        }
 
         super.isAlive = value;
     }
