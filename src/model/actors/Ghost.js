@@ -53,7 +53,6 @@ class Ghost extends ActorBase {
 
         this._ghostBrain = new GhostBrainManual();
         this._scaredState = Ghost.SCARED_STATE_NOT_SCARED;
-        this._killScore = 0;
         this._points = this._wireUp("_points", new Points(Points.POINTS_TYPE_GHOST_KILL));
         this._prevKilledByAttackModeId = -1;
     }
@@ -166,19 +165,6 @@ class Ghost extends ActorBase {
         return this._prevLocation;
     }
 
-    get killScore() {
-        return this._killScore;
-    }
-
-    set killScore(value) {
-        if (value !== this._killScore) {
-            this.points.amount = value;
-            // this.points.pointsType = Points.POINTS_TYPE_GHOST_KILL;
-            this.points.location.setWithLocation(this.location);
-        }
-        this._setValueAndRaiseOnChange("_killScore", value);
-    }
-
     resetBrain() {
         this._ghostBrain.reset();
     }
@@ -201,10 +187,10 @@ class Ghost extends ActorBase {
         }
 
         this.isAlive = false;
-        this.killScore = killScore;
+        this.points.amount = killScore;
         this.points.show(this.location);
         this.prevKilledByAttackModeId = player.attackModeId;
-        player.score += this.killScore;
+        player.score += killScore;
     }
 
     get level() {
