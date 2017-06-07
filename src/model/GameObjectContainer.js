@@ -6,6 +6,7 @@ import moment from "../../node_modules/moment/moment";
 import PowerUp from "./actors/PowerUp";
 import GameModal from "./GameModal";
 import SoundPlayer from "../utils/SoundPlayer";
+import KeyEventer from "../utils/KeyEventer";
 
 const max_power_up_spawn_time = 90.0;
 const callback_type_level_finished = 0;
@@ -44,12 +45,16 @@ class GameObjectContainer extends DataSourceBase {
         this._gameTimerTickFinishedRef = (e) => this.gameTimerTickFinished(e);
         GameTimer.instance.addTickFinishedCallback(this._gameTimerTickFinishedRef);
 
+        this._keyPressRef = (e) => this._keyPress(e);
+        KeyEventer.instance.addCallback(this._keyPressRef, KeyEventer.CALLBACK_KEYDOWN);
+
         this._currentPlayerDead = false;
         this._restartLevelRef = null;
 
         this._callback = null;
         this._gameOver = false;
         this._levelFirstStart = true;
+        this._levelRunning = false;
     }
 
     static _nextKillScore = 100;
@@ -62,6 +67,28 @@ class GameObjectContainer extends DataSourceBase {
         GameObjectContainer._nextKillScore = 100;
     }
 
+    dispose() {
+        KeyEventer.instance.removeCallback(this._keyPressRef, KeyEventer.CALLBACK_KEYDOWN);
+
+        super.dispose();
+    }
+
+    _keyPress(key) {
+        if (!this._levelRunning) {
+            return;
+        }
+
+        if (key.toLowerCase() === "p") {
+            if (this.paused) {
+                this.paused = false;
+                this._gameModal.hideModal();
+            } else {
+                this.paused = true;
+                this._gameModal.showPausedModal();
+            }
+        }
+    }
+
     _gameModalDismissCallback(e) {
         if (this.callback) {
             if (this._gameModal.mode === GameModal.MODAL_MODE_GAME_OVER) {
@@ -70,8 +97,10 @@ class GameObjectContainer extends DataSourceBase {
                     object: this
                 });
             } else if (this._gameModal.mode === GameModal.MODAL_MODE_COUNTDOWN) {
+                this.resetAllGhostBrains();
                 this.paused = false;
                 this._restartLevelRef = null;
+                this._levelRunning = true;
             }
         }
     }
@@ -93,13 +122,12 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     startOrRestartLevel(timeout=3000) {
-        this.moveAllBackToSpawn();
-        this.gameOver = false;
 
-        if (!this.player.isAlive) {
-            this.player.isAlive = true;
-            this.player.numLives = this.player.numLives - 1;
-        }
+        this.moveAllBackToSpawnAndResetActors();
+        this.gameOver = false;
+        this._levelRunning = false;
+
+
 
         if (this.player.numLives === 0) {
             this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
@@ -127,9 +155,11 @@ class GameObjectContainer extends DataSourceBase {
                 // OR GHOST IS NOT SCARED
                 if (thePlayer.isAlive) {
                     thePlayer.isAlive = false;
+                    this.player.numLives = this.player.numLives - 1;
                     this.resetAllGhostBrains();
                     this.currentPlayerDead = true;
                     this.paused = true;
+                    this._levelRunning = false;
 
                     if (this._restartLevelRef === null) {
                         this._restartLevelRef = () => this.startOrRestartLevel();
@@ -162,7 +192,9 @@ class GameObjectContainer extends DataSourceBase {
             this.level.blinkBorder = true;
             this.resetAllGhostBrains();
 
+            this._levelRunning = false;
             this.paused = true;
+
 
             if (this.callback) {
                 setTimeout(function () {
@@ -286,7 +318,7 @@ class GameObjectContainer extends DataSourceBase {
         });
     }
 
-    moveAllBackToSpawn() {
+    moveAllBackToSpawnAndResetActors() {
         let self = this;
 
         this.iterateOverGameObjects(function (gameObject) {
@@ -305,6 +337,10 @@ class GameObjectContainer extends DataSourceBase {
 
             if (typeof(gameObject.resetBrain) !== "undefined") {
                 gameObject.resetBrain();
+            }
+
+            if (typeof(gameObject.isAlive) !== "undefined") {
+                gameObject.isAlive = true;
             }
         });
     }

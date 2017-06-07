@@ -27,6 +27,7 @@ class KeyEventer {
         this._d = false;
         this._q = false;
         this._x = false;
+        this._p = false;
         this._lastArrowPressed = null;
         this._keyDownEventer = new Eventer();
         this._keyUpEventer = new Eventer();
@@ -96,6 +97,10 @@ class KeyEventer {
         return this._x;
     }
 
+    get p() {
+        return this._p;
+    }
+
     onKeyDown(e) {
         switch (e.key) {
             case "ArrowDown":
@@ -140,6 +145,10 @@ class KeyEventer {
                 break;
             case "Enter":
             case " ":
+                break;
+            case "p":
+            case "P":
+                this._p = true;
                 break;
             default:
                 return; // Quit when this doesn't handle the key event.
@@ -200,6 +209,10 @@ class KeyEventer {
                 break;
             case "Enter":
             case " ":
+                break;
+            case "p":
+            case "P":
+                this._p = false;
                 break;
             default:
                 return; // Quit when this doesn't handle the key event.

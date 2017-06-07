@@ -4,11 +4,13 @@ import CountDownMenu from "./menus/CountDownMenu";
 
 const modal_mode_countdown = 0;
 const modal_mode_game_over = 1;
+const modal_mode_game_paused = 2;
 
 class GameModal extends DataSourceBase {
 
     static get MODAL_MODE_COUNTDOWN() { return modal_mode_countdown; }
     static get MODAL_MODE_GAME_OVER() { return modal_mode_game_over; }
+    static get MODAL_MODE_GAME_PAUSED() { return modal_mode_game_paused; }
 
     constructor() {
         super();
@@ -23,8 +25,10 @@ class GameModal extends DataSourceBase {
 
         this._modalButtonClickRef = (e) => this._modalButtonClick(e);
         this._modal.buttonClick = this._modalButtonClickRef;
-        this._mode = null;
+        this._mode = GameModal.MODAL_MODE_COUNTDOWN;
         this._visible = false;
+
+        this._pausedText = "Game Paused";
     }
 
     hideModal() {
@@ -42,6 +46,18 @@ class GameModal extends DataSourceBase {
 
     _countDownCallback(e) {
         this.hideModal();
+    }
+
+    showPausedModal() {
+        this._mode = GameModal.MODAL_MODE_GAME_PAUSED;
+        this._modal.yesButtonText = "";
+        this._modal.noButtonText = "";
+        this._modal.title = "GAME PAUSED";
+        this._modal.height = 150;
+        this._modal.width = 300;
+        this._modal.show = true;
+        this.visible = true;
+
     }
 
     showCountDownModal() {
@@ -107,6 +123,10 @@ class GameModal extends DataSourceBase {
 
     set gameOverText(value) {
         this._setValueAndRaiseOnChange("_gameOverText", value);
+    }
+
+    get pausedText() {
+        return this._pausedText;
     }
 }
 

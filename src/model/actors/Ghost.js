@@ -168,6 +168,7 @@ class Ghost extends ActorBase {
 
     resetBrain() {
         this._ghostBrain.reset();
+        this._raiseOnChangeCallbacks("_scaredState", true, false);
     }
 
     get points() {
@@ -202,7 +203,7 @@ class Ghost extends ActorBase {
     set level(value) {
         super.level = value;
 
-        this._ghostBrain.reset();
+        this.resetBrain();
     }
 }
 

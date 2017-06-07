@@ -72,7 +72,7 @@ it ("moveAllBackToSpawn", () => {
     goc.ghostOrange.location.set(14, 14);
 
     // CALL
-    goc.moveAllBackToSpawn();
+    goc.moveAllBackToSpawnAndResetActors();
 
     // ASSERT
     expect(goc.player.location.equals(playerSpawnLocation)).toBe(true);
@@ -197,4 +197,25 @@ it ("checkAndSpawnPowerUp picks a random power up and sets it", () => {
 
     // ASSERT
     expect(goc.powerUp._powerUpType !== -1).toBe(true);
+});
+
+it ("start or resume level should make all this ghost come back alive", ()  => {
+    // SETUP
+    let theLevel = new Level(2, 2);
+    theLevel.levelNum = 8;
+    let goc = new GameObjectContainer(theLevel);
+    goc.ghostRed.isAlive = false;
+    goc.ghostPink.isAlive = false;
+    goc.ghostBlue.isAlive = false;
+    goc.ghostOrange.isAlive = false;
+
+    // CALL
+    goc.startOrRestartLevel();
+
+    // ASSERT
+    expect(goc.ghostRed.isAlive).toBe(true);
+    expect(goc.ghostPink.isAlive).toBe(true);
+    expect(goc.ghostBlue.isAlive).toBe(true);
+    expect(goc.ghostOrange.isAlive).toBe(true);
+
 });

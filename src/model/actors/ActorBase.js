@@ -141,6 +141,11 @@ class ActorBase extends DataSourceBase {
     moveInDirection(direction) {
         let sourceLocation = this.location;
 
+        if (typeof(direction) === "undefined") {
+            console.log("how is direction undefined?");
+            return;
+        }
+
         if ((Direction.NONE === direction) || !this.canMoveInDirection(sourceLocation, direction)) {
             return;
         }

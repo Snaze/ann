@@ -13,11 +13,17 @@ class GameModal extends DataSourceComponent {
     }
 
     getModalContent() {
-        if (this.gameModal.mode === GameModalModel.MODAL_MODE_GAME_OVER) {
-            return (<div className="GameModalGameOver">{this.gameModal.gameOverText}</div>);
-        }
 
-        return (<CountDownMenu dataSource={this.gameModal.countDownMenu} />);
+        switch (this.gameModal.mode) {
+            case GameModalModel.MODAL_MODE_GAME_OVER:
+                return (<div className="GameModalTextContent">{this.gameModal.gameOverText}</div>);
+            case GameModalModel.MODAL_MODE_COUNTDOWN:
+                return (<CountDownMenu dataSource={this.gameModal.countDownMenu} />);
+            case GameModalModel.MODAL_MODE_GAME_PAUSED:
+                return (<div className="GameModalTextContent">{this.gameModal.pausedText}</div>);
+            default:
+                throw new Error("Unknown gameModel.mode entered");
+        }
     }
 
     render() {
