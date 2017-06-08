@@ -16,8 +16,8 @@ class Modal extends DataSourceComponent {
         let self = this;
 
         return {
-            width: self.modal.width,
-            height: self.modal.height,
+            // width: self.modal.width,
+            // height: self.modal.height,
             fontSize: self.modal.fontSize
         };
     }
@@ -61,13 +61,25 @@ class Modal extends DataSourceComponent {
         }
     }
 
+    get buttonsStyle() {
+        if (this.noButtonText === "" && this.yesButtonText === "") {
+            return {
+                display: "none"
+            };
+        }
+
+        return {
+            display: "inline"
+        };
+    }
+
     elements() {
         if (this.modal.show) {
             return (<div key="TEST" className="ModalContent" style={this.style}>
                 {this.header}
                 <div className="ModalText">{this.props.children}</div>
                 <div className="ModalButtons">
-                    <div style={{position: "relative", width: "100%"}}>
+                    <div className="ModalYesNoButtons" style={this.buttonsStyle}>
                         {this.yesButton}
                         {this.noButton}
                     </div>

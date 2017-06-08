@@ -78,12 +78,12 @@ class GameModal extends DataSourceBase {
     showGameOverModal(score, levelNum) {
         this._mode = GameModal.MODAL_MODE_GAME_OVER;
 
-        this.gameOverText = "Score: " + score + " Level: " + levelNum;
+        this.gameOverText = "Score=" + score + " Level=" + levelNum;
 
         this._modal.yesButtonText = "OK";
         this._modal.noButtonText = "";
         this._modal.title = "GAME OVER!";
-        this._modal.height = 275;
+        this._modal.height = 150;
         this._modal.width = 300;
         this._modal.show = true;
         this.visible = true;
