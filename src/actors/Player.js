@@ -33,6 +33,7 @@ class Player extends DataSourceComponent {
             toRet.top =  (cellLocation.y - 2) + "px";
             toRet.left = (cellLocation.x - 2) + "px";
             toRet.pointerEvents = "none";
+            toRet.overflow = "hidden";
             if (!this.player.editMode) {
                 let transitionStr = "top " + this.player.cellTransitionDuration + "s," +
                     " left " + this.player.cellTransitionDuration + "s";

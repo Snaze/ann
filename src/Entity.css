@@ -6,20 +6,20 @@
 
 .MrsPacManEntity {
     background: url("./images/MrsPacManAnimationSprite.png") no-repeat;
-    background-size: 120px 28px;
+    background-size: 112px 28px;
     z-index: 100;
-    width: 30px;
+    width: 28px;
     height: 28px;
-    overflow: hidden;
+    backface-visibility: hidden; /** This prevents junk pixels **/
 }
 
 .PacManEntity {
     background: url("./images/PacManAnimationSprite.png") no-repeat;
-    background-size: 120px 28px;
+    background-size: 112px 28px;
     z-index: 100;
-    width: 30px;
+    width: 28px;
     height: 28px;
-    overflow: hidden;
+    backface-visibility: hidden; /** This prevents junk pixels **/
 }
 
 .RowEntity {
@@ -45,7 +45,7 @@
 
 @keyframes PlayerAnimationSprite {
     100% {
-        background-position: -120px;
+        background-position: -112px;
     }
 }
 
@@ -87,19 +87,19 @@
 
 .PacManUp {
     animation: PlayerAnimationSprite .25s steps(4) infinite;
-    -moz-transform: rotate(270deg);
-    -o-transform: rotate(270deg);
-    -webkit-transform: rotate(270deg);
-    transform: rotate(270deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
 }
 
 .PacManUpPaused {
     background-position: -28px;
     animation: none;
-    -moz-transform: rotate(270deg);
-    -o-transform: rotate(270deg);
-    -webkit-transform: rotate(270deg);
-    transform: rotate(270deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
 }
 
 .PacManDown {
