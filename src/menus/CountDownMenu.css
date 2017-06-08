@@ -7,9 +7,10 @@
 
 .CountDownMenuContent {
     font-family: Consolas, monospace;
-    font-size: 32px;
+    font-size: 72px;
     font-weight: bold;
-    margin: 32px;
+    /*margin: 32px;*/
+    margin-top: 75px;
     text-align: center;
     vertical-align: middle;
 }

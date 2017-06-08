@@ -4,7 +4,7 @@ import BorderType from "./BorderType";
 import DataSourceBase from "./DataSourceBase";
 import {default as LocationModel} from "./Location";
 import KeyEventer from "../utils/KeyEventer";
-import FloydWarshall from "./util/FloydWarshall";
+import FloydWarshall from "../utils/FloydWarshall";
 import Dot from "./Dot";
 import EasingFunctions from "../utils/EasingFunctions";
 

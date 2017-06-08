@@ -1,6 +1,6 @@
 import FloydWarshall from "./FloydWarshall";
-import Level from "../Level";
-import FloydWarshallTestLevel from "../../levels/FloydWarshallTest.json";
+import Level from "../model/Level";
+import FloydWarshallTestLevel from "../levels/FloydWarshallTest.json";
 
 it ("Build vertIds works", () => {
     // SETUP

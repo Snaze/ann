@@ -24,7 +24,6 @@ class Ghost extends DataSourceComponent {
         };
 
         if (currentGridLocation.isValid) {
-            // let cellModel = this.level.gameMatrix[spawnLocation.y][spawnLocation.x];
             let cellLocation = Cell.getCellLocation(currentGridLocation);
 
             toRet.display = "block";
@@ -78,7 +77,6 @@ class Ghost extends DataSourceComponent {
                                 modifier={this.ghost.direction}
                                 animating={this.props.animating} />
                 </div>
-                {/*<Points dataSource={this.ghost.points} />*/}
             </div>);
     }
 }

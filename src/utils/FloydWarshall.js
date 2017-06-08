@@ -1,6 +1,6 @@
 // import Level from "../Level";
-import Location from "../Location";
-import Direction from "../../utils/Direction";
+import Location from "../model/Location";
+import Direction from "./Direction";
 
 class FloydWarshall {
 
