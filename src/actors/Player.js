@@ -68,7 +68,7 @@ class Player extends DataSourceComponent {
             <div className="Player" style={this.getEntityStyle(this.player.location)}>
                 <Entity designator={this.getPlayerEntityGender()}
                             modifier={this.getPlayerModifier()}
-                            animating={this.props.animating} />
+                            animating={this.player.animating} />
             </div>);
     }
 }

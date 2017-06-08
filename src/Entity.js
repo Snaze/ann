@@ -26,10 +26,15 @@ const none = "none";
 
 /** MODIFIERS **/
 const direction_left = "direction_left";
+const direction_left_paused = "direction_left_paused";
 const direction_up = "direction_up";
+const direction_up_paused = "direction_up_paused";
 const direction_right = "direction_right";
+const direction_right_paused = "direction_right_paused";
 const direction_down = "direction_down";
+const direction_down_paused = "direction_down_paused";
 const dead = "dead";
+const dead_paused = "dead_paused";
 
 const power_up_cherry = "power_up_cherry";
 const power_up_strawberry = "power_up_strawberry";
@@ -63,66 +68,66 @@ const no_modifier = "no_modifier";
 const frame_mappings = {
     mrs_pac_man: {
         direction_left: [
-            "Entity RowEntity MrsPacManLeftOpen",
-            "Entity RowEntity MrsPacManLeftMid",
-            "Entity RowEntity MrsPacManLeftClose",
-            "Entity RowEntity MrsPacManLeftMid",
+            "MrsPacManEntity PacManLeft"
+        ],
+        direction_left_paused: [
+            "MrsPacManEntity PacManLeftPaused"
         ],
         direction_up: [
-            "Entity RowEntity MrsPacManUpOpen",
-            "Entity RowEntity MrsPacManUpMid",
-            "Entity RowEntity MrsPacManUpClose",
-            "Entity RowEntity MrsPacManUpMid"
+            "MrsPacManEntity PacManUp"
+        ],
+        direction_up_paused: [
+            "MrsPacManEntity PacManUpPaused"
         ],
         direction_right: [
-            "Entity RowEntity MrsPacManRightOpen",
-            "Entity RowEntity MrsPacManRightMid",
-            "Entity RowEntity MrsPacManRightClose",
-            "Entity RowEntity MrsPacManRightMid"
+            "MrsPacManEntity PacManRight"
+        ],
+        direction_right_paused: [
+            "MrsPacManEntity PacManRightPaused"
         ],
         direction_down: [
-            "Entity RowEntity MrsPacManDownOpen",
-            "Entity RowEntity MrsPacManDownMid",
-            "Entity RowEntity MrsPacManDownClose",
-            "Entity RowEntity MrsPacManDownMid"
+            "MrsPacManEntity PacManDown"
+        ],
+        direction_down_paused: [
+            "MrsPacManEntity PacManDownPaused"
         ],
         dead: [
-            "Entity RowEntity MrsPacManLeftMid",
-            "Entity RowEntity MrsPacManUpMid",
-            "Entity RowEntity MrsPacManRightMid",
-            "Entity RowEntity MrsPacManDownMid"
+            "MrsPacManEntity PacManDead"
+        ],
+        dead_paused: [
+            "MrsPacManEntity PacManDeadPaused"
         ]
     },
     pac_man: {
         direction_left: [
-            "Entity RowEntity PacManLeftOpen",
-            "Entity RowEntity PacManLeftMid",
-            "Entity RowEntity PacManLeftClose",
-            "Entity RowEntity PacManLeftMid",
+            "PacManEntity PacManLeft"
+        ],
+        direction_left_paused: [
+            "PacManEntity PacManLeftPaused"
         ],
         direction_up: [
-            "Entity RowEntity PacManUpOpen",
-            "Entity RowEntity PacManUpMid",
-            "Entity RowEntity PacManUpClose",
-            "Entity RowEntity PacManUpMid"
+            "PacManEntity PacManUp"
+        ],
+        direction_up_paused: [
+            "PacManEntity PacManUpPaused"
         ],
         direction_right: [
-            "Entity RowEntity PacManRightOpen",
-            "Entity RowEntity PacManRightMid",
-            "Entity RowEntity PacManRightClose",
-            "Entity RowEntity PacManRightMid"
+            "PacManEntity PacManRight"
+        ],
+        direction_right_paused: [
+            "PacManEntity PacManRightPaused"
         ],
         direction_down: [
-            "Entity RowEntity PacManDownOpen",
-            "Entity RowEntity PacManDownMid",
-            "Entity RowEntity PacManDownClose",
-            "Entity RowEntity PacManDownMid"
+            "PacManEntity PacManDown"
+        ],
+        direction_down_paused: [
+            "PacManEntity PacManDownPaused"
         ],
         dead: [
-            "Entity RowEntity PacManLeftMid",
-            "Entity RowEntity PacManUpMid",
-            "Entity RowEntity PacManRightMid",
-            "Entity RowEntity PacManDownMid"
+            "PacManEntity PacManDead"
+        ],
+        dead_paused: [
+            "PacManEntity PacManDeadPaused"
         ]
     },
     red_ghost: {
@@ -238,10 +243,15 @@ class Entity extends Component {
     static get DESIGNATOR_NONE() { return none; }
 
     static get MODIFIER_DIRECTION_UP() { return direction_up; }
-    static get MODIFIER_DIRECTION_LEFT() { return direction_left }
+    static get MODIFIER_DIRECTION_UP_PAUSED() { return direction_up_paused; }
+    static get MODIFIER_DIRECTION_LEFT() { return direction_left; }
+    static get MODIFIER_DIRECTION_LEFT_PAUSED() { return direction_left_paused; }
     static get MODIFIER_DIRECTION_RIGHT() { return direction_right; }
+    static get MODIFIER_DIRECTION_RIGHT_PAUSED() { return direction_right_paused; }
     static get MODIFIER_DIRECTION_DOWN() { return direction_down; }
+    static get MODIFIER_DIRECTION_DOWN_PAUSED() { return direction_down_paused; }
     static get MODIFIER_DEAD() { return dead; }
+    static get MODIFIER_DEAD_PAUSED() { return dead_paused; }
 
     static get MODIFIER_POWER_UP_CHERRY() { return power_up_cherry; }
     static get MODIFIER_POWER_UP_STRAWBERRY() { return power_up_strawberry; }
@@ -304,8 +314,31 @@ class Entity extends Component {
         GameTimer.instance.removeCallback(this._tickHandler);
     }
 
+    getModifier() {
+        if (((this.props.designator === Entity.DESIGNATOR_MRS_PAC_MAN) ||
+             (this.props.designator === Entity.DESIGNATOR_PAC_MAN)) &&
+            !this.props.animating) {
+            switch (this.props.modifier) {
+                case direction_left:
+                    return direction_left_paused;
+                case direction_up:
+                    return direction_up_paused;
+                case direction_right:
+                    return direction_right_paused;
+                case direction_down:
+                    return direction_down_paused;
+                case dead:
+                    return dead_paused;
+                default:
+                    throw new Error("Unknown Modifier");
+            }
+        }
+
+        return this.props.modifier;
+    }
+
     currentClassName() {
-        let frames = frame_mappings[this.props.designator][this.props.modifier];
+        let frames = frame_mappings[this.props.designator][this.getModifier()];
         if (typeof(frames) === "undefined") {
             throw new Error("Invalid Mapping Detected between " +
                 this.props.designator +

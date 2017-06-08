@@ -71,6 +71,7 @@ class Player extends ActorBase {
     resetLocations() {
         this.location.setWithLocation(this.level.playerSpawnLocation);
         this._spawnLocation.setWithLocation(this.location);
+        this._prevLocation.setWithLocation(this.location);
     }
 
     _nestedDataSourceChanged(e) {
@@ -145,6 +146,8 @@ class Player extends ActorBase {
             SoundPlayer.instance.siren.stop(tempId);
         }
 
+        this.resetAnimating();
+
         return toRet;
     }
 
@@ -168,7 +171,10 @@ class Player extends ActorBase {
             }
         }
 
+        this.prevLocation.setWithLocation(this.location);
         this.attemptToMoveInDirection(newDirection);
+
+        this.resetAnimating(true);
     }
 
     attemptToMoveInDirection(direction) {
@@ -253,6 +259,26 @@ class Player extends ActorBase {
 
     resetNumLives() {
         this.numLives = this._originalNumLives;
+    }
+
+    get prevLocation() {
+        return this._prevLocation;
+    }
+
+    get animating() {
+        return this._animating;
+    }
+
+    set animating(value) {
+        this._setValueAndRaiseOnChange("_animating", value);
+    }
+
+    resetAnimating(raiseEvent=false) {
+        if (!raiseEvent) {
+            this._animating = !(this.location.equals(this.prevLocation) || this.paused);
+        } else {
+            this.animating = !(this.location.equals(this.prevLocation) || this.paused);
+        }
     }
 }
 

@@ -6,11 +6,6 @@ import PropTypes from 'prop-types';
 
 class EntityAnimationDebug extends Component {
 
-    constructor(props) {
-        super(props);
-
-    }
-
     componentDidMount() {
 
     }
