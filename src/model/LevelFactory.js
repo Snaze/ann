@@ -1,29 +1,30 @@
-import Level1 from "../levels/Level1.json";
-import Level1WithPaths from "../levels/Level1WithPaths.json";
-import Level2WithPaths from "../levels/Level2WithPaths.json"
-import Level3WithPaths from "../levels/Level3WithPaths.json";
-import Level4WithPaths from "../levels/Level4WithPaths.json";
-import Level5WithPaths from "../levels/Level5WithPaths.json";
 import Level from "./Level";
-
+import _ from "../../node_modules/lodash/lodash";
 
 class LevelFactory {
+    static getLevel(levelName) {
+
+
+        if (!window || !window.react_pac_man || !window.react_pac_man[levelName]) {
+            return new Level().toJSON();
+        }
+
+        return window.react_pac_man[levelName];
+    }
+
     static createLevel (levelName) {
         levelName = levelName.toLowerCase();
+        levelName = _.replace(levelName, "withpaths", "");
 
         switch (levelName) {
             case "level1":
-                return Level.fromJSON(Level1);
-            case "level1withpaths":
-                return Level.fromJSON(Level1WithPaths);
-            case "level2withpaths":
-                return Level.fromJSON(Level2WithPaths);
-            case "level3withpaths":
-                return Level.fromJSON(Level3WithPaths);
-            case "level4withpaths":
-                return Level.fromJSON(Level4WithPaths);
-            case "level5withpaths":
-                return Level.fromJSON(Level5WithPaths);
+                throw new Error("this level is not longer supported");
+            case "level2":
+            case "level3":
+            case "level4":
+            case "level5":
+            case "level6":
+                return Level.fromJSON(LevelFactory.getLevel(levelName));
             default:
                 throw new Error("Unknown Level Name found");
         }

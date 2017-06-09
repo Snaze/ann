@@ -6,7 +6,7 @@ import GameObjectContainer from "./model/GameObjectContainer";
 
 it('renders without crashing', () => {
     const div = document.createElement('div');
-    const theLevel = LevelFactory.createLevel("Level1");
+    const theLevel = LevelFactory.createLevel("level2");
     const gameObjectContainer = new GameObjectContainer(theLevel);
 
     ReactDOM.render(<Level dataSource={theLevel} gameObjectContainer={gameObjectContainer} />, div);

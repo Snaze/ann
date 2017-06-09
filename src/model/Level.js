@@ -108,8 +108,7 @@ class Level extends DataSourceBase {
         conditionalAssignLocation(jsonObject, "_ghostPinkLocation");
         conditionalAssignLocation(jsonObject, "_selectedLocation");
 
-        if ((typeof(jsonObject._floydWarshall) !== "undefined") &&
-            (typeof(jsonObject._floydWarshall._directions) !== "undefined")) {
+        if (!!jsonObject._floydWarshall && !!jsonObject._floydWarshall._directions) {
             toRet._floydWarshall = new FloydWarshall();
             toRet._floydWarshall._directions = jsonObject._floydWarshall._directions;
             toRet._floydWarshall._pathDistance = jsonObject._floydWarshall._pathDistance;

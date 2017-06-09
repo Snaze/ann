@@ -8,7 +8,7 @@ class LevelTest extends Component {
         super(props);
 
         this.state = {
-            level: LevelFactory.createLevel("Level1")
+            level: LevelFactory.createLevel("level2")
         };
     }
 

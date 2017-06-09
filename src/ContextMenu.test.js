@@ -6,7 +6,7 @@ import {default as CellModel} from "./model/Cell";
 
 it('renders without crashing', () => {
     const div = document.createElement('div');
-    // const cell = LevelFactory.createLevel("Level1");
+    // const cell = LevelFactory.createLevel("level2");
     const cell = new CellModel("0_0");
 
     ReactDOM.render(<ContextMenu dataSource={cell} editMode={true} />, div);

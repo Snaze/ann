@@ -5,12 +5,12 @@
     background: -moz-linear-gradient(steelblue, midnightblue); /* For Firefox 3.6 to 15 */
     background: linear-gradient(steelblue, midnightblue); /* Standard syntax */
     color: White;
-    font-family: Arial;
-    border: Solid 2px Orange;
+    font-family: Consolas, monospace;
+    border: solid 2px Orange;
 }
 
 .ContextMenuHeader {
-    border-bottom: Solid 2px Orange;
+    border-bottom: solid 2px Orange;
 }
 
 .ContextMenuRow {

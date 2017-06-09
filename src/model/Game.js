@@ -5,12 +5,12 @@ import LevelRunner from "./LevelRunner";
 const levelNumToLevelMap = {
     0: "Level2WithPaths",
     1: "Level2WithPaths",
+    2: "Level2WithPaths",
 
-    2: "Level3WithPaths",
     3: "Level3WithPaths",
     4: "Level3WithPaths",
+    5: "Level3WithPaths",
 
-    5: "Level4WithPaths",
     6: "Level4WithPaths",
     7: "Level4WithPaths",
     8: "Level4WithPaths",
@@ -18,8 +18,10 @@ const levelNumToLevelMap = {
     9: "Level5WithPaths",
     10: "Level5WithPaths",
     11: "Level5WithPaths",
-    12: "Level5WithPaths",
-    13: "Level5WithPaths"
+
+    12: "Level6WithPaths",
+    13: "Level6WithPaths",
+    14: "Level6WithPaths"
 };
 
 class Game extends DataSourceBase {

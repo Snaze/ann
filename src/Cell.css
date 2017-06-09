@@ -20,25 +20,25 @@
 
 @keyframes CellSolidLeftBorderBlinkAnimation {
     50% {
-        border-left: Solid 2px White;
+        border-left: solid 2px White;
     }
 }
 
 @keyframes CellSolidRightBorderBlinkAnimation {
     50% {
-        border-right: Solid 2px White;
+        border-right: solid 2px White;
     }
 }
 
 @keyframes CellSolidTopBorderBlinkAnimation {
     50% {
-        border-top: Solid 2px White;
+        border-top: solid 2px White;
     }
 }
 
 @keyframes CellSolidBottomBorderBlinkAnimation {
     50% {
-        border-bottom: Solid 2px White;
+        border-bottom: solid 2px White;
     }
 }
 
@@ -49,19 +49,19 @@
 }
 
 .CellSolidLeftBorder {
-    border-left: Solid 2px #1f1ff2;
+    border-left: solid 2px #1f1ff2;
 }
 
 .CellSolidTopBorder {
-    border-top: Solid 2px #1f1ff2;
+    border-top: solid 2px #1f1ff2;
 }
 
 .CellSolidRightBorder {
-    border-right: Solid 2px #1f1ff2;
+    border-right: solid 2px #1f1ff2;
 }
 
 .CellSolidBottomBorder {
-    border-bottom: Solid 2px #1f1ff2;
+    border-bottom: solid 2px #1f1ff2;
 }
 
 .CellBackgroundPink {
@@ -69,19 +69,19 @@
 }
 
 .CellSolidLeftBorderPink {
-    border-left: Solid 2px #f80000;
+    border-left: solid 2px #f80000;
 }
 
 .CellSolidTopBorderPink {
-    border-top: Solid 2px #f80000;
+    border-top: solid 2px #f80000;
 }
 
 .CellSolidRightBorderPink {
-    border-right: Solid 2px #f80000;
+    border-right: solid 2px #f80000;
 }
 
 .CellSolidBottomBorderPink {
-    border-bottom: Solid 2px #f80000;
+    border-bottom: solid 2px #f80000;
 }
 
 .CellBackgroundAqua {
@@ -89,19 +89,19 @@
 }
 
 .CellSolidLeftBorderAqua {
-    border-left: Solid 2px #f8f8f8;
+    border-left: solid 2px #f8f8f8;
 }
 
 .CellSolidTopBorderAqua {
-    border-top: Solid 2px #f8f8f8;
+    border-top: solid 2px #f8f8f8;
 }
 
 .CellSolidRightBorderAqua {
-    border-right: Solid 2px #f8f8f8;
+    border-right: solid 2px #f8f8f8;
 }
 
 .CellSolidBottomBorderAqua {
-    border-bottom: Solid 2px #f8f8f8;
+    border-bottom: solid 2px #f8f8f8;
 }
 
 .CellBackgroundOrange {
@@ -109,19 +109,19 @@
 }
 
 .CellSolidLeftBorderOrange {
-    border-left: Solid 2px #f8f8f8;
+    border-left: solid 2px #f8f8f8;
 }
 
 .CellSolidTopBorderOrange {
-    border-top: Solid 2px #f8f8f8;
+    border-top: solid 2px #f8f8f8;
 }
 
 .CellSolidRightBorderOrange {
-    border-right: Solid 2px #f8f8f8;
+    border-right: solid 2px #f8f8f8;
 }
 
 .CellSolidBottomBorderOrange {
-    border-bottom: Solid 2px #f8f8f8;
+    border-bottom: solid 2px #f8f8f8;
 }
 
 .CellBackgroundPurple {
@@ -129,19 +129,19 @@
 }
 
 .CellSolidLeftBorderPurple {
-    border-left: Solid 2px #f89800;
+    border-left: solid 2px #f89800;
 }
 
 .CellSolidTopBorderPurple {
-    border-top: Solid 2px #f89800;
+    border-top: solid 2px #f89800;
 }
 
 .CellSolidRightBorderPurple {
-    border-right: Solid 2px #f89800;
+    border-right: solid 2px #f89800;
 }
 
 .CellSolidBottomBorderPurple {
-    border-bottom: Solid 2px #f89800;
+    border-bottom: solid 2px #f89800;
 }
 
 
@@ -149,19 +149,19 @@
 /** PARTIAL **/
 
 .CellPartialLeftBorder {
-    border-left: Solid 2px white;
+    border-left: solid 2px white;
 }
 
 .CellPartialTopBorder {
-    border-top: Solid 2px white;
+    border-top: solid 2px white;
 }
 
 .CellPartialRightBorder {
-    border-right: Solid 2px white;
+    border-right: solid 2px white;
 }
 
 .CellPartialBottomBorder {
-    border-bottom: Solid 2px white;
+    border-bottom: solid 2px white;
 }
 
 /** DOTS **/

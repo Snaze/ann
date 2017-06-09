@@ -13,7 +13,7 @@ it ("test getLevelName", () => {
 
     // CALL
     let levelName = Game.getLevelName(0);
-    let levelName2 = Game.getLevelName(14);
+    let levelName2 = Game.getLevelName(15);
 
     // ASSERT
     expect(levelName).toBe("Level2WithPaths");

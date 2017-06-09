@@ -54,8 +54,8 @@
     background: -moz-linear-gradient(steelblue, midnightblue); /* For Firefox 3.6 to 15 */
     background: linear-gradient(steelblue, midnightblue); /* Standard syntax */
     color: White;
-    font-family: Arial;
-    border: Solid 2px Orange;
+    font-family: Consolas, monospace;
+    border: solid 2px Orange;
     width: 32px;
     height: 200px;
     position: absolute;
@@ -70,7 +70,7 @@
     background: linear-gradient(LimeGreen, darkgreen); /* Standard syntax */
     color: Orange;
     font-family: Consolas, monospace;
-    border: Solid 2px Orange;
+    border: solid 2px Orange;
     width: 32px;
     height: 200px;
 }
@@ -93,7 +93,7 @@
 
     transform: translate(-50%, -50%);
     background: black;
-    border: Solid 2px aqua;
+    border: solid 2px aqua;
 }
 
 

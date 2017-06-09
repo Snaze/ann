@@ -12,7 +12,7 @@ html, body {
 
 .MainMenuHeader {
     background-color: Orange; /* Green */
-    border: Solid 2px OrangeRed;
+    border: solid 2px OrangeRed;
     border-radius: 6px;
     color: yellow;
     text-align: center;

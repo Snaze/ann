@@ -7,7 +7,7 @@ import {default as BorderModel} from "./model/Border";
 
 it('renders without crashing', () => {
     const div = document.createElement('div');
-    let theLevel = LevelFactory.createLevel("Level1");
+    let theLevel = LevelFactory.createLevel("level2");
     ReactDOM.render(<LevelEditPanel dataSource={theLevel} onLoadComplete={(e) => alert("Load Complete")} />, div);
 });
 

@@ -17,7 +17,7 @@
     background: -moz-linear-gradient(steelblue, midnightblue); /* For Firefox 3.6 to 15 */
     background: linear-gradient(steelblue, midnightblue); /* Standard syntax */
     color: White;
-    border: Solid 2px Orange;
+    border: solid 2px Orange;
     /*width: 128px;*/
     /*height: 500px;*/
     z-index: 9999999;
@@ -30,7 +30,7 @@
 
 .ModalHeader {
     background-color: #4CAF50; /* Green */
-    border: Solid 2px Orange;
+    border: solid 2px Orange;
     border-radius: 12px;
     color: white;
     text-align: center;
@@ -47,7 +47,7 @@
 
 .ModalButton {
     background-color: #4CAF50; /* Green */
-    border: Solid 2px #4CAF50;
+    border: solid 2px #4CAF50;
     color: white;
     padding: 15px 32px;
     text-align: center;
