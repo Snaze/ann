@@ -67,6 +67,19 @@ class MainMenu extends DataSourceComponent {
         return null;
     }
 
+    getComingSoonStyle() {
+        let toRet = {
+            display: "inline-block",
+            visibility: "hidden"
+        };
+
+        if (this.mainMenu.selectedPlayer === 2) {
+            toRet["visibility"] = "visible"
+        }
+
+        return toRet;
+    }
+
     render() {
         return (<div className="MainMenu">
             <div className="MainMenuHeader">pac-man</div>
@@ -121,7 +134,12 @@ class MainMenu extends DataSourceComponent {
                                 {this.getSelectionSpan(2)}
                             </td>
                             <td className="MainMenuTableCellRight">
-                                <div>2 Players</div>
+                                <div style={{display: "inline", whiteSpace: "noWrap"}}>
+                                    <div style={{display: "inline-block"}}>2 Players</div>
+                                    <div style={this.getComingSoonStyle()} className="MainMenuComingSoon">
+                                        &nbsp;&nbsp;(coming soon)
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     </tbody>

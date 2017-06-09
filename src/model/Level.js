@@ -19,7 +19,7 @@ const powerUps = [
     "Pear",
     "Banana"
 ];
-const total_levels = 17;
+const total_levels = 16;
 
 class Level extends DataSourceBase {
 

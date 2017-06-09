@@ -52,9 +52,14 @@ class MainMenu extends DataSourceBase {
     set selectionConfirmed(value) {
         if (!this._selectionConfirmed && value) {
             SoundPlayer.instance.play(SoundPlayer.instance.eatghost);
+
             if (this._soundId !== null) {
                 SoundPlayer.instance.intermission.stop(this._soundId);
                 this._soundId = null;
+            }
+
+            if (this.numPlayers === MainMenu.SELECTED_PLAYERS_2) {
+                return;
             }
         }
 
