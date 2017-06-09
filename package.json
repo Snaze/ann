@@ -1,6 +1,7 @@
 {
   "name": "react_pac_man",
-  "version": "0.1.0",
+  "homepage": "http://sbetzel.net/react_pac_man",
+  "version": "0.9.0",
   "private": true,
   "dependencies": {
     "animate.css": "^3.5.2",
