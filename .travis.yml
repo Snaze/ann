@@ -9,4 +9,4 @@ cache:
     - node_modules
 
 script:
-  - "./runlint.sh"
+  - "./runBuild.sh"
