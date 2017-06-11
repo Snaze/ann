@@ -9,3 +9,7 @@ it('renders without crashing', () => {
 
     ReactDOM.render(<Modal dataSource={modalModel}  />, div);
 });
+
+it ("test", () => {
+    expect(false).toBe(true);
+});
