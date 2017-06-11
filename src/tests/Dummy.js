@@ -1,14 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import DataSourceComponent from "../DataSourceComponent";
-import PropTypes from 'prop-types';
-import {default as DummyModel} from "../model/Dummy";
 
 class Dummy extends DataSourceComponent {
-
-    constructor(props) {
-        super(props);
-
-    }
 
     // componentDidMount() {
     //     super.componentDidMount();

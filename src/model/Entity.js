@@ -1,9 +1,6 @@
 
 
 class Entity {
-    constructor() {
-
-    }
 
 }
 
