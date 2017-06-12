@@ -864,3 +864,17 @@ it ("BlinkBorder setter works", () => {
     expect(level.getCell(1, 0).blinkBorder).toBe(true);
     expect(level.getCell(1, 1).blinkBorder).toBe(true);
 });
+
+it ("test toBinary", () => {
+    // SETUP
+    let level = new Level(2, 2);
+
+    // CALL
+    let toCheck = level.toBinary();
+
+    // ASSERT
+    expect(toCheck[0][0] !== null && typeof(toCheck[0][0]) === "string").toBe(true);
+    expect(toCheck[0][1] !== null && typeof(toCheck[0][1]) === "string").toBe(true);
+    expect(toCheck[1][0] !== null && typeof(toCheck[1][0]) === "string").toBe(true);
+    expect(toCheck[1][1] !== null && typeof(toCheck[1][1]) === "string").toBe(true);
+});

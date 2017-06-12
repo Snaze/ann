@@ -4381,6 +4381,10 @@ regjsparser@^0.1.4:
   dependencies:
     jsesc "~0.5.0"
 
+reinforcenode@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/reinforcenode/-/reinforcenode-1.0.1.tgz#25bdc56a0d71d21e8e358ac28e5f931f72e77ba6"
+
 relateurl@0.2.x:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"

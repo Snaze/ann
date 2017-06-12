@@ -21,6 +21,7 @@ const powerUps = [
 ];
 const total_levels = 16;
 
+// TODO: Refactor this class.  It has become unwieldy
 class Level extends DataSourceBase {
 
     static get DEFAULT_WIDTH() { return default_width; }
@@ -709,6 +710,23 @@ class Level extends DataSourceBase {
     }
 
     /** KEY EVENTER EVENTS - END **/
+
+    toBinary() {
+        let toRet = [];
+        let currentCell = null;
+
+        for (let y = 0; y < this.height; y++) {
+
+            toRet[y] = [];
+
+            for (let x = 0; x < this.width; x++) {
+                currentCell = this.getCell(x, y);
+                toRet[y][x] = currentCell.toBinary();
+            }
+        }
+
+        return toRet;
+    }
 }
 
 export default Level;

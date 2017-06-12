@@ -345,6 +345,60 @@ class Cell extends DataSourceBase {
 
         return false;
     }
+
+    /**
+     * This will return a 9-bit binary string representing the following:
+     * 2^8 = Cell has power up (to be filled in upstream - will always be 0 here)
+     * 2^7 = Cell has player (to be filled in upstream - will always be 0 here)
+     * 2^6 = Cell has Ghost (to be filled in upstream - will always be 0 here)
+     * 2^5 = Cell has big dot
+     * 2^4 = Cell has little dot
+     * 2^3 = Cell has solid left border
+     * 2^2 = Cell has solid top border
+     * 2^1 = Cell has solid right border
+     * 2^0 = Cell has solid bottom border
+     */
+    toBinary() {
+        let toRet = "000";
+
+        if (this.dotType === Dot.BIG) {
+            toRet += "1";
+        } else {
+            toRet += "0";
+        }
+
+        if (this.dotType === Dot.LITTLE) {
+            toRet += "1";
+        } else {
+            toRet += "0";
+        }
+
+        if (this.solidBorder.left) {
+            toRet += "1";
+        } else {
+            toRet += "0";
+        }
+
+        if (this.solidBorder.top) {
+            toRet += "1";
+        } else {
+            toRet += "0";
+        }
+
+        if (this.solidBorder.right) {
+            toRet += "1";
+        } else {
+            toRet += "0";
+        }
+
+        if (this.solidBorder.bottom) {
+            toRet += "1";
+        } else {
+            toRet += "0";
+        }
+
+        return toRet;
+    }
 }
 
 export default Cell;

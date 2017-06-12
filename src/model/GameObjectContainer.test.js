@@ -3,7 +3,9 @@ import Level from "./Level";
 import Location from "./Location";
 import moment from "../../node_modules/moment/moment";
 import Ghost from "./actors/Ghost";
-import GhostBrainManual from "./actors/GhostBrains/GhostBrainManual";
+import Dot from "./Dot";
+import Direction from "../utils/Direction";
+// import GhostBrainManual from "./actors/GhostBrains/GhostBrainManual";
 // import Player from "./actors/Player";
 
 it ("Constructor works", () => {
@@ -218,4 +220,54 @@ it ("start or resume level should make all this ghost come back alive", ()  => {
     expect(goc.ghostBlue.isAlive).toBe(true);
     expect(goc.ghostOrange.isAlive).toBe(true);
 
+});
+
+const createTestLevel = function () {
+    let toRet = new Level(2, 2);
+
+    toRet.getCell(0, 0).solidBorder.top = true;
+    toRet.getCell(0, 0).solidBorder.left = true;
+    toRet.getCell(0, 0).dotType = Dot.LITTLE;
+
+    toRet.getCell(0, 1).solidBorder.left = true;
+    toRet.getCell(0, 1).solidBorder.bottom = true;
+    toRet.getCell(0, 1).dotType = Dot.LITTLE;
+
+    toRet.getCell(1, 0).solidBorder.top = true;
+    toRet.getCell(1, 0).solidBorder.right = true;
+    toRet.getCell(1, 0).dotType = Dot.LITTLE;
+
+    toRet.getCell(1, 1).solidBorder.right = true;
+    toRet.getCell(1, 1).solidBorder.bottom = true;
+    toRet.getCell(1, 1).dotType = Dot.LITTLE;
+
+    return toRet;
+};
+
+it ("test update binary matrix", () => {
+    // SETUP
+    let level = createTestLevel();
+    let goc = new GameObjectContainer(level);
+    goc.player.location.set(0, 0);
+    expect(level.getCell(0, 0).toBinary()).toBe("000011100");
+
+    // CALL and ASSERT
+    let binaryMatrix = goc.binaryMatrix;
+
+    expect(binaryMatrix.getBinaryValue(0, 0)).toBe("010001100");
+    expect(binaryMatrix.getBinaryValue(0, 1)).toBe("000011001");
+    expect(binaryMatrix.getBinaryValue(1, 0)).toBe("000010110");
+    expect(binaryMatrix.getBinaryValue(1, 1)).toBe("000010011");
+
+    // CALL and ASSERT
+    goc.player.direction = Direction.DOWN;
+    goc.player.location.set(1, 0);
+    binaryMatrix = goc.binaryMatrix;
+
+    expect(binaryMatrix.getBinaryValue(0, 0)).toBe("000001100");
+    expect(binaryMatrix.getBinaryValue(0, 1)).toBe("000011001");
+    expect(binaryMatrix.getBinaryValue(1, 0)).toBe("010000110");
+    expect(binaryMatrix.getBinaryValue(1, 1)).toBe("000010011");
+
+    expect(Direction.decimalToDirection(binaryMatrix.numMatrix[0])).toBe(Direction.DOWN);
 });

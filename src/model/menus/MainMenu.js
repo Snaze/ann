@@ -3,15 +3,18 @@ import SoundPlayer from "../../utils/SoundPlayer";
 
 const selected_players_1 = 1;
 const selected_players_2 = 2;
+const selected_players_ai_1 = 3;
 const valid_selected_players = [
     selected_players_1,
-    selected_players_2
+    selected_players_2,
+    selected_players_ai_1
 ];
 
 class MainMenu extends DataSourceBase {
 
     static get SELECTED_PLAYERS_1() { return selected_players_1; }
     static get SELECTED_PLAYERS_2() { return selected_players_2; }
+    static get SELECTED_PLAYERS_AI_1() { return selected_players_ai_1; }
 
     constructor() {
         super();

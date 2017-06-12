@@ -7,10 +7,20 @@ import PowerUp from "./actors/PowerUp";
 import GameModal from "./GameModal";
 import SoundPlayer from "../utils/SoundPlayer";
 import KeyEventer from "../utils/KeyEventer";
+import BinaryMatrix from "./utils/BinaryMatrix";
+import Direction from "../utils/Direction";
 
 const max_power_up_spawn_time = 90.0;
 const callback_type_level_finished = 0;
 const callback_type_game_over = 1;
+const toBinaryIndices = {
+    littleDot: 4,
+    bigDot: 3,
+    ghost: 2,
+    player: 1,
+    powerUp: 0,
+    directionHeader: 0
+};
 
 class GameObjectContainer extends DataSourceBase {
 
@@ -20,8 +30,8 @@ class GameObjectContainer extends DataSourceBase {
     constructor(level) {
         super();
 
-        this._player = this._wireUp("_player", new Player(level, Player.MR_PAC_MAN));
-        this._player2 = this._wireUp("_player2", new Player(level, Player.MRS_PAC_MAN));
+        this._player = this._wireUp("_player", new Player(level, Player.MRS_PAC_MAN));
+        this._player2 = this._wireUp("_player2", new Player(level, Player.MR_PAC_MAN));
         this._ghostRed = this._wireUp("_ghostRed", new Ghost(level, Ghost.RED, this._player));
         this._ghostBlue = this._wireUp("_ghostBlue", new Ghost(level, Ghost.BLUE, this._player));
         this._ghostPink = this._wireUp("_ghostPink", new Ghost(level, Ghost.PINK, this._player));
@@ -55,6 +65,7 @@ class GameObjectContainer extends DataSourceBase {
         this._gameOver = false;
         this._levelFirstStart = true;
         this._levelRunning = false;
+        this._binaryMatrix = null;
     }
 
     static _nextKillScore = 100;
@@ -73,6 +84,22 @@ class GameObjectContainer extends DataSourceBase {
         super.dispose();
     }
 
+    _nestedDataSourceChanged(e) {
+
+        if (e.object === this._powerUp &&
+            e.source === "_isAlive" &&
+            !e.newValue) {
+            // console.log("_resetPowerUpSpawnTime");
+            this._resetPowerUpSpawnTime();
+        } else if (e.object === this._gameModal &&
+            e.source === "_visible" &&
+            !e.newValue) {
+            this._gameModalDismissCallback(this._gameModal);
+        }
+
+        super._nestedDataSourceChanged(e);
+    }
+
     _keyPress(key) {
         if (!this._levelRunning) {
             return;
@@ -89,7 +116,7 @@ class GameObjectContainer extends DataSourceBase {
         }
     }
 
-    _gameModalDismissCallback(e) {
+    _gameModalDismissCallback() {
         if (this.callback) {
             if (this._gameModal.mode === GameModal.MODAL_MODE_GAME_OVER) {
                 this.callback({
@@ -101,44 +128,6 @@ class GameObjectContainer extends DataSourceBase {
                 this.paused = false;
                 this._restartLevelRef = null;
                 this._levelRunning = true;
-            }
-        }
-    }
-
-    _nestedDataSourceChanged(e) {
-
-        if (e.object === this._powerUp &&
-            e.source === "_isAlive" &&
-            !e.newValue) {
-            // console.log("_resetPowerUpSpawnTime");
-            this._resetPowerUpSpawnTime();
-        } else if (e.object === this._gameModal &&
-                   e.source === "_visible" &&
-                   !e.newValue) {
-            this._gameModalDismissCallback(this._gameModal);
-        }
-
-        super._nestedDataSourceChanged(e);
-    }
-
-    startOrRestartLevel(timeout=3000) {
-
-        this.moveAllBackToSpawnAndResetActors();
-        this.gameOver = false;
-        this._levelRunning = false;
-
-
-
-        if (this.player.numLives === 0) {
-            this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
-        } else {
-            if (!this._levelFirstStart) {
-                this.gameModal.showCountDownModal();
-            } else {
-                this._levelFirstStart = false;
-                SoundPlayer.instance.play(SoundPlayer.instance.beginning, function (id) {
-                    this.gameModal.showCountDownModal();
-                }.bind(this));
             }
         }
     }
@@ -155,6 +144,7 @@ class GameObjectContainer extends DataSourceBase {
                 // OR GHOST IS NOT SCARED
                 if (thePlayer.isAlive) {
                     thePlayer.isAlive = false;
+                    thePlayer.learn();
                     this.player.numLives = this.player.numLives - 1;
                     this.resetAllGhostBrains();
                     this.currentPlayerDead = true;
@@ -164,7 +154,7 @@ class GameObjectContainer extends DataSourceBase {
                     if (this._restartLevelRef === null) {
                         this._restartLevelRef = () => this.startOrRestartLevel();
                         let self = this;
-                        setTimeout(function (e) {
+                        setTimeout(function () {
                             self.startOrRestartLevel();
                         }, 3000);
                     }
@@ -207,19 +197,46 @@ class GameObjectContainer extends DataSourceBase {
         }
     }
 
-    gameTimerTickFinished(e) {
+    startOrRestartLevel() {
+
+        this.moveAllBackToSpawnAndResetActors();
+        this.gameOver = false;
+        this._levelRunning = false;
+
+
+
+        if (this.player.numLives === 0) {
+            this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
+        } else {
+            if (!this._levelFirstStart) {
+                this.gameModal.showCountDownModal();
+            } else {
+                this._levelFirstStart = false;
+                SoundPlayer.instance.play(SoundPlayer.instance.beginning, function () {
+                    this.gameModal.showCountDownModal();
+                }.bind(this));
+            }
+        }
+    }
+
+    gameTimerTickFinished() {
 
         if (!this.level.playerSpawnLocation.isValid || this.editMode) {
             return;
         }
 
         let moved = false;
+        let playerMoved = false;
         this.iterateOverGameObjects(function (gameObj) {
-            let temp = gameObj.executeActorStep(e);
+            let temp = gameObj.executeActorStep(this.binaryMatrix);
             if (temp) {
                 moved = true;
+                if (gameObj === this.player) {
+                    playerMoved = true;
+                }
             }
-        });
+
+        }.bind(this));
 
         if (moved) {
             if (this.player.attackModeFinishTime <= moment()) {
@@ -239,6 +256,10 @@ class GameObjectContainer extends DataSourceBase {
 
             this._checkIfAllDotsEaten(this.player, this.level);
         }
+
+        if (playerMoved) {
+            this.player.learn();
+        }
     }
 
     checkAndSpawnPowerUp(now) {
@@ -249,6 +270,65 @@ class GameObjectContainer extends DataSourceBase {
         if (now > this._powerUpSpawnTime) {
             this._powerUp.spawn(this.level);
         }
+    }
+
+    iterateOverGameObjects(theCallback) {
+        this._gameObjects.forEach(function (go) {
+            theCallback(go, this);
+        });
+    }
+
+    resetAllGhostBrains() {
+        this.iterateOverGameObjects(function (gameObject) {
+            if (gameObject instanceof Ghost) {
+                gameObject.resetBrain();
+            }
+        });
+    }
+
+    moveAllBackToSpawnAndResetActors() {
+        let self = this;
+
+        this.iterateOverGameObjects(function (gameObject) {
+            // We want to move everything except the powerup
+            if (gameObject === self.powerUp) {
+                return;
+            }
+
+            if (typeof(gameObject.moveBackToSpawn) !== "undefined") {
+                gameObject.moveBackToSpawn();
+            }
+
+            if (typeof(gameObject.resetDirection) !== "undefined") {
+                gameObject.resetDirection();
+            }
+
+            if (typeof(gameObject.resetBrain) !== "undefined") {
+                gameObject.resetBrain();
+            }
+
+            if (typeof(gameObject.isAlive) !== "undefined") {
+                gameObject.isAlive = true;
+            }
+        });
+    }
+
+    _updateBinaryMatrix() {
+        let directionBinary = Direction.toBinary(this.player.direction);
+        this._binaryMatrix.setBinaryHeaderValue(toBinaryIndices.directionHeader, directionBinary);
+
+        this._binaryMatrix.setBinaryValueAtLocation("player", this.player.location, toBinaryIndices.player, "1");
+
+        // If the player is at a current location, then he must have already eaten the dot.
+        this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.bigDot, "0");
+        this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.littleDot, "0");
+
+        this._binaryMatrix.setBinaryValueAtLocation("ghostRed", this.ghostRed.location, toBinaryIndices.ghost, "1");
+        this._binaryMatrix.setBinaryValueAtLocation("ghostBlue", this.ghostBlue.location, toBinaryIndices.ghost, "1");
+        this._binaryMatrix.setBinaryValueAtLocation("ghostOrange", this.ghostOrange.location, toBinaryIndices.ghost, "1");
+        this._binaryMatrix.setBinaryValueAtLocation("ghostPink", this.ghostPink.location, toBinaryIndices.ghost, "1");
+
+        this._binaryMatrix.setBinaryValueAtLocation("powerUp", this.powerUp.location, toBinaryIndices.powerUp, "1");
     }
 
     get powerUp() {
@@ -301,47 +381,6 @@ class GameObjectContainer extends DataSourceBase {
     set editMode(value) {
         this.iterateOverGameObjects(function (gameObject) {
             gameObject.editMode = value;
-        });
-    }
-
-    iterateOverGameObjects(theCallback) {
-        this._gameObjects.forEach(function (go) {
-            theCallback(go, this);
-        });
-    }
-
-    resetAllGhostBrains() {
-        this.iterateOverGameObjects(function (gameObject) {
-            if (gameObject instanceof Ghost) {
-                gameObject.resetBrain();
-            }
-        });
-    }
-
-    moveAllBackToSpawnAndResetActors() {
-        let self = this;
-
-        this.iterateOverGameObjects(function (gameObject) {
-            // We want to move everything except the powerup
-            if (gameObject === self.powerUp) {
-                return;
-            }
-
-            if (typeof(gameObject.moveBackToSpawn) !== "undefined") {
-                gameObject.moveBackToSpawn();
-            }
-
-            if (typeof(gameObject.resetDirection) !== "undefined") {
-                gameObject.resetDirection();
-            }
-
-            if (typeof(gameObject.resetBrain) !== "undefined") {
-                gameObject.resetBrain();
-            }
-
-            if (typeof(gameObject.isAlive) !== "undefined") {
-                gameObject.isAlive = true;
-            }
         });
     }
 
@@ -413,6 +452,18 @@ class GameObjectContainer extends DataSourceBase {
 
     get gameModal() {
         return this._gameModal;
+    }
+
+    get binaryMatrix() {
+
+        if (null === this._binaryMatrix) {
+            let theMatrix = this.level.toBinary();
+            this._binaryMatrix = new BinaryMatrix(theMatrix, 1);
+        }
+
+        this._updateBinaryMatrix();
+
+        return this._binaryMatrix;
     }
 }
 

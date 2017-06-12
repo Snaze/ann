@@ -43,6 +43,44 @@ class Direction {
         throw new Error("Invalid Direction Entered");
     }
 
+    static toBinary(theDirection) {
+        if (!Direction.isValid(theDirection)) {
+            throw new Error("Invalid direction");
+        }
+
+        switch (theDirection) {
+            case Direction.LEFT:
+                return "00";
+            case Direction.UP:
+                return "01";
+            case Direction.RIGHT:
+                return "10";
+            case Direction.DOWN:
+                return "11";
+            default:
+                // None doesnt need a direction I dont think
+                throw new Error("Invalid direction");
+        }
+    }
+
+    static decimalToDirection(theValue) {
+        if (theValue < 0 || theValue >= 4) {
+            throw new Error("Invalid value");
+        }
+
+        switch (theValue) {
+            case 0:
+                return Direction.LEFT;
+            case 1:
+                return Direction.UP;
+            case 2:
+                return Direction.RIGHT;
+            case 3:
+                return Direction.DOWN;
+            default:
+                throw new Error("Invalid Value");
+        }
+    }
 }
 
 export default Direction;

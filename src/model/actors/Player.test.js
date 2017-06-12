@@ -138,6 +138,8 @@ it ("timerTick doesn't bomb if the player's location isn't set", () => {
     let theLevel = new Level(1, 1);
     theLevel.playerSpawnLocation.set(-1, -1);
     let player = new Player(theLevel, Player.MR_PAC_MAN);
+    player._aiMode = false;
+
     expect(player.location.isEqualTo(-1, -1)).toBe(true);
 
     // CALL
@@ -304,6 +306,7 @@ const testScoreOver10000Increment = function (sourceScore, destScore, shouldIncr
     let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
     thePlayer._score = sourceScore;
     thePlayer._numLives = 1;
+    thePlayer._aiMode = false;
 
     // CALL
     thePlayer.score = destScore;
@@ -317,4 +320,18 @@ it ("every 10,000 points pac man gets a new life", () => {
     testScoreOver10000Increment(9900, 9950, false);
     testScoreOver10000Increment(29950, 30200, true);
     testScoreOver10000Increment(0, 100, false);
+});
+
+it ("scoreDelta works", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    thePlayer.aiMode = true;
+
+    // CALL
+    thePlayer.score += 50;
+
+    // ASSERT
+    expect(thePlayer._scoreDelta).toBe(50);
+
 });

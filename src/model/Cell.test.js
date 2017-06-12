@@ -395,4 +395,35 @@ it ("is not teleport cell", () => {
     expect(rightCell.isTeleportCell(10, 10)).toBe(false);
 });
 
+it ("toBinary with all fixings", () => {
+    // SETUP
+    let cell = new Cell("0_0");
+    cell.dotType = Dot.BIG;
+    cell.solidBorder.left = true;
+    cell.solidBorder.top = true;
+    cell.solidBorder.right = true;
+    cell.solidBorder.bottom = true;
+
+    // CALL
+    let binaryWithDot = cell.toBinary();
+    cell.dotType = Dot.LITTLE;
+    let binaryWithLittleDot = cell.toBinary();
+
+    // ASSERT
+    expect(binaryWithDot).toBe("000101111");
+    expect(binaryWithLittleDot).toBe("000011111");
+
+});
+
+it ("toBinary with all fixings", () => {
+    // SETUP
+    let cell = new Cell("0_0");
+    cell.dotType = Dot.NONE;
+
+    // CALL
+    let binary = cell.toBinary();
+
+    // ASSERT
+    expect(binary).toBe("000000000");
+});
 

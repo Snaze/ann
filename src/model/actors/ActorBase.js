@@ -56,6 +56,7 @@ class ActorBase extends DataSourceBase {
         if (currentMoment.isAfter(lastTickPlusDuration)) {
 
             this.timerTick(e);
+
             this._lastTick = moment();
             toRet = true;
         }
@@ -135,7 +136,6 @@ class ActorBase extends DataSourceBase {
     /**
      * This will move an Actor (Player or Ghost) in the appropriate
      * direction according the the level's borders
-     * @param actor - Player or the Ghost
      * @param direction - The Direction to move
      */
     moveInDirection(direction) {

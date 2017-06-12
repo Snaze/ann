@@ -6,6 +6,7 @@ import Dot from "../Dot";
 import moment from "../../../node_modules/moment/moment";
 import EasingFunctions from "../../utils/EasingFunctions";
 import SoundPlayer from "../../utils/SoundPlayer";
+import PlayerAgent from "./PlayerBrains/PlayerAgent";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
@@ -50,6 +51,9 @@ class Player extends ActorBase {
         this._prevLocation = this.location.clone();
         this._numLives = 3;
         this._originalNumLives = this._numLives;
+        this._aiMode = false;
+        this._scoreDelta = -1;
+        this._agent = null;
 
         this._cellTransitionDuration = Player.getCellTransitionDuration(this.level); // seconds
     }
@@ -81,11 +85,6 @@ class Player extends ActorBase {
             if (this.editMode) {
                 this.location.setWithLocation(this._spawnLocation);
             }
-        } else if (e.object === this.location) {
-            // HMMMM, maybe make a copy of the location and pass it in
-            // if this gives you trouble.
-            setTimeout((e) => this.handleLocationChanged(this.location.clone()),
-                        ((this._cellTransitionDuration * 1000.0) / 2.0));
         }
 
         super._nestedDataSourceChanged(e);
@@ -153,6 +152,42 @@ class Player extends ActorBase {
 
     timerTick(e) {
 
+        if (this.aiMode) {
+            this.aiTick(e);
+        } else {
+            this.humanTick(e);
+        }
+
+        this.resetAnimating(true);
+    }
+
+    aiTick(e) {
+        let agent = this.getAgent(e.numMatrix.length);
+        let decimalDirection = agent.act(e.numMatrix);
+        let newDirection = Direction.decimalToDirection(decimalDirection);
+
+        this.prevLocation.setWithLocation(this.location);
+        this.attemptToMoveInDirection(newDirection);
+
+        this.handleLocationChanged(this.location);
+
+        // agent.learn(this._scoreDelta);
+    }
+
+    learn() {
+        if (!this.aiMode) {
+            return;
+        }
+
+        this.getAgent().learn(this._scoreDelta);
+        if (this._scoreDelta !== -1 && typeof(console) !== "undefined") {
+            console.log("Learned with score = " + this._scoreDelta);
+        }
+
+        this._scoreDelta = -1;
+    }
+
+    humanTick(e) {
         if (!this.location.isValid) {
             return;
         }
@@ -174,7 +209,9 @@ class Player extends ActorBase {
         this.prevLocation.setWithLocation(this.location);
         this.attemptToMoveInDirection(newDirection);
 
-        this.resetAnimating(true);
+        setTimeout((e) => this.handleLocationChanged(this.location.clone()),
+            ((this._cellTransitionDuration * 1000.0) / 2.0));
+
     }
 
     attemptToMoveInDirection(direction) {
@@ -200,6 +237,8 @@ class Player extends ActorBase {
     }
 
     set score(value) {
+        this._scoreDelta = value - this.score;
+
         let origValue = Math.floor(this.score / new_life_increment);
         let newValue = Math.floor(value / new_life_increment);
 
@@ -220,11 +259,17 @@ class Player extends ActorBase {
     }
 
     get numLives() {
+        if (this.aiMode) {
+            return 3;
+        }
+
         return this._numLives;
     }
 
     set numLives(value) {
-        this._setValueAndRaiseOnChange("_numLives", value);
+        if (!this.aiMode) {
+            this._setValueAndRaiseOnChange("_numLives", value);
+        }
     }
 
     get attackModeId() {
@@ -240,6 +285,7 @@ class Player extends ActorBase {
 
         if (this._isAlive && !value) {
             SoundPlayer.instance.play(SoundPlayer.instance.death);
+            this._scoreDelta = -10000;
         }
 
         super.isAlive = value;
@@ -273,12 +319,28 @@ class Player extends ActorBase {
         this._setValueAndRaiseOnChange("_animating", value);
     }
 
+    get aiMode() {
+        return this._aiMode;
+    }
+
+    set aiMode(value) {
+        this._setValueAndRaiseOnChange("_aiMode", value);
+    }
+
     resetAnimating(raiseEvent=false) {
         if (!raiseEvent) {
             this._animating = !(this.location.equals(this.prevLocation) || this.paused);
         } else {
             this.animating = !(this.location.equals(this.prevLocation) || this.paused);
         }
+    }
+
+    getAgent(numStates) {
+        if (this._agent === null) {
+            this._agent = new PlayerAgent(numStates);
+        }
+
+        return this._agent;
     }
 }
 
