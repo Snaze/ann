@@ -1,4 +1,4 @@
-import DataSourceComponent from "./DataSourceComponent";
+// import DataSourceComponent from "./DataSourceComponent";
 
 it ("placeholder", () => {
 

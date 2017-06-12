@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from "../../../../node_modules/lodash/lodash";
 
 class DataSourceComponent extends Component {
     constructor(props) {

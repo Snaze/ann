@@ -6,6 +6,8 @@ it("Test Constructor Doesnt Bomb", () => {
     // CALL
     let theGame = new Game();
 
+    // ASSERT
+    expect(theGame !== null).toBe(true);
 });
 
 it ("test getLevelName", () => {

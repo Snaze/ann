@@ -503,7 +503,7 @@ it ("selectedCell change -- make sure it does toggle other selected Cells", () =
 it ("test editMode toggle", () => {
     // SETUP
     let theLevel = new Level();
-    let theCell = theLevel.getCell(0, 0);
+    // let theCell = theLevel.getCell(0, 0);
 
     // CALL
     theLevel.editMode = true;
@@ -731,7 +731,6 @@ it ("addRow adds cell of the same color", () => {
 it ("addRow should add the cells in edit mode", () => {
     // SETUP
     let theLevel = new Level(1, 1);
-    let cell_0_0 = theLevel.getCell(0, 0);
     theLevel.editMode = true;
 
     // CALL
@@ -745,7 +744,6 @@ it ("addRow should add the cells in edit mode", () => {
 it ("addColumn should add the cells in edit mode", () => {
     // SETUP
     let theLevel = new Level(1, 1);
-    let cell_0_0 = theLevel.getCell(0, 0);
     theLevel.editMode = true;
 
     // CALL

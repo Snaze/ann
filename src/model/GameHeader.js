@@ -34,7 +34,7 @@ class GameHeader extends DataSourceBase {
                 return theHighScore;
             }
         } catch (e) {
-            console.log("localStorage not working.");
+            this.log("localStorage not working.");
             // DO SOMETHING HERE
         }
 
@@ -45,7 +45,7 @@ class GameHeader extends DataSourceBase {
         try {
             localStorage.setItem(GameHeader.HIGH_SCORE_STRING, value);
         } catch (e) {
-            console.log("localStorage not working.");
+            this.log("localStorage not working.");
         }
     }
 

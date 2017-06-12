@@ -3,10 +3,10 @@ import Level from "./Level";
 import Location from "./Location";
 import moment from "../../node_modules/moment/moment";
 import Ghost from "./actors/Ghost";
+
 import Dot from "./Dot";
 import Direction from "../utils/Direction";
-// import GhostBrainManual from "./actors/GhostBrains/GhostBrainManual";
-// import Player from "./actors/Player";
+
 
 it ("Constructor works", () => {
     let theLevel = new Level();
@@ -191,7 +191,6 @@ it ("checkAndSpawnPowerUp picks a random power up and sets it", () => {
     let goc = new GameObjectContainer(theLevel);
     goc._powerUpActive = false;
     goc._powerUpSpawnTime = moment().add(-1, "s");
-    let wasCalled = false;
     goc.powerUp._powerUpType = -1;
 
     // CALL

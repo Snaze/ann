@@ -3,16 +3,13 @@ import Level from "../Level";
 import Player from "./Player";
 import GhostBrainManual from "./GhostBrains/GhostBrainManual";
 
-const moveInDirectionCallback_DoesNothing = function (newLocation) {
-    // TO NOTHING
-};
-
 it ("Ghost constructor works", () => {
 
     let level = new Level();
     let player = new Player(level, Player.MR_PAC_MAN);
     let ghost = new Ghost(level, Ghost.RED, player);
 
+    expect(ghost !== null).toBe(true);
 
 });
 

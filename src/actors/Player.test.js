@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Player from './Player';
 import {default as PlayerModel} from "../model/actors/Player";
-import Direction from "../utils/Direction";
-import {default as LocationModel} from "../model/Location";
 import Level from "../model/Level";
 
 it('renders without crashing', () => {

@@ -159,8 +159,6 @@ it ("getCellTransitionDuration should return ghostBrainStrategyHoldingPin minDur
     // SETUP
     let level = new Level(2, 2);
     level.levelNum = 10;
-    let player = new Player(level, Player.MR_PAC_MAN);
-    let ghost = new Ghost(level, Ghost.RED, player);
 
     let gbm = new GhostBrainManual();
     gbm.enterState(GhostBrainManual.GHOST_STATE_HOLDING_PIN);
@@ -178,8 +176,6 @@ it ("getCellTransitionDuration should return ghostBrainStrategyWander maxDuratio
     // SETUP
     let level = new Level(2, 2);
     level.levelNum = 1;
-    let player = new Player(level, Player.MR_PAC_MAN);
-    let ghost = new Ghost(level, Ghost.RED, player);
 
     let gbm = new GhostBrainManual();
     gbm.enterState(GhostBrainManual.GHOST_STATE_WANDER);

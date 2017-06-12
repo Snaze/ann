@@ -15,7 +15,7 @@ it ("onDropDownChange(e) sets the color for the color dropdown", () => {
     // SETUP
     const div = document.createElement('div');
     let theLevel = new LevelModel(2, 2);
-    let originalColor = theLevel.color;
+
     let lep = ReactDOM.render(<LevelEditPanel dataSource={theLevel} onLoadComplete={(e) => alert("Load Complete")} />, div);
 
     // CALL
