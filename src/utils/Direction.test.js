@@ -2,10 +2,6 @@ import Direction from "./Direction";
 
 it ("test binary to decimal conversion", () => {
     // SETUP
-    let zero = 0;
-    let one = 1;
-    let two = 2;
-    let three = 3;
 
     // CALL
     let leftBin = Direction.toBinary(Direction.LEFT);

@@ -52,7 +52,7 @@ it ("test getIndex(x, y)", () => {
     let toTest = new BinaryMatrix(toConvert, 2);
 
     // CALL
-    let theIndex = toTest.getIndex(1, 1);
+    // let theIndex = toTest.getIndex(1, 1);
 
     // ASSERT
     expect(toTest.getBinaryValue(1, 1)).toBe("000000011");
@@ -71,7 +71,7 @@ it ("test getDecimalValue", () => {
     let toTest = new BinaryMatrix(toConvert, 2);
 
     // CALL
-    let theIndex = toTest.getIndex(1, 1);
+    // let theIndex = toTest.getIndex(1, 1);
 
     // ASSERT
     expect(toTest.getDecimalValue(1, 1)).toBe(3);

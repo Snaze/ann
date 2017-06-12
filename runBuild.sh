@@ -1,3 +1,3 @@
 #!/bin/bash
-./node_modules/eslint/bin/eslint.js src
 yarn test
+./node_modules/eslint/bin/eslint.js src
