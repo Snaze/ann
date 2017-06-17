@@ -145,6 +145,8 @@ class KeyEventer {
                 break;
             case "Enter":
             case " ":
+            case "F":
+            case "f":
                 break;
             case "p":
             case "P":
@@ -209,6 +211,8 @@ class KeyEventer {
                 break;
             case "Enter":
             case " ":
+            case "F":
+            case "f":
                 break;
             case "p":
             case "P":

@@ -22,6 +22,7 @@ class GameHeader extends DataSourceBase {
         }
 
         this._highScore = this.localStorageHighScore;
+        this.toIgnore.push("_state");
     }
 
     get localStorageHighScore() {

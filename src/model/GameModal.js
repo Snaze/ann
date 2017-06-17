@@ -60,7 +60,7 @@ class GameModal extends DataSourceBase {
 
     }
 
-    showCountDownModal() {
+    showCountDownModal(count=3) {
         this._mode = GameModal.MODAL_MODE_COUNTDOWN;
 
         this._modal.yesButtonText = "";
@@ -71,7 +71,7 @@ class GameModal extends DataSourceBase {
         this._modal.show = true;
         this.visible = true;
 
-        this._countDownMenu.count = 3;
+        this._countDownMenu.count = count;
         this._countDownMenu.start();
     }
 

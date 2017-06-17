@@ -29,6 +29,7 @@ class Cell extends DataSourceBase {
         this._location = this._wireUp("_location", new Location(x, y));
         this._editMode = false;
         this._blinkBorder = false;
+        this._highlighted = false;
     }
 
     toJSON() {
@@ -298,21 +299,45 @@ class Cell extends DataSourceBase {
         this._setValueAndRaiseOnChange("_blinkBorder", value);
     }
 
-    canTraverseTo(otherCell, maxWidth, maxHeight) {
+    get highlighted() {
+        return this._highlighted;
+    }
+
+    set highlighted(value) {
+        this._setValueAndRaiseOnChange("_highlighted", value);
+    }
+
+    canTraverseTo(otherCell, maxWidth, maxHeight, checkPartial=false) {
         if (this.location.isAbove(otherCell.location, maxHeight)) {
-            return !this.solidBorder.bottom;
+            if (!checkPartial) {
+                return !this.solidBorder.bottom;
+            }
+
+            return !this.solidBorder.bottom && !this.partialBorder.bottom;
         }
 
         if (this.location.isRightOf(otherCell.location, maxWidth)) {
-            return !this.solidBorder.left;
+            if (!checkPartial) {
+                return !this.solidBorder.left;
+            }
+
+            return !this.solidBorder.left && !this.partialBorder.left;
         }
 
         if (this.location.isLeftOf(otherCell.location, maxWidth)) {
-            return !this.solidBorder.right;
+            if (!checkPartial) {
+                return !this.solidBorder.right;
+            }
+
+            return !this.solidBorder.right && !this.partialBorder.right;
         }
 
         if (this.location.isBelow(otherCell.location, maxHeight)) {
-            return !this.solidBorder.top;
+            if (!checkPartial) {
+                return !this.solidBorder.top;
+            }
+
+            return !this.solidBorder.top && !this.partialBorder.top;
         }
 
         return false;

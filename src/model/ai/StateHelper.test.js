@@ -9,9 +9,11 @@ import Location from "../Location";
 it ("getGhostHeuristic max distance", () => {
     // SETUP
     let stateHelper = new StateHelper();
+    let level = createTestLevel();
+    let goc = new GameObjectContainer(level);
 
     // CALL
-    let heuristic = stateHelper.getGhostHeuristic(stateHelper.searchDepth);
+    let heuristic = stateHelper.getGhostHeuristic(stateHelper.searchDepth, goc.ghostRed, goc);
 
     // ASSERT
     expect(heuristic).toBe(0);
@@ -20,9 +22,11 @@ it ("getGhostHeuristic max distance", () => {
 it ("getGhostHeuristic min distance", () => {
     // SETUP
     let stateHelper = new StateHelper();
+    let level = createTestLevel();
+    let goc = new GameObjectContainer(level);
 
     // CALL
-    let heuristic = stateHelper.getGhostHeuristic(0);
+    let heuristic = stateHelper.getGhostHeuristic(0, goc.ghostRed, goc);
 
     // ASSERT
     expect(heuristic).toBe(stateHelper.deathValue);
@@ -31,9 +35,11 @@ it ("getGhostHeuristic min distance", () => {
 it ("getGhostHeuristic middle distance", () => {
     // SETUP
     let stateHelper = new StateHelper();
+    let level = createTestLevel();
+    let goc = new GameObjectContainer(level);
 
     // CALL
-    let heuristic = stateHelper.getGhostHeuristic(Math.floor(stateHelper.searchDepth / 2));
+    let heuristic = stateHelper.getGhostHeuristic(Math.floor(stateHelper.searchDepth / 2), goc.ghostRed, goc);
 
     // ASSERT
     expect(heuristic < 0 && heuristic > stateHelper.deathValue).toBe(true);
@@ -42,6 +48,7 @@ it ("getGhostHeuristic middle distance", () => {
 it ("getPowerUpHeuristic max distance", () => {
     // SETUP
     let stateHelper = new StateHelper();
+
 
     // CALL
     let heuristic = stateHelper.getDiscountedHeuristic(stateHelper.searchDepth, 100);
@@ -163,4 +170,21 @@ it ("test getStateNumber", () => {
 
     // ASSERT
     expect(theStateNumber > 0 && theStateNumber <= Math.pow(StateHelper.NUM_BINS, 4)).toBe(true);
+});
+
+it ("test getBinnedHeuristics", () => {
+    // SETUP
+    let goc = createTestGameObjectContainer();
+    let stateHelper = new StateHelper();
+    let heuristics = [null, 0, 0, null];
+    let min = 0;
+    let max = 0;
+
+    // CALL
+    let binnedHeuristics = stateHelper.getBinnedHeuristics(heuristics, min, max);
+
+    // ASSERT
+    binnedHeuristics.forEach(function (bh) {
+        expect(bh !== "NaN").toBe(true);
+    });
 });

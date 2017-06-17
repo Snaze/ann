@@ -147,7 +147,7 @@ class Cell extends DataSourceComponent {
             }
         }
 
-        if (this.state.hover || this.cell.selected) {
+        if (this.state.hover || this.cell.selected || this.cell.highlighted) {
             toRet += "CellSelected ";
         } else {
             toRet += "CellNotSelected ";

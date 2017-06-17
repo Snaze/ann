@@ -1,8 +1,7 @@
-// import numpy as np
-// import random as rand
+import math from "../../../node_modules/mathjs/dist/math";
 
 class QLearner {
-    constructor(numStates, numActions=4, alpha=0.2, gamma=0.9, rar=0.5, radr=0.99, verbose=false) {
+    constructor(numStates, numActions=4, alpha=0.2, gamma=0.9, rar=0.98, radr=0.9999, verbose=true) {
         this._numStates = numStates;
         this._numActions = numActions;
         this._alpha = alpha;
@@ -14,6 +13,10 @@ class QLearner {
         this._s = 0;
         this._a = 0;
         this._q = QLearner.createQMatrix(numStates, numActions);
+
+        if (!!window) {
+            window.q = this._q;
+        }
     }
 
     static createQMatrix(numStates, numActions) {
@@ -45,7 +48,7 @@ class QLearner {
 
         let action = this.getAction(s, false);
 
-        this.log(`s = ${this._s}, a = ${this._a}, s_prime = ${s}, a_prime = ${action}`);
+        this.log(`s = ${this._s}, a = ${this._a}, s_prime = ${s}, a_prime = ${action}, rar = ${this._rar}`);
 
         this._s = s;
         this._a = action;
@@ -63,13 +66,18 @@ class QLearner {
     query(sPrime, r) {
 
         let aPrime = this.getAction(sPrime, true);
-        this._q[this._s][this._a] = (1.0 - this._alpha) * this._q[this._s][this._a] +
-            this._alpha * (r + this._gamma * this._q[sPrime][aPrime]);
+        let firstPart = math.chain(1.0).subtract(this._alpha).multiply(this._q[this._s][this._a]).done();
+
+        let secondPart = math.chain(this._gamma).multiply(this._q[sPrime][aPrime]).add(r).multiply(this._alpha).done();
+        this._q[this._s][this._a] = math.chain(firstPart).add(secondPart).done();
+
+        // this._q[this._s][this._a] = (1.0 - this._alpha) * this._q[this._s][this._a] +
+        //     this._alpha * (r + this._gamma * this._q[sPrime][aPrime]);
 
 //      self.Q[self.s, self.a] = (1. - self.alpha) * self.Q[self.s, self.a] \
 //          + self.alpha * (r + self.gamma * self.Q[s_prime, a_prime])
 
-        this.log(`s = ${this._s}, a = ${this._a}, sPrime = ${sPrime}, aPrime = ${aPrime}, r = ${r}`);
+        // this.log(`s = ${this._s}, a = ${this._a}, sPrime = ${sPrime}, aPrime = ${aPrime}, r = ${r}`);
 
         this._s = sPrime;
         this._a = aPrime;
@@ -85,6 +93,10 @@ class QLearner {
     static argMax(theArray) {
        let index = -1;
        let max = Number.NEGATIVE_INFINITY;
+
+       if (typeof(theArray) === "undefined") {
+           debugger;
+       }
 
        theArray.forEach(function (item, i) {
            if (item > max) {
@@ -119,7 +131,7 @@ class QLearner {
         }
 
         if (updateRar) {
-            this._rar *= this._radr;
+            this._rar = math.chain(this._rar).multiply(this._radr).done();
         }
 
         return aPrime;

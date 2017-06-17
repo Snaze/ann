@@ -10,6 +10,13 @@
     vertical-align: top;
 }
 
+.GameFooterCenter {
+    text-align: center;
+    font-family: Consolas, monospace;
+    font-size: small;
+    color: White;
+}
+
 .GameFooterLeft {
     text-align: left;
 }

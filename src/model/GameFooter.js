@@ -1,4 +1,5 @@
 import DataSourceBase from "./DataSourceBase";
+import StateHelper from "./ai/StateHelper";
 
 const active_player_1 = 1;
 const active_player_2 = 2;
@@ -26,6 +27,7 @@ class GameFooter extends DataSourceBase {
         this._activePlayer = activePlayer;
         this._powerUps = null;
         this._numLives = 0;
+        this._playerState = "";
 
         if (this._activePlayer === GameFooter.ACTIVE_PLAYER_1) {
             this._numLives = this._player1._numLives;
@@ -34,22 +36,35 @@ class GameFooter extends DataSourceBase {
         }
     }
 
+    _handlePlayerValueChance(e, player) {
+        if (e.source === "_numLives") {
+            this.numLives = player.numLives;
+        } else if (e.source === "_state") {
+            this.playerState = StateHelper.convertToDetailString(player.state);
+        }
+    }
+
     _nestedDataSourceChanged(e) {
 
-        if (e.object === this._player1 &&
-            e.source === "_numLives" &&
-            this._activePlayer === GameFooter.ACTIVE_PLAYER_1) {
+        if (e.object === this._player1 && this._activePlayer === GameFooter.ACTIVE_PLAYER_1) {
+            this._handlePlayerValueChance(e, this._player1);
 
-            this.numLives = this._player1.numLives;
             super._nestedDataSourceChanged(e);
-        } else if (e.object === this._player2 &&
-                   e.source === "_numLives" &&
-                   this._activePlayer === GameFooter.ACTIVE_PLAYER_2) {
+        } else if (e.object === this._player2 && this._activePlayer === GameFooter.ACTIVE_PLAYER_2) {
+            this._handlePlayerValueChance(e, this._player2);
 
-            this.numLives = this._player2.numLives;
             super._nestedDataSourceChanged(e);
         }
+    }
 
+    getPlayer() {
+        if (this.activePlayer === active_player_1) {
+            return this._player1;
+        } else if (this.activePlayer === active_player_2) {
+            return this._player2;
+        }
+
+        throw new Error("You should never get here");
     }
 
     get activePlayer() {
@@ -88,6 +103,14 @@ class GameFooter extends DataSourceBase {
 
     get level() {
         return this._level;
+    }
+
+    get playerState() {
+        return this._playerState;
+    }
+
+    set playerState(value) {
+        this._setValueAndRaiseOnChange("_playerState", value);
     }
 
     set level(value) {

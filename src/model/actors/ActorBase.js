@@ -3,6 +3,7 @@ import Direction from "../../utils/Direction";
 import Location from "../Location";
 import moment from "../../../node_modules/moment/moment";
 import Level from "../Level";
+import KeyEventer from "../../utils/KeyEventer";
 
 /**
  * This is an abstract class that should be used by any game agent.
@@ -10,6 +11,10 @@ import Level from "../Level";
  * i.e. Player, Ghost, etc....
  */
 class ActorBase extends DataSourceBase {
+    static _aiMode = true;
+    static _fastLearnMode = false;
+    static _onKeyDownRef = null;
+
     constructor(level) {
         super();
 
@@ -27,6 +32,21 @@ class ActorBase extends DataSourceBase {
         this._editMode = false;
         this._paused = false;
         this._isAlive = true;
+
+    }
+
+    static bindOnKeyDown() {
+        if (ActorBase._onKeyDownRef === null) {
+            ActorBase._onKeyDownRef = (e) => ActorBase.onKeyDown(e);
+            KeyEventer.instance.addCallback(ActorBase._onKeyDownRef, KeyEventer.CALLBACK_KEYDOWN);
+        }
+    }
+
+
+    static onKeyDown(key) {
+        if (key.toLowerCase() === "f") {
+            ActorBase._fastLearnMode = !ActorBase._fastLearnMode;
+        }
     }
 
     /**
@@ -53,7 +73,9 @@ class ActorBase extends DataSourceBase {
         let currentMoment = moment();
         let lastTickPlusDuration = this._lastTick.clone().add(this._cellTransitionDuration, "s");
 
-        if (currentMoment.isAfter(lastTickPlusDuration)) {
+        // Use this to train fast.
+        if (ActorBase._fastLearnMode || currentMoment.isAfter(lastTickPlusDuration)) {
+        // if (currentMoment.isAfter(lastTickPlusDuration)) {
 
             this.timerTick(e);
 
@@ -181,6 +203,16 @@ class ActorBase extends DataSourceBase {
     set isAlive(value) {
         this._setValueAndRaiseOnChange("_isAlive", value);
     }
+
+    get aiMode() {
+        return ActorBase._aiMode;
+    }
+
+    set aiMode(value) {
+        ActorBase._aiMode = value;
+    }
 }
+
+ActorBase.bindOnKeyDown();
 
 export default ActorBase;

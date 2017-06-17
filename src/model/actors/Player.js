@@ -7,6 +7,7 @@ import moment from "../../../node_modules/moment/moment";
 import EasingFunctions from "../../utils/EasingFunctions";
 import SoundPlayer from "../../utils/SoundPlayer";
 import PlayerAgent from "./PlayerBrains/PlayerAgent";
+import StateHelper from "../ai/StateHelper";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
@@ -16,7 +17,7 @@ const max_cell_duration = 0.175;
 const min_attack_duration = 0.0; // seconds
 const max_attack_duration = 8.0; // seconds
 const new_life_increment = 10000;
-const num_states = Math.pow(20, 4);
+const num_states = Math.pow(10, 4);
 
 class Player extends ActorBase {
 
@@ -52,9 +53,10 @@ class Player extends ActorBase {
         this._prevLocation = this.location.clone();
         this._numLives = 3;
         this._originalNumLives = this._numLives;
-        this._aiMode = false;
-        this._scoreDelta = -1;
+        this._scoreDelta = null;
         this._agent = null;
+        this._stateHelper = new StateHelper();
+        this._state = 0;
 
         this._cellTransitionDuration = Player.getCellTransitionDuration(this.level); // seconds
     }
@@ -135,8 +137,8 @@ class Player extends ActorBase {
         }
     }
 
-    executeActorStep(e) {
-        let toRet = super.executeActorStep(e);
+    executeActorStep(goc) {
+        let toRet = super.executeActorStep(goc);
 
         if (moment() >= this._attackModeFinishTime &&
             Player.sirenSoundId !== null) {
@@ -151,20 +153,22 @@ class Player extends ActorBase {
         return toRet;
     }
 
-    timerTick(e) {
+    timerTick(goc) {
 
         if (this.aiMode) {
-            this.aiTick(e);
+            this.aiTick(goc);
         } else {
-            this.humanTick(e);
+            this.humanTick(goc);
         }
 
         this.resetAnimating(true);
     }
 
-    aiTick() {
+    aiTick(goc) {
         let agent = this.getAgent(num_states);
-        let decimalDirection = agent.act(this.graph);
+        this.state = this._stateHelper.getStateNumber(goc);
+        let decimalDirection = agent.act(this.state, this._scoreDelta);
+        this._scoreDelta = -1;
         let newDirection = Direction.decimalToDirection(decimalDirection);
 
         this.prevLocation.setWithLocation(this.location);
@@ -175,20 +179,7 @@ class Player extends ActorBase {
         // agent.learn(this._scoreDelta);
     }
 
-    learn() {
-        if (!this.aiMode) {
-            return;
-        }
-
-        this.getAgent().learn(this._scoreDelta);
-        if (this._scoreDelta !== -1 && typeof(console) !== "undefined") {
-            console.log("Learned with score = " + this._scoreDelta);
-        }
-
-        this._scoreDelta = -1;
-    }
-
-    humanTick() {
+    humanTick(goc) {
         if (!this.location.isValid) {
             return;
         }
@@ -320,12 +311,16 @@ class Player extends ActorBase {
         this._setValueAndRaiseOnChange("_animating", value);
     }
 
-    get aiMode() {
-        return this._aiMode;
+    get state() {
+        return this._state;
     }
 
-    set aiMode(value) {
-        this._setValueAndRaiseOnChange("_aiMode", value);
+    set state(value) {
+        this._setValueAndRaiseOnChange("_state", value);
+    }
+
+    resetReward() {
+        this._scoreDelta = null;
     }
 
     resetAnimating(raiseEvent=false) {

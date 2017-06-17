@@ -162,6 +162,7 @@ class Level extends DataSourceBase {
         this._activeCellsIsDirty = true;
         this.toIgnore.push("_dotType");
         this.toIgnore.push("_blinkBorder");
+        this.toIgnore.push("_highlighted");
         // this.debug = true;
     }
 

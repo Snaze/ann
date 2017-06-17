@@ -67,6 +67,7 @@ class GameObjectContainer extends DataSourceBase {
         this._levelRunning = false;
         // this._binaryMatrix = null;
         this._graph = null;
+        this.toIgnore.push("_state");
     }
 
     static _nextKillScore = 100;
@@ -77,6 +78,10 @@ class GameObjectContainer extends DataSourceBase {
 
     static resetNextKillScore() {
         GameObjectContainer._nextKillScore = 100;
+    }
+
+    static peekNextKillScore() {
+        return GameObjectContainer._nextKillScore;
     }
 
     dispose() {
@@ -145,8 +150,10 @@ class GameObjectContainer extends DataSourceBase {
                 // OR GHOST IS NOT SCARED
                 if (thePlayer.isAlive) {
                     thePlayer.isAlive = false;
-                    thePlayer.learn();
-                    this.player.numLives = this.player.numLives - 1;
+                    thePlayer.numLives -= 1;
+                    thePlayer.timerTick(this); // So it can learn one last time before moving state
+                    thePlayer.resetReward();
+
                     this.resetAllGhostBrains();
                     this.currentPlayerDead = true;
                     this.paused = true;
@@ -155,9 +162,13 @@ class GameObjectContainer extends DataSourceBase {
                     if (this._restartLevelRef === null) {
                         this._restartLevelRef = () => this.startOrRestartLevel();
                         let self = this;
-                        setTimeout(function () {
+                        if (!thePlayer.aiMode) {
+                            setTimeout(function () {
+                                self.startOrRestartLevel();
+                            }, 3000);
+                        } else {
                             self.startOrRestartLevel();
-                        }, 3000);
+                        }
                     }
                 }
             }
@@ -204,17 +215,16 @@ class GameObjectContainer extends DataSourceBase {
         this.gameOver = false;
         this._levelRunning = false;
 
-
-
         if (this.player.numLives === 0) {
             this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
         } else {
+            let count = this.player.aiMode ? 1: 3;
             if (!this._levelFirstStart) {
-                this.gameModal.showCountDownModal();
+                this.gameModal.showCountDownModal(count);
             } else {
                 this._levelFirstStart = false;
                 SoundPlayer.instance.play(SoundPlayer.instance.beginning, function () {
-                    this.gameModal.showCountDownModal();
+                    this.gameModal.showCountDownModal(count);
                 }.bind(this));
             }
         }
@@ -227,14 +237,11 @@ class GameObjectContainer extends DataSourceBase {
         }
 
         let moved = false;
-        let playerMoved = false;
+
         this.iterateOverGameObjects(function (gameObj) {
-            let temp = gameObj.executeActorStep();
+            let temp = gameObj.executeActorStep(this);
             if (temp) {
                 moved = true;
-                if (gameObj === this.player) {
-                    playerMoved = true;
-                }
             }
 
         }.bind(this));
@@ -256,10 +263,6 @@ class GameObjectContainer extends DataSourceBase {
             this._pickUpPowerUpIfCollision(this.player, this.powerUp);
 
             this._checkIfAllDotsEaten(this.player, this.level);
-        }
-
-        if (playerMoved) {
-            this.player.learn();
         }
     }
 

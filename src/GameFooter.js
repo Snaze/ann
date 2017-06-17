@@ -71,6 +71,16 @@ class GameFooter extends DataSourceComponent {
         return toRet;
     }
 
+    getPlayerState() {
+        if (this.gameFooter.getPlayer().aiMode) {
+            return (<td className="GameFooterCenter">
+                <div style={{display: "inline"}}>State: {this.gameFooter.playerState}</div>
+            </td>);
+        }
+
+        return null;
+    }
+
     render() {
         return (<div className="GameFooter"><table className="GameFooterTable">
             <tbody>
@@ -80,6 +90,7 @@ class GameFooter extends DataSourceComponent {
                             {this.getLifeEntities()}
                         </div>
                     </td>
+                    {this.getPlayerState()}
                     <td className="GameFooterRight">
                         <div style={{display: "inline"}}>
                             {this.getPowerUpEntities()}
