@@ -7,20 +7,20 @@ import PowerUp from "./actors/PowerUp";
 import GameModal from "./GameModal";
 import SoundPlayer from "../utils/SoundPlayer";
 import KeyEventer from "../utils/KeyEventer";
-import BinaryMatrix from "./utils/BinaryMatrix";
-import Direction from "../utils/Direction";
+// import BinaryMatrix from "./utils/BinaryMatrix";
+// import Direction from "../utils/Direction";
 
 const max_power_up_spawn_time = 90.0;
 const callback_type_level_finished = 0;
 const callback_type_game_over = 1;
-const toBinaryIndices = {
-    littleDot: 4,
-    bigDot: 3,
-    ghost: 2,
-    player: 1,
-    powerUp: 0,
-    directionHeader: 0
-};
+// const toBinaryIndices = {
+//     littleDot: 4,
+//     bigDot: 3,
+//     ghost: 2,
+//     player: 1,
+//     powerUp: 0,
+//     directionHeader: 0
+// };
 
 class GameObjectContainer extends DataSourceBase {
 
@@ -65,7 +65,8 @@ class GameObjectContainer extends DataSourceBase {
         this._gameOver = false;
         this._levelFirstStart = true;
         this._levelRunning = false;
-        this._binaryMatrix = null;
+        // this._binaryMatrix = null;
+        this._graph = null;
     }
 
     static _nextKillScore = 100;
@@ -228,7 +229,7 @@ class GameObjectContainer extends DataSourceBase {
         let moved = false;
         let playerMoved = false;
         this.iterateOverGameObjects(function (gameObj) {
-            let temp = gameObj.executeActorStep(this.binaryMatrix);
+            let temp = gameObj.executeActorStep();
             if (temp) {
                 moved = true;
                 if (gameObj === this.player) {
@@ -313,23 +314,23 @@ class GameObjectContainer extends DataSourceBase {
         });
     }
 
-    _updateBinaryMatrix() {
-        let directionBinary = Direction.toBinary(this.player.direction);
-        this._binaryMatrix.setBinaryHeaderValue(toBinaryIndices.directionHeader, directionBinary);
-
-        this._binaryMatrix.setBinaryValueAtLocation("player", this.player.location, toBinaryIndices.player, "1");
-
-        // If the player is at a current location, then he must have already eaten the dot.
-        this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.bigDot, "0");
-        this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.littleDot, "0");
-
-        this._binaryMatrix.setBinaryValueAtLocation("ghostRed", this.ghostRed.location, toBinaryIndices.ghost, "1");
-        this._binaryMatrix.setBinaryValueAtLocation("ghostBlue", this.ghostBlue.location, toBinaryIndices.ghost, "1");
-        this._binaryMatrix.setBinaryValueAtLocation("ghostOrange", this.ghostOrange.location, toBinaryIndices.ghost, "1");
-        this._binaryMatrix.setBinaryValueAtLocation("ghostPink", this.ghostPink.location, toBinaryIndices.ghost, "1");
-
-        this._binaryMatrix.setBinaryValueAtLocation("powerUp", this.powerUp.location, toBinaryIndices.powerUp, "1");
-    }
+    // _updateBinaryMatrix() {
+    //     let directionBinary = Direction.toBinary(this.player.direction);
+    //     this._binaryMatrix.setBinaryHeaderValue(toBinaryIndices.directionHeader, directionBinary);
+    //
+    //     this._binaryMatrix.setBinaryValueAtLocation("player", this.player.location, toBinaryIndices.player, "1");
+    //
+    //     // If the player is at a current location, then he must have already eaten the dot.
+    //     this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.bigDot, "0");
+    //     this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.littleDot, "0");
+    //
+    //     this._binaryMatrix.setBinaryValueAtLocation("ghostRed", this.ghostRed.location, toBinaryIndices.ghost, "1");
+    //     this._binaryMatrix.setBinaryValueAtLocation("ghostBlue", this.ghostBlue.location, toBinaryIndices.ghost, "1");
+    //     this._binaryMatrix.setBinaryValueAtLocation("ghostOrange", this.ghostOrange.location, toBinaryIndices.ghost, "1");
+    //     this._binaryMatrix.setBinaryValueAtLocation("ghostPink", this.ghostPink.location, toBinaryIndices.ghost, "1");
+    //
+    //     this._binaryMatrix.setBinaryValueAtLocation("powerUp", this.powerUp.location, toBinaryIndices.powerUp, "1");
+    // }
 
     get powerUp() {
         return this._powerUp;
@@ -366,6 +367,7 @@ class GameObjectContainer extends DataSourceBase {
     set level(value) {
         if (value !== this.level) {
             this._levelFirstStart = true;
+            this._graph = null;
         }
 
         this.iterateOverGameObjects(function (gameObject) {
@@ -454,16 +456,24 @@ class GameObjectContainer extends DataSourceBase {
         return this._gameModal;
     }
 
-    get binaryMatrix() {
+    // get binaryMatrix() {
+    //
+    //     if (null === this._binaryMatrix) {
+    //         let theMatrix = this.level.toBinary();
+    //         this._binaryMatrix = new BinaryMatrix(theMatrix, 1);
+    //     }
+    //
+    //     this._updateBinaryMatrix();
+    //
+    //     return this._binaryMatrix;
+    // }
 
-        if (null === this._binaryMatrix) {
-            let theMatrix = this.level.toBinary();
-            this._binaryMatrix = new BinaryMatrix(theMatrix, 1);
+    get graph() {
+        if (this._graph === null) {
+            this._graph = this.level.toGraph();
         }
 
-        this._updateBinaryMatrix();
-
-        return this._binaryMatrix;
+        return this._graph;
     }
 }
 

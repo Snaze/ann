@@ -165,6 +165,10 @@ class Location extends DataSourceBase {
         return Math.sqrt(Math.pow((this.y - otherLocation.y), 2.0) + Math.pow((this.x - otherLocation.x), 2.0));
     }
 
+    manhattanDistance(otherLocation) {
+        return Math.abs(this.y - otherLocation.y) + Math.abs(this.x - otherLocation.x);
+    }
+
     moveInDirection(direction, levelHeight, levelWidth) {
         switch (direction) {
             case Direction.DOWN:
@@ -200,6 +204,8 @@ class Location extends DataSourceBase {
             default:
                 throw new Error("invalid direction");
         }
+
+        return this;
     }
 }
 

@@ -7,6 +7,8 @@ import KeyEventer from "../utils/KeyEventer";
 import FloydWarshall from "../utils/FloydWarshall";
 import Dot from "./Dot";
 import EasingFunctions from "../utils/EasingFunctions";
+import Graph from "./ai/Graph";
+import Direction from "../utils/Direction";
 
 const default_width = 26;
 const default_height = 26;
@@ -724,6 +726,42 @@ class Level extends DataSourceBase {
                 toRet[y][x] = currentCell.toBinary();
             }
         }
+
+        return toRet;
+    }
+
+    toGraph() {
+        const addEdgeFromCellToLocation = function (graph, centerCell, targetLocation) {
+            let targetCell = this.getCellByLocation(targetLocation);
+
+            if (centerCell.canTraverseTo(targetCell, this.width, this.height)) {
+                graph.addEdge(centerCell.id, targetCell.id);
+            }
+
+        }.bind(this);
+
+        let toRet = new Graph();
+        this.iterateOverCells(function (cell) {
+            toRet.addVertex(cell.id);
+        });
+
+        this.iterateOverCells(function (centerCell) {
+
+            let centerLocation = centerCell.location.clone();
+
+            let leftLocation = centerLocation.clone().moveInDirection(Direction.LEFT, this.height, this.width);
+            addEdgeFromCellToLocation(toRet, centerCell, leftLocation);
+
+            let rightLocation = centerLocation.clone().moveInDirection(Direction.RIGHT, this.height, this.width);
+            addEdgeFromCellToLocation(toRet, centerCell, rightLocation);
+
+            let upLocation = centerLocation.clone().moveInDirection(Direction.UP, this.height, this.width);
+            addEdgeFromCellToLocation(toRet, centerCell, upLocation);
+
+            let downLocation = centerLocation.clone().moveInDirection(Direction.DOWN, this.height, this.width);
+            addEdgeFromCellToLocation(toRet, centerCell, downLocation);
+
+        }.bind(this));
 
         return toRet;
     }

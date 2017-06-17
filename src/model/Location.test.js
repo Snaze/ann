@@ -143,3 +143,15 @@ it ("test distance", () =>  {
     // ASSERT
     expect(result).toBe(1.0);
 });
+
+it ("manhattanDistance test", () => {
+    // SETUP
+    let sourceLocation = new Location(5, 5);
+    let destLocation = new Location(2, 4);
+
+    // CALL
+    let distance = sourceLocation.manhattanDistance(destLocation);
+
+    // ASSERT
+    expect(distance).toBe(4);
+});

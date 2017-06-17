@@ -16,6 +16,7 @@ const max_cell_duration = 0.175;
 const min_attack_duration = 0.0; // seconds
 const max_attack_duration = 8.0; // seconds
 const new_life_increment = 10000;
+const num_states = Math.pow(20, 4);
 
 class Player extends ActorBase {
 
@@ -161,9 +162,9 @@ class Player extends ActorBase {
         this.resetAnimating(true);
     }
 
-    aiTick(e) {
-        let agent = this.getAgent(e.numMatrix.length);
-        let decimalDirection = agent.act(e.numMatrix);
+    aiTick() {
+        let agent = this.getAgent(num_states);
+        let decimalDirection = agent.act(this.graph);
         let newDirection = Direction.decimalToDirection(decimalDirection);
 
         this.prevLocation.setWithLocation(this.location);
@@ -187,7 +188,7 @@ class Player extends ActorBase {
         this._scoreDelta = -1;
     }
 
-    humanTick(e) {
+    humanTick() {
         if (!this.location.isValid) {
             return;
         }

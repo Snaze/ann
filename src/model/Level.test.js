@@ -876,3 +876,27 @@ it ("test toBinary", () => {
     expect(toCheck[1][0] !== null && typeof(toCheck[1][0]) === "string").toBe(true);
     expect(toCheck[1][1] !== null && typeof(toCheck[1][1]) === "string").toBe(true);
 });
+
+it ("test toGraph", () => {
+    // SETUP
+    let level = new Level(2, 2);
+
+    // CALL
+    let toCheck = level.toGraph();
+
+    // ASSERT
+    expect(toCheck.vertexCount).toBe(4);
+    expect(toCheck.edgeCount).toBe(4);
+});
+
+it ("test toGraph", () => {
+    // SETUP
+    let level = new Level(3, 3);
+
+    // CALL
+    let toCheck = level.toGraph();
+
+    // ASSERT
+    expect(toCheck.vertexCount).toBe(9);
+    expect(toCheck.edgeCount).toBe(18);
+});
