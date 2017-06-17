@@ -17,7 +17,7 @@ const max_cell_duration = 0.175;
 const min_attack_duration = 0.0; // seconds
 const max_attack_duration = 8.0; // seconds
 const new_life_increment = 10000;
-const num_states = Math.pow(10, 4);
+
 
 class Player extends ActorBase {
 
@@ -165,11 +165,12 @@ class Player extends ActorBase {
     }
 
     aiTick(goc) {
-        let agent = this.getAgent(num_states);
+        let agent = this.getAgent(StateHelper.NUM_STATES);
+
         this.state = this._stateHelper.getStateNumber(goc);
         let decimalDirection = agent.act(this.state, this._scoreDelta);
         this._scoreDelta = -1;
-        let newDirection = Direction.decimalToDirection(decimalDirection);
+        let newDirection = this._stateHelper.mapIndexToDirection(decimalDirection);
 
         this.prevLocation.setWithLocation(this.location);
         this.attemptToMoveInDirection(newDirection);

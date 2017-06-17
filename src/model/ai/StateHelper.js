@@ -4,25 +4,35 @@ import _ from "../../../node_modules/lodash/lodash";
 import ConvertBase from "../../utils/ConvertBase";
 import Ghost from "../actors/Ghost";
 import GameObjectContainer from "../GameObjectContainer";
+import MathUtil from "./MathUtil";
 
 const num_bins = 10;
 
 class StateHelper {
 
     static get NUM_BINS() { return num_bins; }
+    static _numStates = null;
+    static get NUM_STATES() {
+        if (StateHelper._numStates === null) {
+            StateHelper._numStates = Math.pow(num_bins, 4);
+        }
+
+        return StateHelper._numStates;
+    }
 
     constructor(searchDepth=8) {
         this._searchDepth = searchDepth;
 
         // TODO: Move these values to a common location
-        this._deathValue = -1000;
+        this._deathValue = -10000;
         this._littleDotValue = 10;
         this._bigDotValue = 50;
-        this._unvisitedCellValue = 200;
+        this._unvisitedCellValue = 1000;
         this._globalMin = Number.POSITIVE_INFINITY;
         this._globalMax = Number.NEGATIVE_INFINITY;
         this._visitedCells = {};
         this._prevTraversedCells = null;
+        this._prevLocation = null;
     }
 
     getGhostHeuristic(distance, ghost) {
@@ -172,6 +182,80 @@ class StateHelper {
         return parseInt(toRet, 10);
     }
 
+    mapIndexToDirection(index) {
+        let theDirection = null;
+
+        switch (index) {
+            case 0:
+                theDirection = Direction.UP;
+                break;
+            case 1:
+                theDirection = Direction.LEFT;
+                break;
+            case 2:
+                theDirection = Direction.RIGHT;
+                break;
+            case 3:
+                theDirection = Direction.DOWN;
+                break;
+            default:
+                throw new Error("Unknown direction");
+        }
+
+        return theDirection;
+    }
+
+    getDirection(goc, stateNumber) {
+        // let stateNumber = this.getStateNumber(goc);
+        let theString = stateNumber.toString();
+
+        while (theString.length < 4) {
+            theString = "0" + theString;
+        }
+
+        let theArray = theString.split("").map(function (item) {
+            return parseInt(item, 10);
+        });
+
+        let maxIndex = MathUtil.argMax(theArray);
+        return this.mapIndexToDirection(maxIndex);
+    }
+
+    _findDirectionNotPrev(theArray, player) {
+        let theDirection = Direction.NONE;
+
+        while (theDirection === Direction.NONE) {
+            let maxIndex = MathUtil.argMax(theArray);
+
+            switch (maxIndex) {
+                case 0:
+                    theDirection = Direction.UP;
+                    break;
+                case 1:
+                    theDirection = Direction.LEFT;
+                    break;
+                case 2:
+                    theDirection = Direction.RIGHT;
+                    break;
+                case 3:
+                    theDirection = Direction.DOWN;
+                    break;
+                default:
+                    throw new Error("Unknown direction");
+            }
+
+            if (!!this._prevLocation &&
+                player.location.clone().moveInDirection(theDirection).equals(this._prevLocation)) {
+                theDirection = Direction.NONE;
+                theArray[maxIndex] = 0;
+            }
+        }
+
+        this._prevLocation = player.location.clone();
+
+        return theDirection;
+    }
+
     _highlightTraversedCells(traversedCells) {
         if (this._prevTraversedCells) {
             for (let cellId in this._prevTraversedCells) {
@@ -221,6 +305,8 @@ class StateHelper {
     get unvisitedCellValue() {
         return this._unvisitedCellValue;
     }
+
+
 }
 
 export default StateHelper;

@@ -169,7 +169,7 @@ it ("test getStateNumber", () => {
     let theStateNumber = stateHelper.getStateNumber(goc);
 
     // ASSERT
-    expect(theStateNumber > 0 && theStateNumber <= Math.pow(StateHelper.NUM_BINS, 4)).toBe(true);
+    expect(theStateNumber > 0 && theStateNumber <= StateHelper.NUM_STATES).toBe(true);
 });
 
 it ("test getBinnedHeuristics", () => {
