@@ -735,7 +735,7 @@ class Level extends DataSourceBase {
         const addEdgeFromCellToLocation = function (graph, centerCell, targetLocation) {
             let targetCell = this.getCellByLocation(targetLocation);
 
-            if (centerCell.canTraverseTo(targetCell, this.width, this.height)) {
+            if (centerCell.canTraverseTo(targetCell, this.width, this.height, true)) {
                 graph.addEdge(centerCell.id, targetCell.id);
             }
 

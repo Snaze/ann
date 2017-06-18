@@ -1,6 +1,6 @@
 import { assert } from "../../utils/Assert";
 import Edge from "./Edge";
-import _ from "../../../node_modules/lodash/lodash";
+import LinkedList from "./LinkedList";
 
 const vert_color_white = 0;
 const vert_color_grey = 1;
@@ -103,11 +103,11 @@ class Graph {
         startVert.color = vert_color_grey;
         startVert.distance = 0;
 
-        let queue = [];
-        queue.push(startVert);
+        let queue = new LinkedList();
+        queue.append(startVert);
 
         while (queue.length > 0) {
-            let u = queue.shift(); // You may want to look for a better queue implementation
+            let u = queue.popFront();
 
             if (callback) {
                 callback(u);
@@ -125,7 +125,7 @@ class Graph {
                     // and we don't want to ignore this vertex
                     // then enqueue the vertex into the queue.
                     if (v.distance <= maxDistance && vertIdsToIgnore.indexOf(v.id) < 0) {
-                        queue.push(v);
+                        queue.append(v);
                     }
                 }
             });

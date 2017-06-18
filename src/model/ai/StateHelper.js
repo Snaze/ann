@@ -59,7 +59,7 @@ class StateHelper {
                     traversedCells[vertex.id] = cell;
                 }
 
-                let distance = cell.location.manhattanDistance(startLocation);
+                let distance = goc.level.floydWarshall.getPathDistance(startLocation.toCellId(), vertex.id);
 
                 if (cell.dotType === Dot.LITTLE) {
                     score += this.getDiscountedHeuristic(distance, this.littleDotValue);
