@@ -28,6 +28,20 @@ class NeuralNetwork {
         }.bind(this));
     }
 
+    getWeights() {
+        let toRet = [];
+
+        this._nodes.forEach(function (layer, layerIndex) {
+            toRet[layerIndex] = [];
+
+            layer.forEach(function (node, nodeIndex) {
+                toRet[layerIndex][nodeIndex] = node.weights.slice(0);
+            });
+        });
+
+        return toRet;
+    }
+
     static createNodes(nodesPerLayer, includeBias, activationFunction, learningRate) {
 
         let toRet = [];

@@ -15,16 +15,19 @@ class NeuralNetworkTest extends Component {
     constructor(props) {
         super(props);
 
-        this._neuralNetwork = new NeuralNetwork([2, 1],
+        this._neuralNetwork = new NeuralNetwork([2, 3, 2],
             true,
             ActivationFunctions.sigmoid,
-            1.0);
+            0.075);
+
+        this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
 
         this.state = {
             epochs: 0,
             error: 1000000,
             dataOutOfRange: [],
-            dataInRange: []
+            dataInRange: [],
+            weights: JSON.stringify(this._neuralNetwork.getWeights())
         };
     }
 
@@ -50,52 +53,53 @@ class NeuralNetworkTest extends Component {
     }
 
     static getExpectedValue(point) {
-        if (point[0] >= 0 && point[1] >= 0) {
-            return [1.0];
+        if (point[0] >= 2 && point[1] >= 2) {
+            return [1.0, 0.0];
         }
 
-        return [0.0];
+        return [0.0, 1.0];
     }
 
     /**
      * Life Cycle Step 2
      */
     componentWillMount() {
-        let error = this.trainNetwork();
+        let error = 0;
+
+        if (!this.state.weights) {
+            error = this.trainNetwork();
+        }
 
         this.createTestData(error);
     }
 
+    trainIteration(randomPoint) {
+        let expected = NeuralNetworkTest.getExpectedValue(randomPoint);
+        this._neuralNetwork.feedForward(randomPoint);
+        return this._neuralNetwork.backPropagate(expected);
+    }
+
     trainNetwork() {
         let error = Number.POSITIVE_INFINITY;
-        let iteration = 0;
 
         while (error > 10e-7) {
-            let randomPoint = null;
-            // let expected = null;
+            let randomPoint1 = NeuralNetworkTest.getRandomPoint(2, 10, 2, 10);
+            let randomPoint2 = NeuralNetworkTest.getRandomPoint(2, 10, -10, 1.999);
+            let randomPoint3 = NeuralNetworkTest.getRandomPoint(-10, 1.999, -10, 1.999);
+            let randomPoint4 = NeuralNetworkTest.getRandomPoint(-10, 1.999, 2, 10);
 
-            switch (iteration % 4) {
-                case 0:
-                    randomPoint = NeuralNetworkTest.getRandomPoint(0, 10, 0, 10);
-                    break;
-                case 1:
-                    randomPoint = NeuralNetworkTest.getRandomPoint(0, 10, -10, -0.001);
-                    break;
-                case 2:
-                    randomPoint = NeuralNetworkTest.getRandomPoint(-10, -0.001, -10, -0.001);
-                    break;
-                case 3:
-                    randomPoint = NeuralNetworkTest.getRandomPoint(-10, -0.001, 0, 10);
-                    break;
-                default:
-                    throw new Error("You should never get here");
-            }
-
-            let expected = NeuralNetworkTest.getExpectedValue(randomPoint);
-            this._neuralNetwork.feedForward(randomPoint);
-            error = this._neuralNetwork.backPropagate(expected);
-            iteration++;
+            this.trainIteration(randomPoint1);
+            this.trainIteration(randomPoint2);
+            this.trainIteration(randomPoint3);
+            error = this.trainIteration(randomPoint4);
         }
+
+        let theWeights = this._neuralNetwork.getWeights();
+
+        this.setState({
+            weights: JSON.stringify(theWeights)
+        })
+
         return error;
     }
 
@@ -109,7 +113,7 @@ class NeuralNetworkTest extends Component {
             let prediction = this._neuralNetwork.feedForward(randomPoint);
             let theDataSet = null;
 
-            if (prediction[0] <= 0.50) {
+            if (prediction[0] < prediction[1]) {
                 theDataSet = dataOutOfRange;
             } else {
                 theDataSet = dataInRange;
@@ -135,11 +139,11 @@ class NeuralNetworkTest extends Component {
 
         data.forEach(function (point) {
             if (inRange) {
-                if (point.x >= 0 && point.y >= 0) {
+                if (point.x >= 2 && point.y >= 2) {
                     numCorrect++;
                 }
             } else {
-                if (!(point.x >= 0 && point.y >= 0)) {
+                if (!(point.x >= 2 && point.y >= 2)) {
                     numCorrect++;
                 }
             }
@@ -150,7 +154,7 @@ class NeuralNetworkTest extends Component {
 
     getStyle(point, inRange=true) {
         if (inRange) {
-            if (point.x >= 0 && point.y >= 0) {
+            if (point.x >= 2 && point.y >= 2) {
                 return {
                     color: "black"
                 };
@@ -160,7 +164,7 @@ class NeuralNetworkTest extends Component {
                 };
             }
         } else {
-            if (point.x >= 0 && point.y >= 0) {
+            if (point.x >= 2 && point.y >= 2) {
                 return {
                     color: "red"
                 };
@@ -186,7 +190,7 @@ class NeuralNetworkTest extends Component {
                     {point.y}
                 </td>
                 <td style={{textAlign: "left", border: "solid 1px black"}}>
-                    {point.prediction[0]}
+                    {point.prediction[0]}, {point.prediction[1]}
                 </td>
             </tr>);
 
@@ -224,7 +228,7 @@ class NeuralNetworkTest extends Component {
         let percentCorrect = (numCorrect / length) * 100;
 
         return (<div>
-            Out of Range:&nbsp;{numCorrect}&nbsp;/&nbsp;{length}&nbsp;=&nbsp;{percentCorrect}&nbsp;%
+            {title}:&nbsp;{numCorrect}&nbsp;/&nbsp;{length}&nbsp;=&nbsp;{percentCorrect}&nbsp;%
         </div>);
     }
 
@@ -234,14 +238,28 @@ class NeuralNetworkTest extends Component {
      */
     render() {
         return (<div className="NeuralNetworkTest">
+            <h4 style={{textAlign: "center"}}>
+                x >= 2 and y >= 2 should be green.  All other points should be red.
+            </h4>
             <div className="NeuralNetworkTestChart">
-                <ScatterChart width={640} height={640} margin={{top: 40, right: 40, left: 40, bottom: 40}} >
-                    <XAxis dataKey={'x'} allowDecimals={false} type="number" />
-                    <YAxis dataKey={'y'} allowDecimals={false} />
-                    <Scatter name='Out of Range' data={this.state.dataOutOfRange} fill='red' />
-                    <Scatter name='In Range' data={this.state.dataInRange} fill='green' />
-                    <CartesianGrid />
-                </ScatterChart>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <ScatterChart width={600} height={600} margin={{top: 25, right: 25, left: 25, bottom: 25}} >
+                                    <XAxis dataKey={'x'} allowDecimals={false} type="number" />
+                                    <YAxis dataKey={'y'} allowDecimals={false} />
+                                    <Scatter name='Out of Range' data={this.state.dataOutOfRange} fill='red' />
+                                    <Scatter name='In Range' data={this.state.dataInRange} fill='green' />
+                                    <CartesianGrid />
+                                </ScatterChart>
+                            </td>
+                            <td>
+                                <textarea cols={30} rows={25} defaultValue={this.state.weights}></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div>
                 <div>
