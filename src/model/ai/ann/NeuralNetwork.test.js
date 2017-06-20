@@ -107,3 +107,38 @@ it ("convergence test", () => {
     let error = Math.abs(expectedOutput[0] - lastOutput[0]);
     expect(error).toBeLessThan(0.001);
 });
+
+it ("convergence test with bias term", () => {
+    // SETUP
+    let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.sigmoid, 1.0);
+    nn.setWeights([
+        [
+            [0.1, 0.8, 0.01],
+            [0.4, 0.6, 0.01]
+        ], // LAYER 0
+        [
+            [0.3, 0.9, 0.01]
+        ] // LAYER 1
+    ]);
+    let input = [0.35, 0.9];
+    let expectedOutput = [0.5];
+    let lastOutput = null;
+
+    // CALL
+    for (let i = 0; i < 100; i++) {
+        lastOutput = nn.feedForward(input);
+        nn.backPropagate(expectedOutput);
+    }
+
+    // ASSERT
+    let error = Math.abs(expectedOutput[0] - lastOutput[0]);
+    // console.log(`error = ${error}`);
+    expect(error).toBeLessThan(0.001);
+
+    nn.iterateOverNodes(function (node) {
+        expect(node.weights.length).toBeGreaterThan(2);
+        let biasWeight = node.weights[node.weights.length - 1];
+        expect(biasWeight !== 0.01).toBe(true);
+        // console.log(`biasWeight = ${biasWeight}`);
+    });
+});

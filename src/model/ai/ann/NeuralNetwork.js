@@ -1,6 +1,7 @@
 import NeuralNetworkNode from "./NeuralNetworkNode";
 import ActivationFunctions from "./ActivationFunctions";
-import { assert } from "../../../utils/Assert";
+// import { assert } from "../../../utils/Assert";
+import math from "../../../../node_modules/mathjs/dist/math";
 
 class NeuralNetwork {
 
@@ -14,8 +15,9 @@ class NeuralNetwork {
         this._learningRate = learningRate;
         this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias, activationFunction, learningRate);
         this._output = null;
-        this._feedForwardEpoch = 0;
         this._backPropagateEpoch = 0;
+        this._totalError = 0;
+
     }
 
     setWeights(weights) {
@@ -51,8 +53,6 @@ class NeuralNetwork {
 
     feedForward(input) {
 
-        assert (this._feedForwardEpoch === this._backPropagateEpoch, "You must feedForward then backprop");
-
         let prevLayerOutput = input;
 
         this._nodes.forEach(function (layer) {
@@ -67,21 +67,19 @@ class NeuralNetwork {
         });
 
         this._output = prevLayerOutput;
-        this._feedForwardEpoch++;
 
         return this._output;
     }
 
     /**
      * This should be used to backPropagate which makes the NN learn.
+     * TODO: Make this work with the hidden bias term.
      *
      * @param expectedOutputs An array representing what the actual value of the Neural Network should be.
      */
     backPropagate(expectedOutputs) {
 
-        assert ((this._backPropagateEpoch + 1) === this._feedForwardEpoch,
-            "You are calling backProp and feedForward out of sync");
-
+        this._totalError = 0;
         let lastLayerIndex = (this._nodes.length - 1);
 
         // This is the error for each node in the next layer.
@@ -94,44 +92,76 @@ class NeuralNetwork {
 
         for (let layerIndex = lastLayerIndex; layerIndex >= 0; layerIndex--) {
             thisLayerErrors = [];
+            thisOutgoingWeights = [];
 
             for (let nodeIndex = 0; nodeIndex < this._nodes[layerIndex].length; nodeIndex++) {
                 let node = this._nodes[layerIndex][nodeIndex];
 
+                // This updates the weights of the node
                 if (layerIndex === lastLayerIndex) {
                     thisLayerErrors[nodeIndex] = node.backPropagateOutputNode(expectedOutputs[nodeIndex]);
                 } else {
                     thisLayerErrors[nodeIndex] = node.backPropagateHiddenNode(nextLayerErrors,
                         nextOutgoingWeights[nodeIndex]);
                 }
-            }
 
-            let prevLayerIndex = layerIndex - 1;
-            thisOutgoingWeights = [];
+                // This consolidates the weights into outgoing weights of the previous layer
+                for (let prevNodeIndex = 0; prevNodeIndex < node.weights.length; prevNodeIndex++) {
 
-            if (prevLayerIndex >= 0) {
-                // TODO: There may be a more efficient way of doing this by storing the weights in a graph structure
-                //       so you wouldn't need to do this extra looping
-                for (let prevNodeIndex = 0; prevNodeIndex < this._nodes[prevLayerIndex].length; prevNodeIndex++) {
-                    thisOutgoingWeights[prevNodeIndex] = [];
-
-                    for (let nextNodeIndex = 0; nextNodeIndex < this._nodes[layerIndex].length; nextNodeIndex++) {
-                        let nextNode = this._nodes[layerIndex][nextNodeIndex];
-
-                        thisOutgoingWeights[prevNodeIndex][nextNodeIndex] = nextNode.weights[prevNodeIndex];
+                    if (!thisOutgoingWeights[prevNodeIndex]) {
+                        thisOutgoingWeights[prevNodeIndex] = [];
                     }
+
+                    thisOutgoingWeights[prevNodeIndex][nodeIndex] = node.weights[prevNodeIndex];
                 }
             }
 
+            // let prevLayerIndex = layerIndex - 1;
+            // thisOutgoingWeights = [];
+            //
+            // if (prevLayerIndex >= 0) {
+            //     // TODO: There may be a more efficient way of doing this by storing the weights in a graph structure
+            //     //       so you wouldn't need to do this extra looping
+            //     for (let prevNodeIndex = 0; prevNodeIndex < this._nodes[prevLayerIndex].length; prevNodeIndex++) {
+            //         thisOutgoingWeights[prevNodeIndex] = [];
+            //
+            //         for (let nextNodeIndex = 0; nextNodeIndex < this._nodes[layerIndex].length; nextNodeIndex++) {
+            //             let nextNode = this._nodes[layerIndex][nextNodeIndex];
+            //
+            //             thisOutgoingWeights[prevNodeIndex][nextNodeIndex] = nextNode.weights[prevNodeIndex];
+            //         }
+            //     }
+            // }
+
             nextOutgoingWeights = thisOutgoingWeights;
             nextLayerErrors = thisLayerErrors;
+
+            this._totalError += math.sum(math.abs(nextLayerErrors));
         }
 
         this._backPropagateEpoch++;
+        return this._totalError;
     }
 
-    get epoch() {
-        return this._feedForwardEpoch;
+    get epochs() {
+        return this._backPropagateEpoch;
+    }
+
+    get totalError() {
+        return this._totalError;
+    }
+
+    /**
+     * Iterates over all the nodes.
+     *
+     * @param theFunction Function with the following signature theFunction(node, nodeIndex, layerIndex);
+     */
+    iterateOverNodes(theFunction) {
+        this._nodes.forEach(function (layer, layerIndex) {
+            layer.forEach(function (node, nodeIndex) {
+                theFunction (node, nodeIndex, layerIndex);
+            });
+        });
     }
 }
 

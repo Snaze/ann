@@ -16,7 +16,6 @@ class NeuralNetworkNode {
         this._error = null;
         this._learningRate = 1.0;
         this._previousValues = null;
-        this._feedForwardStep = true;
 
         if (includeBias) {
             this._numWeights++;
@@ -75,7 +74,6 @@ class NeuralNetworkNode {
     }
 
     feedForward(nodeValues) {
-        assert (this._feedForwardStep, "You are calling feedforward out of order");
 
         if (this.includeBias && (nodeValues.length + 1) === this.weights.length) {
             nodeValues.push(1.0);
@@ -88,14 +86,11 @@ class NeuralNetworkNode {
         this._output = this._activationFunction.output(dotProduct);
         this._previousValues = nodeValues;
 
-        this._feedForwardStep = false;
-
         return this._output;
     }
 
     backPropagateOutputNode(targetValue) {
 
-        assert (!this._feedForwardStep, "You are calling backPropagateOutputNode out of order");
         assert (!this.includeBias || this._previousValues[this._previousValues.length - 1] === 1.0);
         assert (this._previousValues.length === this.weights.length, "Weight length and node length need to match");
 
@@ -108,8 +103,6 @@ class NeuralNetworkNode {
                 .add(this._weights[i])
                 .done();
         }
-
-        this._feedForwardStep = true;
 
         return this._error;
     }
@@ -125,7 +118,6 @@ class NeuralNetworkNode {
      */
     backPropagateHiddenNode(nextLayerErrors, outgoingWeights) {
 
-        assert (!this._feedForwardStep, "You are calling backPropagateHiddenNode out of order");
         assert (!this.includeBias || this._previousValues[this._previousValues.length - 1] === 1.0);
         assert (this._previousValues.length === this.weights.length, "Weight length and node length need to match");
 
@@ -137,8 +129,6 @@ class NeuralNetworkNode {
                 .add(this._weights[i])
                 .done();
         }
-
-        this._feedForwardStep = true;
 
         return this._error;
     }
