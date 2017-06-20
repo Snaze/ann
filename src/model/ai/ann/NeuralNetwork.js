@@ -4,11 +4,15 @@ import { assert } from "../../../utils/Assert";
 
 class NeuralNetwork {
 
-    constructor(nodesPerLayer, includeBias=true, activationFunction=ActivationFunctions.sigmoid) {
+    constructor(nodesPerLayer,
+                includeBias=true,
+                activationFunction=ActivationFunctions.sigmoid,
+                learningRate=1.0) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
-        this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias, activationFunction);
+        this._learningRate = learningRate;
+        this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias, activationFunction, learningRate);
         this._output = null;
         this._feedForwardEpoch = 0;
         this._backPropagateEpoch = 0;
@@ -22,7 +26,7 @@ class NeuralNetwork {
         }.bind(this));
     }
 
-    static createNodes(nodesPerLayer, includeBias, activationFunction) {
+    static createNodes(nodesPerLayer, includeBias, activationFunction, learningRate) {
 
         let toRet = [];
         let layerNum = 0;
@@ -33,7 +37,9 @@ class NeuralNetwork {
             toRet[layerNum] = [];
 
             for (let nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
-                toRet[layerNum][nodeIndex] = new NeuralNetworkNode(prevNumNodes, includeBias, activationFunction);
+                let toSet = new NeuralNetworkNode(prevNumNodes, includeBias, activationFunction);
+                toSet.learningRate = learningRate;
+                toRet[layerNum][nodeIndex] = toSet;
             }
 
             layerNum++;

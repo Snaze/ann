@@ -13,7 +13,7 @@ it ("createNodes works", () => {
     // SETUP
 
     // CALL
-    let toCheck = NeuralNetwork.createNodes([2, 1], false, ActivationFunctions.sigmoid);
+    let toCheck = NeuralNetwork.createNodes([2, 1], false, ActivationFunctions.sigmoid, 1.0);
 
     // ASSERT
     expect(toCheck.length).toBe(2);
@@ -79,4 +79,31 @@ it ("backpropagate test", () => {
     // than the paper (so hopefully this is more accurate).
     expect(Math.ceil(oldError * 100) / 100).toBe(-0.19);
     expect(Math.ceil(newError * 1000) / 1000).toBe(-0.182);
+});
+
+it ("convergence test", () => {
+    // SETUP
+    let nn = new NeuralNetwork([2, 1], false, ActivationFunctions.sigmoid, 1.0);
+    nn.setWeights([
+        [
+            [0.1, 0.8],
+            [0.4, 0.6]
+        ], // LAYER 0
+        [
+            [0.3, 0.9]
+        ] // LAYER 1
+    ]);
+    let input = [0.35, 0.9];
+    let expectedOutput = [0.5];
+    let lastOutput = null;
+
+    // CALL
+    for (let i = 0; i < 100; i++) {
+        lastOutput = nn.feedForward(input);
+        nn.backPropagate(expectedOutput);
+    }
+
+    // ASSERT
+    let error = Math.abs(expectedOutput[0] - lastOutput[0]);
+    expect(error).toBeLessThan(0.001);
 });
