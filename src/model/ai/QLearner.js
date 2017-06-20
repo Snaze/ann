@@ -1,7 +1,7 @@
 import math from "../../../node_modules/mathjs/dist/math";
 
 class QLearner {
-    constructor(numStates, numActions=4, alpha=0.2, gamma=0.9, rar=0.98, radr=0.9999, verbose=true) {
+    constructor(numStates, numActions=4, alpha=0.2, gamma=0.9, rar=0.98, radr=0.9999, verbose=false) {
         this._numStates = numStates;
         this._numActions = numActions;
         this._alpha = alpha;
