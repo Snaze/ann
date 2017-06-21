@@ -17,17 +17,18 @@ class NeuralNetworkTest extends Component {
 
         this._neuralNetwork = new NeuralNetwork([2, 3, 2],
             true,
-            ActivationFunctions.sigmoid,
+            ActivationFunctions.tanh,
             0.075);
 
-        this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
+        // this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
 
         this.state = {
             epochs: 0,
             error: 1000000,
             dataOutOfRange: [],
             dataInRange: [],
-            weights: JSON.stringify(this._neuralNetwork.getWeights())
+            // weights: JSON.stringify(this._neuralNetwork.getWeights())
+            weights: ""
         };
     }
 
@@ -82,7 +83,7 @@ class NeuralNetworkTest extends Component {
     trainNetwork() {
         let error = Number.POSITIVE_INFINITY;
 
-        while (error > 10e-7) {
+        for (let i = 0; i < 225; i++) {
             let randomPoint1 = NeuralNetworkTest.getRandomPoint(2, 10, 2, 10);
             let randomPoint2 = NeuralNetworkTest.getRandomPoint(2, 10, -10, 1.999);
             let randomPoint3 = NeuralNetworkTest.getRandomPoint(-10, 1.999, -10, 1.999);
@@ -98,7 +99,7 @@ class NeuralNetworkTest extends Component {
 
         this.setState({
             weights: JSON.stringify(theWeights)
-        })
+        });
 
         return error;
     }

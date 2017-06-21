@@ -1,5 +1,8 @@
 import math from "../../../../node_modules/mathjs/dist/math";
 
+/**
+ * https://theclevermachine.wordpress.com/2014/09/08/derivation-derivatives-for-common-neural-network-activation-functions/
+ */
 class ActivationFunctions {
 
     static get sigmoid() {
@@ -25,6 +28,41 @@ class ActivationFunctions {
                     .multiply(currentNodeOutputValue)
                     .multiply(math.dot(nextLayerErrors, nextNodeWeights))
                     .done();
+            }
+        };
+    }
+
+    static get tanh() {
+        return {
+            output: function (x) {
+                let numerator = math.chain(math.pow(math.e, x)).subtract(math.pow(math.e, -x)).done();
+                let denominator = math.chain(math.pow(math.e, x)).add(math.pow(math.e, -x)).done();
+                return math.chain(numerator).divide(denominator).done();
+            },
+            outputError: function (targetValue, outputValue) {
+                return math.chain(math.subtract(targetValue, outputValue))
+                    .multiply(math.subtract(1.0, math.pow(outputValue, 2)))
+                    .done();
+            },
+
+            /**
+             * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
+             * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
+             * @param currentNodeOutputValue The output value of the current node.
+             * @returns {Number} Error of this node.
+             */
+            hiddenError: function (nextLayerErrors, nextNodeWeights, currentNodeOutputValue) {
+                try {
+                    return math.chain(1.0).subtract(math.pow(currentNodeOutputValue, 2))
+                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
+                        .done();
+                } catch (e) {
+                    if (!!console) {
+                        console.log(e);
+                    }
+                }
+
+                return 0;
             }
         };
     }

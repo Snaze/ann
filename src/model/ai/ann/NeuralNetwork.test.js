@@ -41,12 +41,13 @@ it ("feedforward test", () => {
     let input = [0.35, 0.9];
 
     // CALL
-    let output = nn.feedForward(input);
+    let output = nn.feedForward([input]);
 
     // ASSERT
     expect(output !== null).toBe(true);
     expect(output.length === 1).toBe(true);
-    expect(Math.floor(output[0] * 100.0) / 100.0).toBe(0.69);
+    expect(output[0].length === 1).toBe(true);
+    expect(output[0][0]).toBeCloseTo(0.69);
 });
 
 it ("backpropagate test", () => {
@@ -62,14 +63,14 @@ it ("backpropagate test", () => {
         ] // LAYER 1
     ]);
     let input = [0.35, 0.9];
-    let output = nn.feedForward(input);
-    let expectedOutput = [0.5];
-    let oldError = (expectedOutput[0] - output[0]);
+    let output = nn.feedForward([input]);
+    let expectedOutput = [[0.5]];
+    let oldError = (expectedOutput[0][0] - output[0][0]);
 
     // CALL
     nn.backPropagate(expectedOutput);
-    let newOutput = nn.feedForward(input);
-    let newError = (expectedOutput[0] - newOutput[0]);
+    let newOutput = nn.feedForward([input]);
+    let newError = (expectedOutput[0][0] - newOutput[0][0]);
 
     // ASSERT
     expect(Math.abs(oldError) > Math.abs(newError)).toBe(true);
@@ -77,8 +78,8 @@ it ("backpropagate test", () => {
     // These are close enough.  They don't exactly match the paper
     // because the error metric we calculated has more precision
     // than the paper (so hopefully this is more accurate).
-    expect(Math.ceil(oldError * 100) / 100).toBe(-0.19);
-    expect(Math.ceil(newError * 1000) / 1000).toBe(-0.182);
+    expect(oldError).toBeCloseTo(-0.19);
+    expect(newError).toBeCloseTo(-0.182);
 });
 
 it ("convergence test", () => {
@@ -94,23 +95,21 @@ it ("convergence test", () => {
         ] // LAYER 1
     ]);
     let input = [0.35, 0.9];
-    let expectedOutput = [0.5];
+    let expectedOutput = [[0.5]];
     let lastOutput = null;
 
     // CALL
     for (let i = 0; i < 100; i++) {
-        lastOutput = nn.feedForward(input);
+        lastOutput = nn.feedForward([input]);
         nn.backPropagate(expectedOutput);
     }
 
     // ASSERT
-    let error = Math.abs(expectedOutput[0] - lastOutput[0]);
+    let error = Math.abs(expectedOutput[0][0] - lastOutput[0][0]);
     expect(error).toBeLessThan(0.001);
 });
 
-it ("convergence test with bias term", () => {
-    // SETUP
-    let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.sigmoid, 1.0);
+const convergenceTestWithBiasTerm = function (nn) {
     nn.setWeights([
         [
             [0.1, 0.8, 0.01],
@@ -120,8 +119,8 @@ it ("convergence test with bias term", () => {
             [0.3, 0.9, 0.01]
         ] // LAYER 1
     ]);
-    let input = [0.35, 0.9];
-    let expectedOutput = [0.5];
+    let input = [[0.35, 0.9]];
+    let expectedOutput = [[0.5]];
     let lastOutput = null;
 
     // CALL
@@ -131,7 +130,7 @@ it ("convergence test with bias term", () => {
     }
 
     // ASSERT
-    let error = Math.abs(expectedOutput[0] - lastOutput[0]);
+    let error = Math.abs(expectedOutput[0][0] - lastOutput[0][0]);
     // console.log(`error = ${error}`);
     expect(error).toBeLessThan(0.001);
 
@@ -141,4 +140,18 @@ it ("convergence test with bias term", () => {
         expect(biasWeight !== 0.01).toBe(true);
         // console.log(`biasWeight = ${biasWeight}`);
     });
+};
+
+it ("convergence test with bias term", () => {
+    // SETUP
+    let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.sigmoid, 1.0);
+
+    convergenceTestWithBiasTerm(nn);
+});
+
+it ("convergence test with bias term with tanh", () => {
+    // SETUP
+    let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.tanh, 1.0);
+
+    convergenceTestWithBiasTerm(nn);
 });

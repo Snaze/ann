@@ -2,6 +2,7 @@ import NeuralNetworkNode from "./NeuralNetworkNode";
 import ActivationFunctions from "./ActivationFunctions";
 // import { assert } from "../../../utils/Assert";
 import math from "../../../../node_modules/mathjs/dist/math";
+import Array2D from "../../../../node_modules/array2d/dist/Array2D.min";
 
 class NeuralNetwork {
 
@@ -65,20 +66,25 @@ class NeuralNetwork {
         return toRet;
     }
 
-    feedForward(input) {
+    feedForward(inputMiniBatch) {
 
-        let prevLayerOutput = input;
+        let prevLayerOutput = inputMiniBatch;
+        let layer = null;
+        let node = null;
+        let layerOutput = null;
 
-        this._nodes.forEach(function (layer) {
+        for (let layerIndex = 0; layerIndex < this._nodes.length; layerIndex++) {
+            layer = this._nodes[layerIndex];
+            layerOutput = [];
 
-            let layerOutput = [];
+            for (let nodeIndex = 0; nodeIndex < layer.length; nodeIndex++) {
+                node = layer[nodeIndex];
 
-            layer.forEach(function (node, nodeIndex) {
                 layerOutput[nodeIndex] = node.feedForward(prevLayerOutput);
-            });
+            }
 
-            prevLayerOutput = layerOutput;
-        });
+            prevLayerOutput = Array2D.transpose(layerOutput);
+        }
 
         this._output = prevLayerOutput;
 
@@ -87,7 +93,6 @@ class NeuralNetwork {
 
     /**
      * This should be used to backPropagate which makes the NN learn.
-     * TODO: Make this work with the hidden bias term.
      *
      * @param expectedOutputs An array representing what the actual value of the Neural Network should be.
      */
@@ -130,27 +135,10 @@ class NeuralNetwork {
                 }
             }
 
-            // let prevLayerIndex = layerIndex - 1;
-            // thisOutgoingWeights = [];
-            //
-            // if (prevLayerIndex >= 0) {
-            //     // TODO: There may be a more efficient way of doing this by storing the weights in a graph structure
-            //     //       so you wouldn't need to do this extra looping
-            //     for (let prevNodeIndex = 0; prevNodeIndex < this._nodes[prevLayerIndex].length; prevNodeIndex++) {
-            //         thisOutgoingWeights[prevNodeIndex] = [];
-            //
-            //         for (let nextNodeIndex = 0; nextNodeIndex < this._nodes[layerIndex].length; nextNodeIndex++) {
-            //             let nextNode = this._nodes[layerIndex][nextNodeIndex];
-            //
-            //             thisOutgoingWeights[prevNodeIndex][nextNodeIndex] = nextNode.weights[prevNodeIndex];
-            //         }
-            //     }
-            // }
-
             nextOutgoingWeights = thisOutgoingWeights;
-            nextLayerErrors = thisLayerErrors;
+            nextLayerErrors = Array2D.transpose(thisLayerErrors);
 
-            this._totalError += math.sum(math.abs(nextLayerErrors));
+            this._totalError += math.sum(math.mean(math.abs(nextLayerErrors), 0));
         }
 
         this._backPropagateEpoch++;
