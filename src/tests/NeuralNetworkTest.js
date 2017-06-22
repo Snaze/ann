@@ -16,9 +16,11 @@ class NeuralNetworkTest extends Component {
     constructor(props) {
         super(props);
 
+        this._activationFunction = ActivationFunctions.tanh;
+
         this._neuralNetwork = new NeuralNetwork([2, 2],
             true,
-            ActivationFunctions.sigmoid,
+            this._activationFunction,
             0.2);
 
         // this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
@@ -57,12 +59,23 @@ class NeuralNetworkTest extends Component {
         return toRet;
     }
 
-    static getExpectedValue(point) {
-        if (point[0] >= 2 && point[1] >= 2) {
-            return [1.0, 0.0];
-        }
+    getExpectedValue(point) {
 
-        return [0.0, 1.0];
+        if (this._activationFunction === ActivationFunctions.sigmoid) {
+            if (point[0] >= 2 && point[1] >= 2) {
+                return [1.0, 0.0];
+            }
+
+            return [0.0, 1.0];
+        } else if (this._activationFunction === ActivationFunctions.tanh) {
+            if (point[0] >= 2 && point[1] >= 2) {
+                return [1.0, -1.0];
+            }
+
+            return [-1.0, 1.0];
+        } else {
+            throw new Error("Unknown activation function");
+        }
     }
 
     /**
@@ -90,13 +103,13 @@ class NeuralNetworkTest extends Component {
             let randomPoint4 = NeuralNetworkTest.getRandomPoint(-10, 1.999, 2, 10);
 
             inputs.push(randomPoint1);
-            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint1));
+            expected.push(this.getExpectedValue(randomPoint1));
             inputs.push(randomPoint2);
-            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint2));
+            expected.push(this.getExpectedValue(randomPoint2));
             inputs.push(randomPoint3);
-            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint3));
+            expected.push(this.getExpectedValue(randomPoint3));
             inputs.push(randomPoint4);
-            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint4));
+            expected.push(this.getExpectedValue(randomPoint4));
         }
 
         let range = ArrayUtils.range(inputs.length);

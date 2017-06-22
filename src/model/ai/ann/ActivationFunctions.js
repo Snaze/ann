@@ -5,59 +5,70 @@ import math from "../../../../node_modules/mathjs/dist/math";
  */
 class ActivationFunctions {
 
+    static _sigmoid = null;
     static get sigmoid() {
-        return {
-            output: function (x) {
-                return math.chain(math.e).pow(math.multiply(-1, x)).add(1.0).inv().done();
-            },
-            outputError: function (targetValue, outputValue) {
-                // let outMinusTarget = math.subtract(outputValue, targetValue);
-                let targetMinusOutput = math.subtract(targetValue, outputValue);
-                let sigmoidChange = math.multiply(math.subtract(1.0, outputValue), outputValue);
+        if (ActivationFunctions._sigmoid === null) {
+            ActivationFunctions._sigmoid = {
+                output: function (x) {
+                    return math.chain(math.e).pow(math.multiply(-1, x)).add(1.0).inv().done();
+                },
+                outputError: function (targetValue, outputValue) {
+                    // let outMinusTarget = math.subtract(outputValue, targetValue);
+                    let targetMinusOutput = math.subtract(targetValue, outputValue);
+                    let sigmoidChange = math.multiply(math.subtract(1.0, outputValue), outputValue);
 
-                return math.multiply(targetMinusOutput, sigmoidChange);
-            },
+                    return math.multiply(targetMinusOutput, sigmoidChange);
+                },
 
-            /**
-             * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
-             * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
-             * @param currentNodeOutputValue The output value of the current node.
-             * @returns {Number} Error of this node.
-             */
-            hiddenError: function (nextLayerErrors, nextNodeWeights, currentNodeOutputValue) {
-                return math.chain(1.0).subtract(currentNodeOutputValue)
-                    .multiply(currentNodeOutputValue)
-                    .multiply(math.dot(nextLayerErrors, nextNodeWeights))
-                    .done();
-            }
-        };
+                /**
+                 * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
+                 * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
+                 * @param currentNodeOutputValue The output value of the current node.
+                 * @returns {Number} Error of this node.
+                 */
+                hiddenError: function (nextLayerErrors, nextNodeWeights, currentNodeOutputValue) {
+                    return math.chain(1.0).subtract(currentNodeOutputValue)
+                        .multiply(currentNodeOutputValue)
+                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
+                        .done();
+                }
+            };
+        }
+
+        return ActivationFunctions._sigmoid;
     }
 
+    static _tanh = null;
     static get tanh() {
-        return {
-            output: function (x) {
-                let numerator = math.chain(math.pow(math.e, x)).subtract(math.pow(math.e, -x)).done();
-                let denominator = math.chain(math.pow(math.e, x)).add(math.pow(math.e, -x)).done();
-                return math.chain(numerator).divide(denominator).done();
-            },
-            outputError: function (targetValue, outputValue) {
-                return math.chain(math.subtract(targetValue, outputValue))
-                    .multiply(math.subtract(1.0, math.pow(outputValue, 2)))
-                    .done();
-            },
+        if (ActivationFunctions._tanh === null) {
+            ActivationFunctions._tanh = {
+                output: function (x) {
+                    let numerator = math.subtract(1, math.pow(math.e, math.multiply(-2, x)));
+                    let denominator = math.add(1, math.pow(math.e, math.multiply(-2, x)));
+                    return math.divide(numerator, denominator);
+                },
+                outputError: function (targetValue, outputValue) {
+                    let targetMinusOutput = math.subtract(targetValue, outputValue);
+                    let tanhChange = math.subtract(1.0, math.pow(outputValue, 2));
 
-            /**
-             * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
-             * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
-             * @param outputValue The output value of the current node.
-             * @returns {Number} Error of this node.
-             */
-            hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
-                return math.chain(math.subtract(1.0, math.pow(outputValue, 2)))
-                    .multiply(math.dot(nextLayerErrors, nextNodeWeights))
-                    .done();
-            }
-        };
+                    return math.multiply(targetMinusOutput, tanhChange);
+                },
+
+                /**
+                 * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
+                 * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
+                 * @param outputValue The output value of the current node.
+                 * @returns {Number} Error of this node.
+                 */
+                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
+                    return math.chain(math.subtract(1.0, math.pow(outputValue, 2)))
+                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
+                        .done();
+                }
+            };
+        }
+
+        return ActivationFunctions._tanh;
     }
 
 }
