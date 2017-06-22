@@ -1,7 +1,7 @@
-import MathUtil from "../MathUtil";
 import { assert } from "../../../utils/Assert";
 import ActivationFunctions from "./ActivationFunctions";
 import math from "../../../../node_modules/mathjs/dist/math";
+import ArrayUtils from "../../../utils/ArrayUtils";
 
 class NeuralNetworkNode {
 
@@ -22,6 +22,7 @@ class NeuralNetworkNode {
         }
 
         this._weights = NeuralNetworkNode.createRandomWeights(this._numWeights);
+        this._prevWeights = this._weights.slice(0);
         this._weightDeltas = NeuralNetworkNode.createArrayWithValue(this._numWeights, 0);
     }
 
@@ -30,11 +31,9 @@ class NeuralNetworkNode {
         let toRet = [];
 
         for (let y = 0; y < height; y++) {
-
             toRet[y] = [];
 
             for (let x = 0; x < width; x++) {
-
                 toRet[y][x] = value;
             }
         }
@@ -53,7 +52,8 @@ class NeuralNetworkNode {
         let toRet = [];
 
         for (let i = 0; i < numToCreate; i++) {
-            toRet.push(MathUtil.getRandomArbitrary(-1.0, 1.0));
+            let randomWeight = math.floor(math.random() * numToCreate) / math.sqrt(numToCreate);
+            toRet.push(randomWeight);
             // toRet.push(0);
         }
 
@@ -72,6 +72,10 @@ class NeuralNetworkNode {
         assert (value.length === this._numWeights);
 
         this._weights = value;
+    }
+
+    get prevWeights() {
+        return this._prevWeights;
     }
 
     get includeBias() {
@@ -100,6 +104,10 @@ class NeuralNetworkNode {
 
     set learningRate(value) {
         this._learningRate = value;
+    }
+
+    static calculateError(expected, actual) {
+        return math.chain(0.5).multiply(math.pow(math.subtract(expected, actual),2)).done();
     }
 
     /**
@@ -175,6 +183,8 @@ class NeuralNetworkNode {
         }
 
         this._weightDeltas = math.mean(allWeightDeltas, 0);
+
+        ArrayUtils.copyInto(this._weights, this._prevWeights);
         this._weights = math.add(this._weights, this._weightDeltas);
         // this._error = math.mean(errorArray, 0);
         this._error = errorArray;
@@ -227,6 +237,7 @@ class NeuralNetworkNode {
         }
 
         this._weightDeltas = math.mean(allWeightDeltas, 0);
+        ArrayUtils.copyInto(this._weights, this._prevWeights);
         this._weights = math.add(this._weights, this._weightDeltas);
         this._error = errorArray;
 

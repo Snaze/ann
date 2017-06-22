@@ -53,3 +53,126 @@ it ("backPropagateHiddenNode works", () => {
     expect(nnn.weights[0]).toBeCloseTo(0.09916, 5);
     expect(nnn.weights[1]).toBeCloseTo(0.7978, 4);
 });
+
+const testFeedForward = function (weights, inputs, output) {
+    // SETUP
+    let nnn = new NeuralNetworkNode(2, true, ActivationFunctions.sigmoid);
+    nnn.weights = weights;
+
+    // CALL
+    let forwardPass = nnn.feedForward([inputs]);
+
+    // ASSERT
+    expect(forwardPass[0]).toBeCloseTo(output);
+
+    return forwardPass;
+};
+
+it ("test forwardPropagation again - node 1", () => {
+    let weights = [0.15, 0.2, 0.35];
+    let inputs = [0.05, 0.1, 1.0];
+    let expectedResult = 0.593269992;
+
+    testFeedForward(weights, inputs, expectedResult);
+});
+
+it ("test forwardPropagation again - node 2", () => {
+    let weights = [0.25, 0.3, 0.35];
+    let inputs = [0.05, 0.1, 1.0];
+    let expectedResult = 0.596884378;
+
+    testFeedForward(weights, inputs, expectedResult);
+
+});
+
+it ("test forwardPropagation again - out 1", () => {
+    let weights = [0.4, 0.45, 0.6];
+    let inputs = [0.593269992, 0.596884378, 1.0];
+    let expectedResult = 0.75136;
+
+    let output = testFeedForward(weights, inputs, expectedResult);
+    let error = NeuralNetworkNode.calculateError(0.01, output[0]);
+    expect(error).toBeCloseTo(0.2748, 3);
+});
+
+it ("test forwardPropagation again - out 2", () => {
+    let weights = [0.5, 0.55, 0.6];
+    let inputs = [0.593269992, 0.596884378, 1.0];
+    let expectedResult = 0.77292;
+
+    let output = testFeedForward(weights, inputs, expectedResult);
+    let error = NeuralNetworkNode.calculateError(0.99, output[0]);
+    expect(error).toBeCloseTo(0.0235, 3);
+});
+
+const testBackPropOutput = function (oldWeights, learningRate, inputs, expectedOutput, newWeights) {
+    // SETUP
+    let nnn = new NeuralNetworkNode(2, true, ActivationFunctions.sigmoid);
+    nnn.weights = oldWeights;
+    nnn.learningRate = learningRate;
+    nnn.feedForward([inputs]);
+
+    // CALL
+    let toRet = nnn.backPropagateOutputNode([expectedOutput]);
+
+    // ASSERT
+    newWeights.forEach(function (weightValue, weightIndex) {
+        expect(nnn.weights[weightIndex]).toBeCloseTo(weightValue, 6);
+    });
+
+    return toRet;
+};
+
+const backPropOut1 = function () {
+    return testBackPropOutput([0.4, 0.45, 0.6], 0.5, [0.593269992, 0.596884378, 1.0], 0.01, [0.35891648, 0.408666186]);
+};
+
+const backPropOut2 = function () {
+    return testBackPropOutput([0.5, 0.55, 0.6], 0.5, [0.593269992, 0.596884378, 1.0], 0.99, [0.511301270, 0.561370121]);
+};
+
+it ("test backPropagation - out 1", () => {
+    backPropOut1();
+});
+
+it ("test backPropagation - out 2", () => {
+    backPropOut2();
+});
+
+const testBackPropHidden = function (oldWeights, learningRate,
+                                     inputs, nextLayersErrors,
+                                     outgoingWeights, newWeights) {
+    // SETUP
+    let nnn = new NeuralNetworkNode(2, true, ActivationFunctions.sigmoid);
+    nnn.weights = oldWeights;
+    nnn.learningRate = learningRate;
+    nnn.feedForward([inputs]);
+
+    // CALL
+    nnn.backPropagateHiddenNode([nextLayersErrors], outgoingWeights);
+
+    // ASSERT
+    newWeights.forEach(function (weightValue, weightIndex) {
+        expect(nnn.weights[weightIndex]).toBeCloseTo(weightValue, 6);
+    });
+};
+
+it ("test backPropagation - hidden 1", () => {
+    let error1 = backPropOut1();
+    let error2 = backPropOut2();
+    let nextLayersErrors = [error1[0], error2[0]];
+    let outgoingWeights = [0.40, 0.50];
+    let newWeights = [0.149780716, 0.19956143];
+
+    testBackPropHidden([0.15, 0.2, 0.35], 0.5, [0.05, 0.1, 1.0], nextLayersErrors, outgoingWeights, newWeights);
+});
+
+it ("test backPropagation - hidden 2", () => {
+    let error1 = backPropOut1();
+    let error2 = backPropOut2();
+    let nextLayersErrors = [error1[0], error2[0]];
+    let outgoingWeights = [0.45, 0.55];
+    let newWeights = [0.24975114, 0.29950229];
+
+    testBackPropHidden([0.25, 0.3, 0.35], 0.5, [0.05, 0.1, 1.0], nextLayersErrors, outgoingWeights, newWeights);
+});

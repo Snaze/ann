@@ -1,4 +1,5 @@
-
+import { assert } from "../../utils/Assert";
+import math from "../../../node_modules/mathjs/dist/math";
 
 class MathUtil {
 
@@ -20,6 +21,17 @@ class MathUtil {
         return Math.random() * (max - min) + min;
     }
 
+
+    static distance(array1, array2) {
+        assert (array1.length === array2.length);
+
+        let diffArray = math.subtract(array1, array2);
+        for (let i = 0; i < diffArray.length; i++) {
+            diffArray[i] = math.pow(diffArray[i], 2);
+        }
+        let sum = math.sum(diffArray);
+        return math.sqrt(sum);
+    }
 }
 
 export default MathUtil;

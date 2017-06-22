@@ -50,6 +50,32 @@ it ("feedforward test", () => {
     expect(output[0][0]).toBeCloseTo(0.69);
 });
 
+it ("feedforward test 2", () => {
+    // SETUP
+    let nn = new NeuralNetwork([2, 2], true, ActivationFunctions.sigmoid);
+    nn.setWeights([
+        [
+            [0.15, 0.2, 0.35],
+            [0.25, 0.3, 0.35]
+        ], // LAYER 0
+        [
+            [0.4, 0.45, 0.6],
+            [0.5, 0.55, 0.6]
+        ] // LAYER 1
+    ]);
+    let input = [0.05, 0.1, 1.0];
+
+    // CALL
+    let output = nn.feedForward([input]);
+
+    // ASSERT
+    expect(output !== null).toBe(true);
+    expect(output.length === 1).toBe(true);
+    expect(output[0].length === 2).toBe(true);
+    expect(output[0][0]).toBeCloseTo(0.75136);
+    expect(output[0][1]).toBeCloseTo(0.77292);
+});
+
 it ("backpropagate test", () => {
     // SETUP
     let nn = new NeuralNetwork([2, 1], false, ActivationFunctions.sigmoid);
@@ -80,6 +106,65 @@ it ("backpropagate test", () => {
     // than the paper (so hopefully this is more accurate).
     expect(oldError).toBeCloseTo(-0.19);
     expect(newError).toBeCloseTo(-0.182);
+});
+
+
+it ("backPropagate test 2", () => {
+    // SETUP
+    let nn = new NeuralNetwork([2, 2], true, ActivationFunctions.sigmoid, 0.5);
+    nn.setWeights([
+        [
+            [0.15, 0.2, 0.35],
+            [0.25, 0.3, 0.35]
+        ], // LAYER 0
+        [
+            [0.4, 0.45, 0.6],
+            [0.5, 0.55, 0.6]
+        ] // LAYER 1
+    ]);
+    let input = [0.05, 0.1, 1.0];
+    let output = nn.feedForward([input]);
+    expect(output !== null).toBe(true);
+    expect(output.length === 1).toBe(true);
+    expect(output[0].length === 2).toBe(true);
+    expect(output[0][0]).toBeCloseTo(0.75136);
+    expect(output[0][1]).toBeCloseTo(0.77292);
+
+    let expectedOutput = [[0.01, 0.99]];
+    let destWeights = [
+        [
+            [0.149780716, 0.19956143],
+            [0.24975114, 0.29950229]
+        ],
+        [
+            [0.35891648, 0.408666186],
+            [0.511301270, 0.561370121],
+        ]
+    ];
+
+    // CALL
+    nn.backPropagate(expectedOutput);
+
+    // ASSERT
+    let newWeights = nn.getWeights();
+    for (let layerIndex = 0; layerIndex < destWeights.length; layerIndex++) {
+        let layer = destWeights[layerIndex];
+
+        for (let nodeIndex = 0; nodeIndex < layer.length; nodeIndex++) {
+            let node = layer[nodeIndex];
+
+            for (let weightIndex = 0; weightIndex < node.length; weightIndex++) {
+                console.log(`layerIndex = ${layerIndex}`);
+                console.log(`nodeIndex = ${nodeIndex}`);
+                console.log(`weightIndex = ${weightIndex}`);
+
+                let newWeight = newWeights[layerIndex][nodeIndex][weightIndex];
+                let destWeight = destWeights[layerIndex][nodeIndex][weightIndex];
+                expect(newWeight).toBeCloseTo(destWeight, 8);
+            }
+        }
+    }
+
 });
 
 it ("convergence test", () => {
@@ -154,4 +239,72 @@ it ("convergence test with bias term with tanh", () => {
     let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.tanh, 1.0);
 
     convergenceTestWithBiasTerm(nn);
+});
+
+it ("normalize column works", () => {
+    // SETUP
+    let toNormalize = [1, 3, 5];
+    let stdDev = 2;
+
+    // CALL
+    let toCheck = new NeuralNetwork([2, 1]).normalizeColumn(toNormalize).data;
+
+    // ASSERT
+    expect(toCheck[0]).toBeCloseTo(-2.0/stdDev);
+    expect(toCheck[1]).toBeCloseTo(0);
+    expect(toCheck[2]).toBeCloseTo(2/stdDev);
+});
+
+it ("normalize works", () => {
+    // SETUP
+    let toNormalize = [[5, 10, 15],
+                       [10, 15, 20],
+                       [15, 20, 25]];
+    let stddev = 5;
+    let mean = [10, 15, 20];
+
+    // CALL
+    let result = new NeuralNetwork([2, 1]).normalize(toNormalize, true);
+
+    // console.log(result);
+
+    // ASSERT
+    for (let y = 0; y < result.length; y++) {
+
+        for (let x = 0; x < result[y].length; x++) {
+            let expectedValue = (toNormalize[y][x] - mean[x]) / stddev;
+            expect(result[y][x]).toBeCloseTo(expectedValue);
+        }
+    }
+});
+
+it ("train works", () => {
+    // SETUP
+    let nn = new NeuralNetwork([2, 1]);
+    let input = []; // [0.35, 0.9]
+    let expectedOutput = []; // [0.5]
+    let maxEpochs = 1000;
+    let error = 1e-3;
+
+    for (let i = 0; i < 1000; i++) {
+        input.push([0.35, 0.9]);
+        expectedOutput.push([0.5]);
+    }
+
+    // CALL
+    let maxError = nn.train(input, expectedOutput, 10, false, maxEpochs, error);
+    // let normedResult = nn.normalize();
+    let result = nn.feedForward([[0.35, 0.9]]);
+
+    // console.log(`epochs = ${nn.epochs}`);
+    // console.log(`maxError = ${maxError}`);
+    // console.log(`result[0][0] = ${result[0][0]}`);
+
+    // ASSERT
+    if (nn.epochs < maxEpochs) {
+        expect(maxError).toBeCloseTo(1e-3);
+    }
+
+    expect(result[0][0]).toBeCloseTo(0.5, 2);
+
 });

@@ -11,10 +11,11 @@ class ActivationFunctions {
                 return math.chain(math.e).pow(math.multiply(-1, x)).add(1.0).inv().done();
             },
             outputError: function (targetValue, outputValue) {
-                return math.chain(math.subtract(targetValue, outputValue))
-                    .multiply(math.subtract(1.0, outputValue))
-                    .multiply(outputValue)
-                    .done();
+                // let outMinusTarget = math.subtract(outputValue, targetValue);
+                let targetMinusOutput = math.subtract(targetValue, outputValue);
+                let sigmoidChange = math.multiply(math.subtract(1.0, outputValue), outputValue);
+
+                return math.multiply(targetMinusOutput, sigmoidChange);
             },
 
             /**
@@ -48,21 +49,13 @@ class ActivationFunctions {
             /**
              * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
              * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
-             * @param currentNodeOutputValue The output value of the current node.
+             * @param outputValue The output value of the current node.
              * @returns {Number} Error of this node.
              */
-            hiddenError: function (nextLayerErrors, nextNodeWeights, currentNodeOutputValue) {
-                try {
-                    return math.chain(1.0).subtract(math.pow(currentNodeOutputValue, 2))
-                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
-                        .done();
-                } catch (e) {
-                    if (!!console) {
-                        console.log(e);
-                    }
-                }
-
-                return 0;
+            hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
+                return math.chain(math.subtract(1.0, math.pow(outputValue, 2)))
+                    .multiply(math.dot(nextLayerErrors, nextNodeWeights))
+                    .done();
             }
         };
     }

@@ -4,6 +4,7 @@ import NeuralNetwork from "../model/ai/ann/NeuralNetwork";
 import MathUtil from "../model/ai/MathUtil";
 import "./NeuralNetworkTest.css";
 import ActivationFunctions from "../model/ai/ann/ActivationFunctions";
+import ArrayUtils from "../utils/ArrayUtils";
 // import {assert} from "../utils/Assert";
 
 class NeuralNetworkTest extends Component {
@@ -15,10 +16,10 @@ class NeuralNetworkTest extends Component {
     constructor(props) {
         super(props);
 
-        this._neuralNetwork = new NeuralNetwork([2, 3, 2],
+        this._neuralNetwork = new NeuralNetwork([2, 2],
             true,
-            ActivationFunctions.tanh,
-            0.075);
+            ActivationFunctions.sigmoid,
+            0.2);
 
         // this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
 
@@ -30,6 +31,9 @@ class NeuralNetworkTest extends Component {
             // weights: JSON.stringify(this._neuralNetwork.getWeights())
             weights: ""
         };
+
+        this._testData = {};
+        this._normalize = true;
     }
 
     static distance(predicted, expected) {
@@ -71,29 +75,42 @@ class NeuralNetworkTest extends Component {
             error = this.trainNetwork();
         }
 
-        this.createTestData(error);
-    }
-
-    trainIteration(randomPoint) {
-        let expected = NeuralNetworkTest.getExpectedValue(randomPoint);
-        this._neuralNetwork.feedForward(randomPoint);
-        return this._neuralNetwork.backPropagate(expected);
+        this.testData(error);
     }
 
     trainNetwork() {
         let error = Number.POSITIVE_INFINITY;
+        let inputs = [];
+        let expected = [];
 
-        for (let i = 0; i < 225; i++) {
+        for (let i = 0; i < 1000; i++) {
             let randomPoint1 = NeuralNetworkTest.getRandomPoint(2, 10, 2, 10);
             let randomPoint2 = NeuralNetworkTest.getRandomPoint(2, 10, -10, 1.999);
             let randomPoint3 = NeuralNetworkTest.getRandomPoint(-10, 1.999, -10, 1.999);
             let randomPoint4 = NeuralNetworkTest.getRandomPoint(-10, 1.999, 2, 10);
 
-            this.trainIteration(randomPoint1);
-            this.trainIteration(randomPoint2);
-            this.trainIteration(randomPoint3);
-            error = this.trainIteration(randomPoint4);
+            inputs.push(randomPoint1);
+            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint1));
+            inputs.push(randomPoint2);
+            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint2));
+            inputs.push(randomPoint3);
+            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint3));
+            inputs.push(randomPoint4);
+            expected.push(NeuralNetworkTest.getExpectedValue(randomPoint4));
         }
+
+        let range = ArrayUtils.range(inputs.length);
+        let numToTake = Math.floor(inputs.length * 0.8);
+        let trainRangeIndices = ArrayUtils.take(range, numToTake, 0);
+        let testRangeIndices = ArrayUtils.take(range, 1000000, numToTake);
+
+        this._testData["inputs"] = ArrayUtils.select(inputs, testRangeIndices);
+        this._testData["expected"] = ArrayUtils.select(expected, testRangeIndices);
+
+        inputs = ArrayUtils.select(inputs, trainRangeIndices);
+        expected = ArrayUtils.select(expected, trainRangeIndices);
+
+        this._neuralNetwork.train(inputs, expected, 10, this._normalize, 200, null, 1e-4, true);
 
         let theWeights = this._neuralNetwork.getWeights();
 
@@ -104,17 +121,23 @@ class NeuralNetworkTest extends Component {
         return error;
     }
 
-    createTestData(error) {
+    testData(error) {
         let dataOutOfRange = [];
         let dataInRange = [];
 
-        for (let i = 0; i < 1000; i++) {
-            let randomPoint = NeuralNetworkTest.getRandomPoint(-10, 10, -10, 10);
+        for (let i = 0; i < this._testData.inputs.length; i++) {
 
-            let prediction = this._neuralNetwork.feedForward(randomPoint);
+            let randomPoint = this._testData.inputs[i];
+            // console.log(`randomPoint = ${randomPoint}`);
+            let normalizedPoint = [randomPoint];
+            if (this._normalize) {
+                normalizedPoint = this._neuralNetwork.normalize([randomPoint]);
+            }
+            // console.log(`normalizedPoint = ${normalizedPoint}`);
+            let prediction = this._neuralNetwork.feedForward(normalizedPoint);
             let theDataSet = null;
 
-            if (prediction[0] < prediction[1]) {
+            if (prediction[0][0] < prediction[0][1]) {
                 theDataSet = dataOutOfRange;
             } else {
                 theDataSet = dataInRange;
