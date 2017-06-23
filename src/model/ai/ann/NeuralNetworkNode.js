@@ -2,7 +2,6 @@ import { assert } from "../../../utils/Assert";
 import ActivationFunctions from "./ActivationFunctions";
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
-import MathUtil from "../MathUtil";
 import randgen from "../../../../node_modules/randgen/lib/randgen";
 
 class NeuralNetworkNode {
