@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScatterChart, Scatter, XAxis, YAxis, CartesianGrid } from "../../node_modules/recharts/umd/Recharts";
+import {ScatterChart, Scatter, XAxis, YAxis, CartesianGrid} from "../../node_modules/recharts/umd/Recharts";
 import NeuralNetwork from "../model/ai/ann/NeuralNetwork";
 import MathUtil from "../model/ai/MathUtil";
 import "./NeuralNetworkTest.css";
@@ -17,7 +17,7 @@ class NeuralNetworkTest extends Component {
         super(props);
 
         this._numOutputs = 2;
-        this._numInputs = 2;
+        this._numInputs = 4;
 
         // this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
 
@@ -39,7 +39,9 @@ class NeuralNetworkTest extends Component {
             activationFunction: "tanh",
             trainDataOutOfRange: [],
             trainDataInRange: [],
-            testType: "xor"
+            testType: "xor",
+            greenCount: 0,
+            redCount: 0
         };
 
         this._testData = {};
@@ -59,9 +61,8 @@ class NeuralNetworkTest extends Component {
             MathUtil.getRandomArbitrary(minY, maxY)
         ];
 
-        if (toRet.length !== 2) {
-            throw new Error("WTF");
-        }
+        toRet.push(Math.pow(toRet[0], 2));
+        toRet.push(Math.pow(toRet[1], 2));
 
         return toRet;
     }
@@ -73,7 +74,7 @@ class NeuralNetworkTest extends Component {
 
         } else if (this.state.testType === "circle") {
 
-            let distance = MathUtil.distance(point, [0, 0]);
+            let distance = MathUtil.distance([point[0], point[1]], [0, 0]);
             return (distance < 5.0 && distance >= 0);
 
         }
@@ -102,17 +103,6 @@ class NeuralNetworkTest extends Component {
         } else {
             toRet[1] = 1.0;
         }
-        // } else if (distance < 4.0 && distance >= 2.0) {
-        //     toRet[1] = 1.0;
-        // } else if (distance < 6.0 && distance >= 4.0) {
-        //     toRet[2] = 1.0;
-        // } else if (distance < 8.0 && distance >= 6.0) {
-        //     toRet[3] = 1.0;
-        // } else if (distance < 10.0 && distance >= 8.0) {
-        //     toRet[4] = 1.0;
-        // } else {
-        //     toRet[5] = 1.0;
-        // }
 
         return toRet;
     }
@@ -122,8 +112,6 @@ class NeuralNetworkTest extends Component {
 
         switch (maxIndex) {
             case 0:
-            // case 2:
-            // case 4:
                 return true;
             default:
                 return false;
@@ -151,6 +139,7 @@ class NeuralNetworkTest extends Component {
         let redCount = 0;
         let trainDataInRange = [];
         let trainDataOutOfRange = [];
+        let toPushTo;
 
         for (let i = 0; i < this.state.trainingSetSize; i++) {
             let randomPoint1 = NeuralNetworkTest.getRandomPoint(-10, 10, -10, 10);
@@ -161,20 +150,22 @@ class NeuralNetworkTest extends Component {
                     randomPoint1 = NeuralNetworkTest.getRandomPoint(-10, 10, -10, 10);
                 }
 
-                trainDataInRange.push({
-                    x: randomPoint1[0],
-                    y: randomPoint1[1]
-                });
+                toPushTo = trainDataInRange;
+
             } else {
                 while (this.isGreen(randomPoint1)) {
                     randomPoint1 = NeuralNetworkTest.getRandomPoint(-10, 10, -10, 10);
                 }
 
-                trainDataOutOfRange.push({
-                    x: randomPoint1[0],
-                    y: randomPoint1[1]
-                });
+                toPushTo = trainDataOutOfRange;
             }
+
+            toPushTo.push({
+                x: randomPoint1[0],
+                y: randomPoint1[1],
+                x2: randomPoint1[2],
+                y2: randomPoint1[3]
+            });
 
             inputs.push(randomPoint1);
             let expectedValue = this.getExpectedValue(randomPoint1);
@@ -187,7 +178,7 @@ class NeuralNetworkTest extends Component {
             }
         }
 
-        alert (`redCount = ${redCount}, greenCount = ${greenCount}`);
+        // alert (`redCount = ${redCount}, greenCount = ${greenCount}`);
 
         let range = ArrayUtils.range(inputs.length);
         let numToTake = Math.floor(inputs.length * 0.8);
@@ -211,7 +202,9 @@ class NeuralNetworkTest extends Component {
         this.setState({
             weights: JSON.stringify(theWeights),
             trainDataInRange: trainDataInRange,
-            trainDataOutOfRange: trainDataOutOfRange
+            trainDataOutOfRange: trainDataOutOfRange,
+            greenCount: greenCount,
+            redCount: redCount
         });
 
         return error;
@@ -242,7 +235,9 @@ class NeuralNetworkTest extends Component {
             theDataSet.push({
                 x: randomPoint[0],
                 y: randomPoint[1],
-                prediction: prediction
+                x2: randomPoint[2],
+                y2: randomPoint[3],
+                prediction: prediction,
             });
         }
 
@@ -254,7 +249,7 @@ class NeuralNetworkTest extends Component {
         });
     }
 
-    getNumCorrect(data, inRange=true) {
+    getNumCorrect(data, inRange = true) {
         let numCorrect = 0;
 
         data.forEach(function (point) {
@@ -274,7 +269,7 @@ class NeuralNetworkTest extends Component {
         return numCorrect;
     }
 
-    getStyle(point, inRange=true) {
+    getStyle(point, inRange = true) {
         let tempPoint = [point.x, point.y];
 
         if (inRange) {
@@ -327,17 +322,17 @@ class NeuralNetworkTest extends Component {
     getDataAsTable(theRange, keyName) {
         return (<table cellSpacing={0} style={{border: "solid 1px black"}}>
             <thead>
-                <tr>
-                    <th>
-                        x
-                    </th>
-                    <th>
-                        y
-                    </th>
-                    <th>
-                        prediction
-                    </th>
-                </tr>
+            <tr>
+                <th>
+                    x
+                </th>
+                <th>
+                    y
+                </th>
+                <th>
+                    prediction
+                </th>
+            </tr>
             </thead>
             <tbody>
             {this.getData(theRange, keyName)}
@@ -441,6 +436,13 @@ class NeuralNetworkTest extends Component {
                     activationFunction: activationFunction
                 });
                 break;
+            case "ddlTestType":
+                let testType = e.target.value;
+
+                this.setState({
+                    testType: testType
+                });
+                break;
             default:
                 break;
         }
@@ -453,7 +455,9 @@ class NeuralNetworkTest extends Component {
         if (this.state.hiddenLayers !== "") {
             let innerArray = this.state.hiddenLayers.split(/,\s/);
 
-            ArrayUtils.extend(toRet, innerArray, function (item) { return parseInt(item, 10); });
+            ArrayUtils.extend(toRet, innerArray, function (item) {
+                return parseInt(item, 10);
+            });
         }
         ArrayUtils.extend(toRet, [this._numOutputs]);
 
@@ -484,134 +488,171 @@ class NeuralNetworkTest extends Component {
             <div className="NeuralNetworkTestChart">
                 <table>
                     <tbody>
-                        <tr>
-                            <td style={{verticalAlign: "top"}}>
-                                <table style={{textAlign: "center"}}>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                Train Data:
-                                            </td>
-                                            <td>
-                                                Predictions:
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <ScatterChart width={400} height={400} margin={{top: 0, right: 25, left: 25, bottom: 25}} >
-                                                    <XAxis dataKey={'x'} allowDecimals={false} type="number" />
-                                                    <YAxis dataKey={'y'} allowDecimals={false} />
-                                                    <Scatter name='Out of Range' data={this.state.trainDataOutOfRange} fill='red' />
-                                                    <Scatter name='In Range' data={this.state.trainDataInRange} fill='green' />
-                                                    <CartesianGrid />
-                                                </ScatterChart>
-                                            </td>
-                                            <td>
-                                                <ScatterChart width={400} height={400} margin={{top: 0, right: 25, left: 25, bottom: 25}} >
-                                                    <XAxis dataKey={'x'} allowDecimals={false} type="number" />
-                                                    <YAxis dataKey={'y'} allowDecimals={false} />
-                                                    <Scatter name='Out of Range' data={this.state.dataOutOfRange} fill='red' />
-                                                    <Scatter name='In Range' data={this.state.dataInRange} fill='green' />
-                                                    <CartesianGrid />
-                                                </ScatterChart>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                            <td style={{verticalAlign: "top", display: "none"}}>
-                                <textarea cols={30} rows={25} defaultValue={this.state.weights} />
-                            </td>
-                            <td style={{verticalAlign: "top"}}>
-                                <table onChange={(e) => this.tableOnChange(e)}>
-                                    <tbody>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Activation Function:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <select name="ddlActivationFunction" value={this.state.activationFunction}
-                                                        onChange={(e) => this.tableOnChange(e)}>
-                                                    <option value="tanh">tanh</option>
-                                                    <option value="sigmoid">sigmoid</option>
-                                                </select>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Max Epochs:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtMaxEpochs" defaultValue={this.state.maxEpochs} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Min Weight Delta:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtMinWeightDelta" defaultValue={this.state.minWeightDelta} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Mini Batch Size:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtMiniBatchSize" defaultValue={this.state.miniBatchSize} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Cache Min. Error Network:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtCacheMinErrorNetwork" defaultValue={this.state.cacheMinErrorNetwork} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Learning Rate:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtLearningRate" defaultValue={this.state.learningRate} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Normalize:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtNormalize" defaultValue={this.state.normalize} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Training Set Size:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtTrainingSetSize" defaultValue={this.state.trainingSetSize} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                                Hidden Layers:
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <input type="text" name="txtHiddenLayers" defaultValue={this.state.hiddenLayers} />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className="NeuralNetworkRightCell">
-                                            </td>
-                                            <td className="NeuralNetworkLeftCell">
-                                                <button style={{width: "100%"}} onClick={(e) => this.btnClick(e)}>Train</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td style={{verticalAlign: "top", textAlign: "left"}}>
+                            <table style={{textAlign: "center"}}>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td colSpan={2}>
+                                                        Train Data:
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Red Count: {this.state.redCount}
+                                                    </td>
+                                                    <td>
+                                                        Green Count: {this.state.greenCount}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        Predictions:
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <ScatterChart width={400} height={400}
+                                                      margin={{top: 0, right: 25, left: 25, bottom: 25}}>
+                                            <XAxis dataKey={'x'} allowDecimals={false} type="number"/>
+                                            <YAxis dataKey={'y'} allowDecimals={false}/>
+                                            <Scatter name='Out of Range' data={this.state.trainDataOutOfRange}
+                                                     fill='red'/>
+                                            <Scatter name='In Range' data={this.state.trainDataInRange} fill='green'/>
+                                            <CartesianGrid />
+                                        </ScatterChart>
+                                    </td>
+                                    <td>
+                                        <ScatterChart width={400} height={400}
+                                                      margin={{top: 0, right: 25, left: 25, bottom: 25}}>
+                                            <XAxis dataKey={'x'} allowDecimals={false} type="number"/>
+                                            <YAxis dataKey={'y'} allowDecimals={false}/>
+                                            <Scatter name='Out of Range' data={this.state.dataOutOfRange} fill='red'/>
+                                            <Scatter name='In Range' data={this.state.dataInRange} fill='green'/>
+                                            <CartesianGrid />
+                                        </ScatterChart>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                        <td style={{verticalAlign: "top", display: "none"}}>
+                            <textarea cols={30} rows={25} defaultValue={this.state.weights}/>
+                        </td>
+                        <td style={{verticalAlign: "top"}}>
+                            <table onChange={(e) => this.tableOnChange(e)}>
+                                <tbody>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Test Type:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <select name="ddlTestType" value={this.state.testType}
+                                                onChange={(e) => this.tableOnChange(e)}>
+                                            <option value="xor">xor</option>
+                                            <option value="circle">circle</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Activation Function:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <select name="ddlActivationFunction" value={this.state.activationFunction}
+                                                onChange={(e) => this.tableOnChange(e)}>
+                                            <option value="tanh">tanh</option>
+                                            <option value="sigmoid">sigmoid</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Max Epochs:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtMaxEpochs" defaultValue={this.state.maxEpochs}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Min Weight Delta:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtMinWeightDelta"
+                                               defaultValue={this.state.minWeightDelta}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Mini Batch Size:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtMiniBatchSize"
+                                               defaultValue={this.state.miniBatchSize}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Cache Min. Error Network:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtCacheMinErrorNetwork"
+                                               defaultValue={this.state.cacheMinErrorNetwork}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Learning Rate:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtLearningRate"
+                                               defaultValue={this.state.learningRate}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Normalize:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtNormalize" defaultValue={this.state.normalize}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Training Set Size:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtTrainingSetSize"
+                                               defaultValue={this.state.trainingSetSize}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Hidden Layers:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <input type="text" name="txtHiddenLayers"
+                                               defaultValue={this.state.hiddenLayers}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <button style={{width: "100%"}} onClick={(e) => this.btnClick(e)}>Train</button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -625,20 +666,20 @@ class NeuralNetworkTest extends Component {
                 <div>
                     <table>
                         <tbody>
-                            <tr>
-                                <td style={{verticalAlign: "top"}}>
-                                    {this.getDetailDiv("Out of Range", this.state.dataOutOfRange)}
-                                    <div>
-                                        {this.getDataAsTable(this.state.dataOutOfRange, "outOfRange")}
-                                    </div>
-                                </td>
-                                <td style={{verticalAlign: "top"}}>
-                                    {this.getDetailDiv("In Range", this.state.dataInRange)}
-                                    <div>
-                                        {this.getDataAsTable(this.state.dataInRange, "inRange")}
-                                    </div>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td style={{verticalAlign: "top"}}>
+                                {this.getDetailDiv("Out of Range", this.state.dataOutOfRange)}
+                                <div>
+                                    {this.getDataAsTable(this.state.dataOutOfRange, "outOfRange")}
+                                </div>
+                            </td>
+                            <td style={{verticalAlign: "top"}}>
+                                {this.getDetailDiv("In Range", this.state.dataInRange)}
+                                <div>
+                                    {this.getDataAsTable(this.state.dataInRange, "inRange")}
+                                </div>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
