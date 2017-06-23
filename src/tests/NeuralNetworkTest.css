@@ -5,3 +5,13 @@
 .NeuralNetworkTestChart {
 
 }
+
+.NeuralNetworkRightCell {
+    text-align: right;
+    vertical-align: middle;
+}
+
+.NeuralNetworkLeftCell {
+    text-align: left;
+    vertical-align: middle;
+}

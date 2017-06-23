@@ -201,11 +201,11 @@ class NeuralNetwork {
                 miniBatchInputs = ArrayUtils.select(inputs, miniBatchIndices);
                 miniBatchOutputs = ArrayUtils.select(expectedOutputs, miniBatchIndices);
 
-                // let miniBatchPredictedOutputs = this.feedForward(miniBatchInputs);
-                this.feedForward(miniBatchInputs);
-                currentError = this.backPropagate(miniBatchOutputs);
+                let miniBatchPredictedOutputs = this.feedForward(miniBatchInputs);
+                // this.feedForward(miniBatchInputs);
+                this.backPropagate(miniBatchOutputs);
 
-                // currentError = NeuralNetwork.calculateMaxErrorForMiniBatch(miniBatchOutputs, miniBatchPredictedOutputs);
+                currentError = NeuralNetwork.calculateMaxErrorForMiniBatch(miniBatchOutputs, miniBatchPredictedOutputs);
 
                 maxErrorForEpoch = math.max(maxErrorForEpoch, currentError);
             }

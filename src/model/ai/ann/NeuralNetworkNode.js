@@ -2,6 +2,8 @@ import { assert } from "../../../utils/Assert";
 import ActivationFunctions from "./ActivationFunctions";
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
+import MathUtil from "../MathUtil";
+import randgen from "../../../../node_modules/randgen/lib/randgen";
 
 class NeuralNetworkNode {
 
@@ -21,24 +23,9 @@ class NeuralNetworkNode {
             this._numWeights++;
         }
 
-        this._weights = NeuralNetworkNode.createRandomWeights(this._numWeights);
+        this._weights = NeuralNetworkNode.createRandomWeights(this._numWeights, this._activationFunction);
         this._prevWeights = this._weights.slice(0);
         this._weightDeltas = NeuralNetworkNode.createArrayWithValue(this._numWeights, 0);
-    }
-
-    static create2DArrayWithValue(height, width, value=0) {
-
-        let toRet = [];
-
-        for (let y = 0; y < height; y++) {
-            toRet[y] = [];
-
-            for (let x = 0; x < width; x++) {
-                toRet[y][x] = value;
-            }
-        }
-
-        return toRet;
     }
 
     static createArrayWithValue(length, value=0) {
@@ -48,13 +35,50 @@ class NeuralNetworkNode {
         return toRet;
     }
 
-    static createRandomWeights(numToCreate) {
+    static getSigmoidRandom() {
+        let toRet = randgen.rnorm(0.5, 0.5);
+
+        if (toRet <= 0) {
+            toRet = 0.0001;
+        }
+
+        if (toRet >= 1) {
+            toRet = 0.9999;
+        }
+
+        return toRet;
+    }
+
+    static getTanhRandom() {
+        let toRet = randgen.rnorm(0, 1);
+
+        if (toRet <= -1) {
+            toRet = -0.9999;
+        }
+
+        if (toRet >= 1) {
+            toRet = 0.9999;
+        }
+
+        return toRet;
+    }
+
+    static createRandomWeights(numToCreate, activationFunction) {
         let toRet = [];
 
         for (let i = 0; i < numToCreate; i++) {
-            let randomWeight = math.floor(math.random() * numToCreate) / math.sqrt(numToCreate);
-            toRet.push(randomWeight);
-            // toRet.push(0);
+            let randomNum = 0.25;
+            if (activationFunction === ActivationFunctions.sigmoid) {
+                randomNum = NeuralNetworkNode.getSigmoidRandom();
+            } else if (activationFunction === ActivationFunctions.tanh) {
+                randomNum = NeuralNetworkNode.getTanhRandom();
+            } else {
+                throw new Error("Unknown activation function");
+            }
+
+            // let randomWeight = math.divide(randomNum, math.sqrt(math.divide(2.0, numToCreate)));
+
+            toRet.push(randomNum);
         }
 
         return toRet;
@@ -183,6 +207,7 @@ class NeuralNetworkNode {
         }
 
         this._weightDeltas = math.mean(allWeightDeltas, 0);
+        // this._weightDeltas = math.sum(allWeightDeltas);
 
         ArrayUtils.copyInto(this._weights, this._prevWeights);
         this._weights = math.add(this._weights, this._weightDeltas);
@@ -237,6 +262,7 @@ class NeuralNetworkNode {
         }
 
         this._weightDeltas = math.mean(allWeightDeltas, 0);
+        // this._weightDeltas = math.sum(allWeightDeltas);
         ArrayUtils.copyInto(this._weights, this._prevWeights);
         this._weights = math.add(this._weights, this._weightDeltas);
         this._error = errorArray;

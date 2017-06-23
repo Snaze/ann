@@ -217,6 +217,16 @@ class ArrayUtils {
 
         return true;
     }
+
+    static extend(toExtend, toExtendWith, callback) {
+        for (let i = 0; i < toExtendWith.length; i++) {
+            if (!callback) {
+                toExtend.push(toExtendWith[i]);
+            } else {
+                toExtend.push(callback(toExtendWith[i]));
+            }
+        }
+    }
 }
 
 export default ArrayUtils;
