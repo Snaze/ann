@@ -287,3 +287,15 @@ it ("arrayEquals works", () => {
     expect(two).toBe(false);
     expect(three).toBe(false);
 });
+
+it ("filter works", () => {
+    // SETUP
+    let toFilter = [-5, -4, -3, -2, -1, 0];
+
+    // CALL
+    let result = ArrayUtils.filter(toFilter, (item) => {return item >=0;});
+
+    // ASSERT
+    expect(result.length).toBe(1);
+    expect(result[0]).toBe(0);
+});

@@ -71,6 +71,31 @@ class ActivationFunctions {
         return ActivationFunctions._tanh;
     }
 
+    static _relu = null;
+    static get relu() {
+        if (ActivationFunctions._relu === null) {
+            ActivationFunctions._relu = {
+                output: function (x) {
+                    return math.max(0, x);
+                },
+                outputError: function (targetValue, outputValue) {
+                    let targetMinusOutput = math.subtract(targetValue, outputValue);
+                    let derivative = outputValue > 0 ? 1 : 0;
+
+                    return math.multiply(targetMinusOutput, derivative);
+                },
+                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
+                    let derivative = outputValue > 0 ? 1 : 0;
+                    let dotProduct = math.dot(nextLayerErrors, nextNodeWeights);
+
+                    return math.multiply(derivative, dotProduct);
+                }
+            };
+        }
+
+        return ActivationFunctions._relu;
+    }
+
 }
 
 export default ActivationFunctions;

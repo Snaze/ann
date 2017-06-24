@@ -3,6 +3,7 @@ import ActivationFunctions from "./ActivationFunctions";
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
 import randgen from "../../../../node_modules/randgen/lib/randgen";
+import MathUtil from "../MathUtil";
 
 class NeuralNetworkNode {
 
@@ -34,50 +35,21 @@ class NeuralNetworkNode {
         return toRet;
     }
 
-    static getSigmoidRandom() {
-        let toRet = randgen.rnorm(0.5, 0.5);
+    static createClippedRandomWeight(mean, std, minVal, maxVal) {
+        let toRet = randgen.rnorm(mean, std);
 
-        if (toRet <= 0) {
-            toRet = 0.0001;
-        }
-
-        if (toRet >= 1) {
-            toRet = 0.9999;
-        }
-
-        return toRet;
-    }
-
-    static getTanhRandom() {
-        let toRet = randgen.rnorm(0, 1);
-
-        if (toRet <= -1) {
-            toRet = -0.9999;
-        }
-
-        if (toRet >= 1) {
-            toRet = 0.9999;
-        }
-
-        return toRet;
+        return MathUtil.clip(toRet, minVal, maxVal);
     }
 
     static createRandomWeights(numToCreate, activationFunction) {
         let toRet = [];
 
         for (let i = 0; i < numToCreate; i++) {
-            let randomNum = 0.25;
-            if (activationFunction === ActivationFunctions.sigmoid) {
-                randomNum = NeuralNetworkNode.getSigmoidRandom();
-            } else if (activationFunction === ActivationFunctions.tanh) {
-                randomNum = NeuralNetworkNode.getTanhRandom();
-            } else {
-                throw new Error("Unknown activation function");
-            }
 
-            // let randomWeight = math.divide(randomNum, math.sqrt(math.divide(2.0, numToCreate)));
+            let randomNum = NeuralNetworkNode.createClippedRandomWeight(0, 1, -0.9999, 0.9999);
+            let randomWeight = math.divide(randomNum, math.sqrt(math.divide(2.0, numToCreate)));
 
-            toRet.push(randomNum);
+            toRet.push(randomWeight);
         }
 
         return toRet;

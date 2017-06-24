@@ -1,5 +1,7 @@
 import NeuralNetwork from "./NeuralNetwork";
 import ActivationFunctions from "./ActivationFunctions";
+import NeuralNetworkParameter from "./NeuralNetworkParameter";
+// import ArrayUtils from "../../../utils/ArrayUtils";
 
 it ("NeuralNetork constructor works", () => {
     // CALL
@@ -241,44 +243,9 @@ it ("convergence test with bias term with tanh", () => {
     convergenceTestWithBiasTerm(nn);
 });
 
-it ("normalize column works", () => {
-    // SETUP
-    let toNormalize = [1, 3, 5];
-    let stdDev = 2;
-
-    // CALL
-    let toCheck = new NeuralNetwork([2, 1]).normalizeColumn(toNormalize).data;
-
-    // ASSERT
-    expect(toCheck[0]).toBeCloseTo(-2.0/stdDev);
-    expect(toCheck[1]).toBeCloseTo(0);
-    expect(toCheck[2]).toBeCloseTo(2/stdDev);
-});
-
-it ("normalize works", () => {
-    // SETUP
-    let toNormalize = [[5, 10, 15],
-                       [10, 15, 20],
-                       [15, 20, 25]];
-    let stddev = 5;
-    let mean = [10, 15, 20];
-
-    // CALL
-    let result = new NeuralNetwork([2, 1]).normalize(toNormalize, true);
-
-    // console.log(result);
-
-    // ASSERT
-    for (let y = 0; y < result.length; y++) {
-
-        for (let x = 0; x < result[y].length; x++) {
-            let expectedValue = (toNormalize[y][x] - mean[x]) / stddev;
-            expect(result[y][x]).toBeCloseTo(expectedValue);
-        }
-    }
-});
-
 it ("train works", () => {
+    jest.useFakeTimers();
+
     // SETUP
     let nn = new NeuralNetwork([2, 1]);
     let input = []; // [0.35, 0.9]
@@ -291,14 +258,33 @@ it ("train works", () => {
         expectedOutput.push([0.5]);
     }
 
-    // CALL
-    let maxError = nn.train(input, expectedOutput, 10, false, maxEpochs, error);
-    // let normedResult = nn.normalize();
-    let result = nn.feedForward([[0.35, 0.9]]);
+    let numEpochs = 0;
+    const epochCompleteCallback = function () {
+        numEpochs++;
+    };
 
-    // console.log(`epochs = ${nn.epochs}`);
-    // console.log(`maxError = ${maxError}`);
-    // console.log(`result[0][0] = ${result[0][0]}`);
+    let trainingFinished = false;
+    const trainingFinishedCallback = function () {
+        trainingFinished = true;
+    };
+    let nnp = new NeuralNetworkParameter();
+    nnp.inputs = input;
+    nnp.expectedOutputs = expectedOutput;
+    nnp.miniBatchSize = 10;
+    nnp.normalizeInputs = false;
+    nnp.maxEpochs = maxEpochs;
+    nnp.minError = error;
+    nnp.minWeightDelta = null;
+    nnp.cacheMinError = false;
+    nnp.epochCompleteCallback = epochCompleteCallback;
+    nnp.finishedTrainingCallback = trainingFinishedCallback;
+
+    // CALL
+    let maxError = nn.train(nnp);
+
+    jest.runAllTimers();
+
+    let result = nn.feedForward([[0.35, 0.9]]);
 
     // ASSERT
     if (nn.epochs < maxEpochs) {
@@ -306,5 +292,8 @@ it ("train works", () => {
     }
 
     expect(result[0][0]).toBeCloseTo(0.5, 2);
+    expect(trainingFinished).toBe(true);
+    expect(numEpochs > 0).toBe(true);
 
+    jest.useRealTimers();
 });

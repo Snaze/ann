@@ -5,6 +5,7 @@ import MathUtil from "../model/ai/MathUtil";
 import "./NeuralNetworkTest.css";
 import ActivationFunctions from "../model/ai/ann/ActivationFunctions";
 import ArrayUtils from "../utils/ArrayUtils";
+import NeuralNetworkParameter from "../model/ai/ann/NeuralNetworkParameter";
 // import {assert} from "../utils/Assert";
 
 class NeuralNetworkTest extends Component {
@@ -28,7 +29,7 @@ class NeuralNetworkTest extends Component {
             dataInRange: [],
             // weights: JSON.stringify(this._neuralNetwork.getWeights())
             weights: "",
-            maxEpochs: 100,
+            maxEpochs: 20,
             minWeightDelta: null,
             miniBatchSize: 10,
             cacheMinErrorNetwork: false,
@@ -41,7 +42,8 @@ class NeuralNetworkTest extends Component {
             trainDataInRange: [],
             testType: "xor",
             greenCount: 0,
-            redCount: 0
+            redCount: 0,
+            showDetail: false
         };
 
         this._testData = {};
@@ -90,6 +92,8 @@ class NeuralNetworkTest extends Component {
             falseValue = 0.0;
         } else if (this.state.activationFunction === "tanh") {
             falseValue = -1.0;
+        } else if (this.state.activationFunction === "relu") {
+            falseValue = 0.0;
         } else {
             throw new Error("Unknown activation function");
         }
@@ -126,9 +130,15 @@ class NeuralNetworkTest extends Component {
     }
 
     trainAndTest() {
-        let error = this.trainNetwork();
+        this.trainNetwork();
+    }
 
-        this.testData(error);
+    epochFinished(nn) {
+        this.testData();
+    }
+
+    trainingFinished(nn) {
+        this.testData();
     }
 
     trainNetwork() {
@@ -191,11 +201,21 @@ class NeuralNetworkTest extends Component {
         inputs = ArrayUtils.select(inputs, trainRangeIndices);
         expected = ArrayUtils.select(expected, trainRangeIndices);
 
-        // alert (`maxEpochs = ${this.state.maxEpochs}`);
+        let nnp = new NeuralNetworkParameter();
+        nnp.inputs = inputs;
+        nnp.expectedOutputs = expected;
+        nnp.miniBatchSize = this.state.miniBatchSize;
+        nnp.normalizeInputs = this.state.normalize;
+        nnp.maxEpochs = this.state.maxEpochs;
+        nnp.minError = null;
+        nnp.minWeightDelta = this.state.minWeightDelta;
+        nnp.cacheMinError = this.state.cacheMinErrorNetwork;
+        nnp.epochCompleteCallback = (e) => this.epochFinished(e);
+        nnp.finishedTrainingCallback = (e) => this.trainingFinished(e);
 
-        this._neuralNetwork.train(inputs, expected,
-            this.state.miniBatchSize, this.state.normalize,
-            this.state.maxEpochs, null, this.state.minWeightDelta, this.state.cacheMinErrorNetwork);
+        // alert (`maxEpochs = ${this.state.maxEpochs}`);
+        // this.testData(error);
+        this._neuralNetwork.train(nnp);
 
         let theWeights = this._neuralNetwork.getWeights();
 
@@ -207,23 +227,16 @@ class NeuralNetworkTest extends Component {
             redCount: redCount
         });
 
-        return error;
     }
 
-    testData(error) {
+    testData() {
         let dataOutOfRange = [];
         let dataInRange = [];
 
         for (let i = 0; i < this._testData.inputs.length; i++) {
 
             let randomPoint = this._testData.inputs[i];
-            // console.log(`randomPoint = ${randomPoint}`);
-            let normalizedPoint = [randomPoint];
-            if (this.state.normalize) {
-                normalizedPoint = this._neuralNetwork.normalize([randomPoint]);
-            }
-            // console.log(`normalizedPoint = ${normalizedPoint}`);
-            let prediction = this._neuralNetwork.feedForward(normalizedPoint);
+            let prediction = this._neuralNetwork.predict([randomPoint]);
             let theDataSet = null;
 
             if (NeuralNetworkTest.isPredictionGreen(prediction[0])) {
@@ -243,7 +256,7 @@ class NeuralNetworkTest extends Component {
 
         this.setState({
             epochs: this._neuralNetwork.epochs,
-            error: error,
+            error: 0,
             dataOutOfRange: dataOutOfRange,
             dataInRange: dataInRange
         });
@@ -320,6 +333,10 @@ class NeuralNetworkTest extends Component {
     }
 
     getDataAsTable(theRange, keyName) {
+        if (!this.state.showDetail) {
+            return null;
+        }
+
         return (<table cellSpacing={0} style={{border: "solid 1px black"}}>
             <thead>
             <tr>
@@ -443,6 +460,13 @@ class NeuralNetworkTest extends Component {
                     testType: testType
                 });
                 break;
+            case "ddlShowDetail":
+                let showDetail = e.target.value === "true";
+
+                this.setState({
+                    showDetail: showDetail
+                });
+                break;
             default:
                 break;
         }
@@ -483,8 +507,11 @@ class NeuralNetworkTest extends Component {
     render() {
         return (<div className="NeuralNetworkTest">
             <h4 style={{textAlign: "center"}}>
-                You should be looking at a bull's eye.
+                Neural Network Tester
             </h4>
+            <h5 style={{textAlign: "center"}}>
+                Input Nodes (4): x, y, x^2, y^2, Output Nodes (2): true / false
+            </h5>
             <div className="NeuralNetworkTestChart">
                 <table>
                     <tbody>
@@ -569,6 +596,7 @@ class NeuralNetworkTest extends Component {
                                                 onChange={(e) => this.tableOnChange(e)}>
                                             <option value="tanh">tanh</option>
                                             <option value="sigmoid">sigmoid</option>
+                                            <option value="relu">relu</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -640,6 +668,18 @@ class NeuralNetworkTest extends Component {
                                     <td className="NeuralNetworkLeftCell">
                                         <input type="text" name="txtHiddenLayers"
                                                defaultValue={this.state.hiddenLayers}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Show Detail:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <select name="ddlShowDetail" value={this.state.showDetail.toString()}
+                                                onChange={(e) => this.tableOnChange(e)}>
+                                            <option value="true">true</option>
+                                            <option value="false">false</option>
+                                        </select>
                                     </td>
                                 </tr>
                                 <tr>

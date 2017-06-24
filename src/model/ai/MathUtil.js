@@ -21,7 +21,6 @@ class MathUtil {
         return Math.random() * (max - min) + min;
     }
 
-
     static distance(array1, array2) {
         assert (array1.length === array2.length);
 
@@ -31,6 +30,25 @@ class MathUtil {
         }
         let sum = math.sum(diffArray);
         return math.sqrt(sum);
+    }
+
+    static clip (toClip, minValue, maxValue) {
+        if (toClip instanceof Array) {
+
+            for (let i = 0; i < toClip.length; i++) {
+                toClip[i] = MathUtil.clip(toClip[i], minValue, maxValue);
+            }
+
+            return toClip;
+        }
+
+        if (toClip < minValue) {
+            toClip = minValue;
+        } else if (toClip > maxValue) {
+            toClip = maxValue;
+        }
+
+        return toClip;
     }
 }
 

@@ -227,6 +227,18 @@ class ArrayUtils {
             }
         }
     }
+
+    static filter(toFilter, filterFunction) {
+        let toRet = [];
+
+        for (let i = 0; i < toFilter.length; i++) {
+            if (filterFunction(toFilter[i])) {
+                toRet.push(toFilter[i]);
+            }
+        }
+
+        return toRet;
+    }
 }
 
 export default ArrayUtils;

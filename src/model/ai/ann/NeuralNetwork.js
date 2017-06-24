@@ -4,6 +4,9 @@ import { assert } from "../../../utils/Assert";
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
 import MathUtil from "../MathUtil";
+import moment from "../../../../node_modules/moment/moment";
+import Normalizer from "./Normalizer";
+import NeuralNetworkParameter from "./NeuralNetworkParameter";
 
 class NeuralNetwork {
 
@@ -19,8 +22,18 @@ class NeuralNetwork {
         this._output = null;
         this._epoch = 0;
         this._totalError = 0;
-        this._normalizationData = null;
+        this._normalizer = new Normalizer(activationFunction);
+        this._inputsNormalized = false;
         this._debug = true;
+
+        this._trainingParameter = null;
+        this._prevWeights = [];
+        this._minErrorWeights = null;
+        this._minErrorValue = Number.POSITIVE_INFINITY;
+        this._minErrorEpoch = this._epoch;
+        this._epochInProgress = false;
+        this._trainInterval = null;
+        this._timerTickRef = (e) => this._timerTick(e);
     }
 
     setWeights(weights) {
@@ -68,62 +81,6 @@ class NeuralNetwork {
         return toRet;
     }
 
-    normalizeColumn(colData, saveNormalizationData=false) {
-        let mean = math.mean(colData);
-        let stdDev = math.std(colData);
-        if (stdDev === 0) {
-            stdDev = 1e-6;
-        }
-
-        let data = this.normalizeColumnWithMeanAndStdDev(colData, mean, stdDev);
-
-        return {
-            data: data,
-            mean: mean,
-            std: stdDev
-        };
-    }
-
-    normalizeColumnWithMeanAndStdDev(colData, mean, stdDev) {
-        return math.chain(colData).subtract(mean).divide(stdDev).done();
-    }
-
-    normalize(dataSet, saveNormalizationData=false) {
-
-        if (saveNormalizationData) {
-            this._normalizationData = [];
-        }
-
-        let width = ArrayUtils.width(dataSet);
-        let height = ArrayUtils.height(dataSet);
-        let toRet = ArrayUtils.create(height, width, 0);
-
-        ArrayUtils.forEachColumn(dataSet, function (column, columnIndex) {
-            let toSet = null;
-            if (saveNormalizationData) {
-                toSet = this.normalizeColumn(column);
-
-                this._normalizationData.push({
-                    mean: toSet.mean,
-                    std: toSet.std,
-                });
-
-                ArrayUtils.setColumn(toRet, toSet.data, columnIndex);
-            } else {
-                let normalizationData = this._normalizationData[columnIndex];
-                let mean = normalizationData.mean;
-                let std = normalizationData.std;
-
-                toSet = this.normalizeColumnWithMeanAndStdDev(column, mean, std);
-
-                ArrayUtils.setColumn(toRet, toSet, columnIndex);
-            }
-
-        }.bind(this));
-
-        return toRet;
-    }
-
     /**
      * This will calculate the error based on the output nodes.
      *
@@ -166,88 +123,183 @@ class NeuralNetwork {
         }
     }
 
+    /**
+     *
+     * @param trainingParameter {NeuralNetworkParameter} All the params to train with.
+     * @returns {number} Ignore this value.  It's for the unit tests. TODO: clean this up.
+     */
+    train(trainingParameter) {
 
-    train(inputs, expectedOutputs,
-          miniBatchSize=10, normalizeInputs=true,
-          maxEpochs=null, minError=null,
-          minWeightDelta=null, cacheMinError=false) {
-        assert (inputs.length === expectedOutputs.length, "inputs.length must equals expectedOutputs.length");
+        assert (trainingParameter.inputs.length === trainingParameter.expectedOutputs.length, "inputs.length must equals expectedOutputs.length");
 
-        if (normalizeInputs) {
-            inputs = this.normalize(inputs, true);
+        // this._inputs = inputs;
+        // this._expectedOutputs = expectedOutputs;
+        this._trainingParameter = trainingParameter;
+        this._minErrorWeights = null;
+        this._minErrorValue = Number.POSITIVE_INFINITY;
+        this._minErrorEpoch = this._epoch;
+        this._epoch = 0;
+        this._inputsNormalized = this._trainingParameter.normalizeInputs;
+
+        if (this._trainingParameter.normalizeInputs) {
+            this._trainingParameter.inputs = this._normalizer.normalize(this._trainingParameter.inputs, true);
         }
 
-        let range = ArrayUtils.range(inputs.length);
-        let shuffledRange;
-        let miniBatchIndices = null;
-        let miniBatchInputs = null;
-        let miniBatchOutputs = null;
+        let startTime = moment();
+        this.trainOne(trainingParameter);
+        let endTime = moment();
+
+        let duration = moment.duration(endTime.diff(startTime));
+        let milliSecDuration = duration.asMilliseconds() + 200; // + 200 for buffer
+        // let milliSecDuration = 5000;
+        this.log(`Training at every ${milliSecDuration}ms interval`);
+
+        // This is dumb
+        let error = 0;
+
+        this.stopTimer();
+        this._trainInterval = setInterval(function (e) {
+            error = this._timerTickRef(trainingParameter);
+        }.bind(this), milliSecDuration);
+
+        return error;
+    }
+
+    stopTimer(callback) {
+        if (this._trainInterval !== null) {
+            clearInterval(this._trainInterval);
+            this._trainInterval = null;
+        }
+
+        if (this._minErrorWeights !== null) {
+            this.log(`setting weights found at error = ${this._minErrorValue} found at epoch ${this._minErrorEpoch}`);
+            this.setWeights(this._minErrorWeights);
+            this._minErrorWeights = null;
+        }
+
+        if (!!callback) {
+            callback(this);
+        }
+    }
+
+    /**
+     *
+     * @param trainParameter {NeuralNetworkParameter}
+     * @returns {*}
+     * @private
+     */
+    _timerTick(trainParameter) {
+        if (this._epochInProgress) {
+            return;
+        }
+        let startTime = moment();
+
+        this._epochInProgress = true;
         let maxErrorForEpoch;
-        let currentError = null;
-        let prevWeights = null;
-        let currWeights;
-        let weightDelta = null;
-        let minErrorWeights = null;
-        let minErrorValue = Number.POSITIVE_INFINITY;
-        let minErrorEpoch = this._epoch;
 
-        while (true) {
+        try {
+            let maxEpochs = trainParameter.maxEpochs;
+            let minError = trainParameter.minError;
+            let minWeightDelta = trainParameter.minWeightDelta;
 
-            shuffledRange = ArrayUtils.shuffle(range);
-            maxErrorForEpoch = Number.NEGATIVE_INFINITY;
+            let currWeights;
+            let weightDelta = null;
 
-            for (let i = 0; i < shuffledRange.length; i += miniBatchSize) {
-                miniBatchIndices = ArrayUtils.take(shuffledRange, miniBatchSize, i);
-                miniBatchInputs = ArrayUtils.select(inputs, miniBatchIndices);
-                miniBatchOutputs = ArrayUtils.select(expectedOutputs, miniBatchIndices);
-
-                let miniBatchPredictedOutputs = this.feedForward(miniBatchInputs);
-                // this.feedForward(miniBatchInputs);
-                this.backPropagate(miniBatchOutputs);
-
-                currentError = NeuralNetwork.calculateMaxErrorForMiniBatch(miniBatchOutputs, miniBatchPredictedOutputs);
-
-                maxErrorForEpoch = math.max(maxErrorForEpoch, currentError);
-            }
-
-            if (cacheMinError && maxErrorForEpoch < minErrorValue) {
-                minErrorValue = maxErrorForEpoch;
-                minErrorEpoch = this._epoch;
-                minErrorWeights = this.getWeights();
-            }
+            maxErrorForEpoch = this.trainOne(trainParameter);
 
             this.log(`maxError = ${maxErrorForEpoch}`);
             this.log(`epoch = ${this._epoch}`);
 
-            this._epoch++;
-
-            if (maxEpochs !== null && maxEpochs < this._epoch) {
-                break;
-            }
-
-            if (minError !== null && maxErrorForEpoch < minError) {
-                break;
-            }
-
-            currWeights = ArrayUtils.flatten(this.getWeights());
-
-            if (minWeightDelta !== null && prevWeights !== null)
+            if (minWeightDelta !== null)
             {
-                weightDelta = MathUtil.distance(prevWeights, currWeights);
+                currWeights = ArrayUtils.flatten(this.getWeights());
 
-                this.log(`weightDelta = ${weightDelta}`);
+                if (this._prevWeights !== null) {
+                    weightDelta = MathUtil.distance(this._prevWeights, currWeights);
 
-                if (weightDelta < minWeightDelta) {
-                    break;
+                    this.log(`weightDelta = ${weightDelta}`);
+
+                    if (weightDelta < minWeightDelta) {
+                        this.stopTimer(trainParameter.finishedTrainingCallback);
+                        return;
+                    }
                 }
+
+                this._prevWeights = currWeights;
             }
 
-            prevWeights = currWeights;
+            if ((minError !== null && maxErrorForEpoch <= minError) ||
+                (maxEpochs !== null && maxEpochs <= this._epoch)) {
+
+                this.stopTimer(trainParameter.finishedTrainingCallback);
+
+            }
+
+        } catch (e) {
+            if (!!console) {
+                console.log(e);
+            }
+        } finally {
+            this._epochInProgress = false;
         }
 
-        if (minErrorWeights !== null) {
-            this.log(`setting weights found at error = ${minErrorValue} found at epoch ${minErrorEpoch}`);
-            this.setWeights(minErrorWeights);
+        let endTime = moment();
+        let duration = moment.duration(endTime.diff(startTime));
+        let milliSecDuration = duration.asMilliseconds();
+        this.log(`TimerTick took ${milliSecDuration}ms`);
+
+        return maxErrorForEpoch;
+    }
+
+    /**
+     *
+     * @param trainingData {NeuralNetworkParameter}
+     * @returns {Number}
+     */
+    trainOne(trainingData) {
+        let inputs = trainingData._inputs;
+        let expectedOutputs = trainingData._expectedOutputs;
+
+        let miniBatchSize = trainingData.miniBatchSize;
+        let cacheMinError = trainingData.cacheMinError;
+
+        let range = ArrayUtils.range(inputs.length);
+        let shuffledRange = ArrayUtils.shuffle(range);
+        let miniBatchIndices = null;
+        let miniBatchInputs = null;
+        let miniBatchOutputs = null;
+        let maxErrorForEpoch = Number.NEGATIVE_INFINITY;
+        let currentError = null;
+
+        assert (inputs.length === expectedOutputs.length, "inputs.length must equals expectedOutputs.length");
+
+        for (let i = 0; i < shuffledRange.length; i += miniBatchSize) {
+            miniBatchIndices = ArrayUtils.take(shuffledRange, miniBatchSize, i);
+            miniBatchInputs = ArrayUtils.select(inputs, miniBatchIndices);
+            miniBatchOutputs = ArrayUtils.select(expectedOutputs, miniBatchIndices);
+
+            let miniBatchPredictedOutputs = this.feedForward(miniBatchInputs);
+            // this.feedForward(miniBatchInputs);
+            this.backPropagate(miniBatchOutputs);
+
+            currentError = NeuralNetwork.calculateMaxErrorForMiniBatch(miniBatchOutputs, miniBatchPredictedOutputs);
+
+            maxErrorForEpoch = math.max(maxErrorForEpoch, currentError);
+        }
+
+        if (maxErrorForEpoch < this._minErrorValue) {
+            this._minErrorValue = maxErrorForEpoch;
+            this._minErrorEpoch = this._epoch;
+
+            if (cacheMinError) {
+                this._minErrorWeights = this.getWeights();
+            }
+        }
+
+        this._epoch++;
+
+        if (!!trainingData.epochCompleteCallback) {
+            trainingData.epochCompleteCallback(this);
         }
 
         return maxErrorForEpoch;
@@ -276,6 +328,14 @@ class NeuralNetwork {
         this._output = prevLayerOutput;
 
         return this._output;
+    }
+
+    predict(inputMiniBatch) {
+        if (this._inputsNormalized) {
+            inputMiniBatch = this._normalizer.normalize(inputMiniBatch);
+        }
+
+        return this.feedForward(inputMiniBatch);
     }
 
     /**
