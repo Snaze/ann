@@ -1,6 +1,6 @@
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
-import ActivationFunctions from "./ActivationFunctions";
+// import ActivationFunctions from "./ActivationFunctions";
 
 class Normalizer {
 
@@ -10,30 +10,30 @@ class Normalizer {
     }
 
     normalizeCenteredForRelu(data, min = null, max = null) {
-        if (this._activationFunction !== ActivationFunctions.relu) {
-            return {
-                data: data,
-                min: min,
-                max: max
-            };
-        }
+        // if (this._activationFunction !== ActivationFunctions.relu) {
+        //     return {
+        //         data: data,
+        //         min: min,
+        //         max: max
+        //     };
+        // }
 
 
         if (min === null) {
             min = math.min(data);
         }
 
-        if (min < 0) {
-            data = math.subtract(data, min);
-        }
+        // if (min < 0) {
+        //     data = math.subtract(data, min);
+        // }
 
         if (max === null) {
             max = math.max(data);
         }
 
-        if (max > 1) {
-            data = math.divide(data, max);
-        }
+        // if (max > 1) {
+        //     data = math.divide(data, max);
+        // }
 
         return {
             data: data,

@@ -6,19 +6,20 @@ import ArrayUtils from "../../../utils/ArrayUtils";
 import MathUtil from "../MathUtil";
 import moment from "../../../../node_modules/moment/moment";
 import Normalizer from "./Normalizer";
-import NeuralNetworkParameter from "./NeuralNetworkParameter";
+// import NeuralNetworkParameter from "./NeuralNetworkParameter";
 
 class NeuralNetwork {
 
     constructor(nodesPerLayer,
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid,
-                learningRate=1.0) {
+                learningRate=1.0,
+                numInputs=null) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
         this._learningRate = learningRate;
-        this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias, activationFunction, learningRate);
+        this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias, activationFunction, learningRate, numInputs);
         this._output = null;
         this._epoch = 0;
         this._totalError = 0;
@@ -58,23 +59,29 @@ class NeuralNetwork {
         return toRet;
     }
 
-    static createNodes(nodesPerLayer, includeBias, activationFunction, learningRate) {
+    static createNodes(nodesPerLayer, includeBias, activationFunction, learningRate, numInputs=null) {
 
         let toRet = [];
-        let layerNum = 0;
-        let prevNumNodes = nodesPerLayer[0];
+        let prevNumNodes = numInputs;
 
-        nodesPerLayer.forEach(function (numNodes) {
+        if (prevNumNodes === null) {
+            prevNumNodes = nodesPerLayer[0];
+        }
+        let nextLayerSize = 1;
+
+        nodesPerLayer.forEach(function (numNodes, layerNum) {
 
             toRet[layerNum] = [];
+            if (nodesPerLayer.length > (layerNum + 1)) {
+                nextLayerSize = nodesPerLayer[(layerNum + 1)];
+            }
 
             for (let nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
-                let toSet = new NeuralNetworkNode(prevNumNodes, includeBias, activationFunction);
+                let toSet = new NeuralNetworkNode(prevNumNodes, nextLayerSize, includeBias, activationFunction);
                 toSet.learningRate = learningRate;
                 toRet[layerNum][nodeIndex] = toSet;
             }
 
-            layerNum++;
             prevNumNodes = numNodes;
         });
 
@@ -148,6 +155,10 @@ class NeuralNetwork {
         let startTime = moment();
         this.trainOne(trainingParameter);
         let endTime = moment();
+
+        if (trainingParameter.maxEpochs <= this._epoch) {
+            return;
+        }
 
         let duration = moment.duration(endTime.diff(startTime));
         let milliSecDuration = duration.asMilliseconds() + 200; // + 200 for buffer
@@ -279,7 +290,6 @@ class NeuralNetwork {
             miniBatchOutputs = ArrayUtils.select(expectedOutputs, miniBatchIndices);
 
             let miniBatchPredictedOutputs = this.feedForward(miniBatchInputs);
-            // this.feedForward(miniBatchInputs);
             this.backPropagate(miniBatchOutputs);
 
             currentError = NeuralNetwork.calculateMaxErrorForMiniBatch(miniBatchOutputs, miniBatchPredictedOutputs);

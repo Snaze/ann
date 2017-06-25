@@ -239,6 +239,29 @@ class ArrayUtils {
 
         return toRet;
     }
+
+    static arrayApproxEquals(array1, array2, minDiff=1e-6) {
+
+        assert (array1.length === array2.length);
+
+        for (let i = 0; i < array1.length; i++) {
+            if (Math.abs(array1[i] - array2[i]) > minDiff) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static isIn(array, item) {
+        for (let i = 0; i < array.length; i++) {
+            if (array[i] === item) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 export default ArrayUtils;

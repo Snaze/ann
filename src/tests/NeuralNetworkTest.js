@@ -43,7 +43,8 @@ class NeuralNetworkTest extends Component {
             testType: "xor",
             greenCount: 0,
             redCount: 0,
-            showDetail: false
+            showDetail: false,
+            includeBias: true
         };
 
         this._testData = {};
@@ -87,25 +88,33 @@ class NeuralNetworkTest extends Component {
     getExpectedValue(point) {
 
         let falseValue = null;
+        let trueValue = null;
 
-        if (this.state.activationFunction === "sigmoid") {
-            falseValue = 0.0;
-        } else if (this.state.activationFunction === "tanh") {
-            falseValue = -1.0;
-        } else if (this.state.activationFunction === "relu") {
-            falseValue = 0.0;
-        } else {
-            throw new Error("Unknown activation function");
-        }
+        falseValue = -1.0;
+        trueValue = 1.0;
+
+        // if (this.state.activationFunction === "sigmoid") {
+        //     falseValue = 0.0;
+        //     trueValue = 1.0;
+        // } else if (this.state.activationFunction === "tanh") {
+        //     falseValue = -1.0;
+        //     trueValue = 1.0;
+        // } else if (this.state.activationFunction === "relu") {
+        //     falseValue = 0;
+        //     trueValue = 1.0;
+        // } else {
+        //     throw new Error("Unknown activation function");
+        // }
 
         let toRet = [falseValue, falseValue];
         // let distance = MathUtil.distance(point, [0, 0]);
 
         // This is kind of lame but its easy to read
+
         if (this.isGreen(point)) {
-            toRet[0] = 1.0;
+            toRet[0] = trueValue;
         } else {
-            toRet[1] = 1.0;
+            toRet[1] = trueValue;
         }
 
         return toRet;
@@ -134,7 +143,13 @@ class NeuralNetworkTest extends Component {
     }
 
     epochFinished(nn) {
-        this.testData();
+        this.setState({
+            epochs: nn.epochs
+        });
+
+        if ((nn.epochs % 5 === 0) || (nn.epochs === 1)) {
+            this.testData();
+        }
     }
 
     trainingFinished(nn) {
@@ -142,7 +157,6 @@ class NeuralNetworkTest extends Component {
     }
 
     trainNetwork() {
-        let error = Number.POSITIVE_INFINITY;
         let inputs = [];
         let expected = [];
         let greenCount = 0;
@@ -150,6 +164,8 @@ class NeuralNetworkTest extends Component {
         let trainDataInRange = [];
         let trainDataOutOfRange = [];
         let toPushTo;
+
+        // alert(this._neuralNetwork.getWeights());
 
         for (let i = 0; i < this.state.trainingSetSize; i++) {
             let randomPoint1 = NeuralNetworkTest.getRandomPoint(-10, 10, -10, 10);
@@ -255,7 +271,6 @@ class NeuralNetworkTest extends Component {
         }
 
         this.setState({
-            epochs: this._neuralNetwork.epochs,
             error: 0,
             dataOutOfRange: dataOutOfRange,
             dataInRange: dataInRange
@@ -467,6 +482,13 @@ class NeuralNetworkTest extends Component {
                     showDetail: showDetail
                 });
                 break;
+            case "ddlIncludeBias":
+                let includeBias = e.target.value === "true";
+
+                this.setState({
+                    includeBias: includeBias
+                });
+                break;
             default:
                 break;
         }
@@ -474,7 +496,7 @@ class NeuralNetworkTest extends Component {
     }
 
     createLayersArray() {
-        let toRet = [this._numInputs];
+        let toRet = [];
 
         if (this.state.hiddenLayers !== "") {
             let innerArray = this.state.hiddenLayers.split(/,\s/);
@@ -489,14 +511,20 @@ class NeuralNetworkTest extends Component {
     }
 
     btnClick(e) {
-        let layersArray = this.createLayersArray();
+        if (e.target.name === "btnTrain") {
+            let layersArray = this.createLayersArray();
 
-        this._neuralNetwork = new NeuralNetwork(layersArray,
-            true,
-            ActivationFunctions[this.state.activationFunction],
-            this.state.learningRate);
+            this._neuralNetwork = new NeuralNetwork(layersArray,
+                this.state.includeBias,
+                ActivationFunctions[this.state.activationFunction],
+                this.state.learningRate,
+                this._numInputs);
 
-        this.trainAndTest();
+            this.trainAndTest();
+        } else if (e.target.name === "btnStop") {
+            this._neuralNetwork.stopTimer();
+        }
+
         // this.forceUpdate();
     }
 
@@ -602,6 +630,18 @@ class NeuralNetworkTest extends Component {
                                 </tr>
                                 <tr>
                                     <td className="NeuralNetworkRightCell">
+                                        Include Bias:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <select name="ddlIncludeBias" value={this.state.includeBias.toString()}
+                                                onChange={(e) => this.tableOnChange(e)}>
+                                            <option value="true">true</option>
+                                            <option value="false">false</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
                                         Max Epochs:
                                     </td>
                                     <td className="NeuralNetworkLeftCell">
@@ -686,7 +726,14 @@ class NeuralNetworkTest extends Component {
                                     <td className="NeuralNetworkRightCell">
                                     </td>
                                     <td className="NeuralNetworkLeftCell">
-                                        <button style={{width: "100%"}} onClick={(e) => this.btnClick(e)}>Train</button>
+                                        <button name="btnTrain" style={{width: "100%"}} onClick={(e) => this.btnClick(e)}>Train</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <button name="btnStop" style={{width: "100%"}} onClick={(e) => this.btnClick(e)}>Stop</button>
                                     </td>
                                 </tr>
                                 </tbody>

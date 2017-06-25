@@ -299,3 +299,29 @@ it ("filter works", () => {
     expect(result.length).toBe(1);
     expect(result[0]).toBe(0);
 });
+
+it ("arrayApproxEquals works", () => {
+    // SETUP
+    let toCheck = [0.0000001, 0.0000002];
+    let other   = [0.00000012222, 0.00000022222];
+    let otherFa = [0.00002012222, 0.00000022222];
+
+    // CALL
+    let areEquals = ArrayUtils.arrayApproxEquals(toCheck, other);
+    let areEquals2 = ArrayUtils.arrayApproxEquals(toCheck, otherFa);
+
+    // ASSERT
+    expect(areEquals).toBe(true);
+    expect(areEquals2).toBe(false);
+});
+
+it ("isIn works", () => {
+    // SETUP
+    let toCheck = [0, 1, 2, 3];
+
+    // CALL
+
+    // ASSERT
+    expect(ArrayUtils.isIn(toCheck, 0)).toBe(true);
+    expect(ArrayUtils.isIn(toCheck, 4)).toBe(false);
+});

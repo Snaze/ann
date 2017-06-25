@@ -8,6 +8,7 @@ import MathUtil from "../MathUtil";
 class NeuralNetworkNode {
 
     constructor(numWeights,
+                nodesInNextLayer,
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid) {
 
@@ -18,12 +19,22 @@ class NeuralNetworkNode {
         this._error = null;
         this._learningRate = 1.0;
         this._prevInputs = null;
+        this._nodesInNextLayer = nodesInNextLayer;
 
         if (includeBias) {
             this._numWeights++;
+            this._nodesInNextLayer++;
         }
 
-        this._weights = NeuralNetworkNode.createRandomWeights(this._numWeights, this._activationFunction);
+        this._weights = NeuralNetworkNode.createRandomWeights(this._numWeights, this._activationFunction,
+                                                                this._numWeights, this._nodesInNextLayer);
+        this._prevWeights = this._weights.slice(0);
+        this._weightDeltas = NeuralNetworkNode.createArrayWithValue(this._numWeights, 0);
+    }
+
+    resetWeights() {
+        this._weights = NeuralNetworkNode.createRandomWeights(this._numWeights, this._activationFunction,
+                                                                this._numWeights, this._nodesInNextLayer);
         this._prevWeights = this._weights.slice(0);
         this._weightDeltas = NeuralNetworkNode.createArrayWithValue(this._numWeights, 0);
     }
@@ -41,13 +52,31 @@ class NeuralNetworkNode {
         return MathUtil.clip(toRet, minVal, maxVal);
     }
 
-    static createRandomWeights(numToCreate, activationFunction) {
+    static createRandomWeights(numToCreate, activationFunction, fanInCount, fanOutCount) {
         let toRet = [];
+
+        let randomNum = null;
+        let randomWeight = null;
+        // let classics = [ActivationFunctions.sigmoid, ActivationFunctions.tanh];
 
         for (let i = 0; i < numToCreate; i++) {
 
-            let randomNum = NeuralNetworkNode.createClippedRandomWeight(0, 1, -0.9999, 0.9999);
-            let randomWeight = math.divide(randomNum, math.sqrt(math.divide(2.0, numToCreate)));
+            switch (activationFunction) {
+                case ActivationFunctions.relu:
+                    // https://stats.stackexchange.com/questions/229885/whats-the-recommended-weight-initialization-strategy-when-using-the-elu-activat
+                    randomNum = math.sqrt(math.divide(12, math.add(fanInCount, fanOutCount)));
+                    randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
+                    break;
+                case ActivationFunctions.tanh:
+                    randomNum = NeuralNetworkNode.createClippedRandomWeight(0, 0.5, -1, 1);
+                    randomWeight = math.divide(randomNum, math.sqrt(math.divide(2.0, numToCreate)));
+                    break;
+                case ActivationFunctions.sigmoid:
+                    randomWeight = NeuralNetworkNode.createClippedRandomWeight(0, 0.5, -1, 1);
+                    break;
+                default:
+                    throw new Error("Unknown Activation Function");
+            }
 
             toRet.push(randomWeight);
         }
@@ -168,7 +197,7 @@ class NeuralNetworkNode {
             currentError = this.activationFunction.outputError(targetValue, currOutput);
 
             for (let w_i = 0; w_i < this._weights.length; w_i++) {
-                allWeightDeltas[i][w_i] = math.chain(this._learningRate)
+                allWeightDeltas[i][w_i] = math.chain(-1 * this._learningRate)
                                                 .multiply(currentError)
                                                 .multiply(nodeValues[w_i])
                                                 .done();
@@ -181,7 +210,7 @@ class NeuralNetworkNode {
         // this._weightDeltas = math.sum(allWeightDeltas);
 
         ArrayUtils.copyInto(this._weights, this._prevWeights);
-        this._weights = math.add(this._weights, this._weightDeltas);
+        this._weights = math.subtract(this._weights, this._weightDeltas);
         // this._error = math.mean(errorArray, 0);
         this._error = errorArray;
 
@@ -223,7 +252,7 @@ class NeuralNetworkNode {
             currentError = this.activationFunction.hiddenError(nextLayerErrors, outgoingWeights, currOutput);
 
             for (let w_i = 0; w_i < this._weights.length; w_i++) {
-                allWeightDeltas[i][w_i] = math.chain(this._learningRate)
+                allWeightDeltas[i][w_i] = math.chain(-1 * this._learningRate)
                     .multiply(currentError)
                     .multiply(nodeValues[w_i])
                     .done();
@@ -235,7 +264,7 @@ class NeuralNetworkNode {
         this._weightDeltas = math.mean(allWeightDeltas, 0);
         // this._weightDeltas = math.sum(allWeightDeltas);
         ArrayUtils.copyInto(this._weights, this._prevWeights);
-        this._weights = math.add(this._weights, this._weightDeltas);
+        this._weights = math.subtract(this._weights, this._weightDeltas);
         this._error = errorArray;
 
         return this._error;

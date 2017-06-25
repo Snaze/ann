@@ -57,3 +57,33 @@ it ("tanh hidden layer error works", () => {
     // ASSERT
     expect(result).toBeCloseTo(-0.00594538033152, 5);
 });
+
+it ("relu output test", () => {
+
+    // ASSERT
+    expect(ActivationFunctions.relu.output(7)).toBeCloseTo(7);
+    expect(ActivationFunctions.relu.output(-7)).toBeCloseTo(0);
+});
+
+it ("relu output layer error works", () => {
+
+    // CALL
+    let result = ActivationFunctions.relu.outputError(1.0, 0.7);
+    let result2 = ActivationFunctions.relu.outputError(-1.0, -0.7);
+
+    // ASSERT
+    expect(result).toBeCloseTo(0.3);
+    expect(result2).toBeCloseTo(0.0);
+});
+
+it ("relu hidden layer error works", () => {
+
+    // CALL
+    let result = ActivationFunctions.relu.hiddenError([0.3], [0.3], 0.68);
+    let result2 = ActivationFunctions.relu.hiddenError([0.3], [0.3], -0.68);
+
+    // ASSERT
+    expect(result).toBeCloseTo(0.09);
+    expect(result2).toBeCloseTo(0);
+
+});

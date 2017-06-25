@@ -1,22 +1,22 @@
 import Normalizer from "./Normalizer";
 import ActivationFunctions from "./ActivationFunctions";
-import ArrayUtils from "../../../utils/ArrayUtils";
+// import ArrayUtils from "../../../utils/ArrayUtils";
 
-it ("normalize column removes negative values if relu and normalizes between 0 and 1", () => {
-    let toNormalize = [[5, 10, 15],
-        [10, 15, 20],
-        [15, 20, 25]];
-    let nn = new Normalizer(ActivationFunctions.relu);
-
-    // CALL
-    let result = nn.normalize(toNormalize, true);
-
-    // ASSERT
-    let flattenedResult = ArrayUtils.flatten(result);
-    let filteredResult = ArrayUtils.filter(flattenedResult, (item) => item >= 0 && item <= 1);
-    expect(flattenedResult.length).toBe(filteredResult.length);
-    expect(flattenedResult.length).toBe(9);
-});
+// it ("normalize column removes negative values if relu and normalizes between 0 and 1", () => {
+//     let toNormalize = [[5, 10, 15],
+//         [10, 15, 20],
+//         [15, 20, 25]];
+//     let nn = new Normalizer(ActivationFunctions.relu);
+//
+//     // CALL
+//     let result = nn.normalize(toNormalize, true);
+//
+//     // ASSERT
+//     let flattenedResult = ArrayUtils.flatten(result);
+//     let filteredResult = ArrayUtils.filter(flattenedResult, (item) => item >= 0 && item <= 1);
+//     expect(flattenedResult.length).toBe(filteredResult.length);
+//     expect(flattenedResult.length).toBe(9);
+// });
 
 it ("normalize column works", () => {
     // SETUP

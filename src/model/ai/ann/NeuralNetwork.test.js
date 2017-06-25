@@ -1,7 +1,7 @@
 import NeuralNetwork from "./NeuralNetwork";
 import ActivationFunctions from "./ActivationFunctions";
 import NeuralNetworkParameter from "./NeuralNetworkParameter";
-// import ArrayUtils from "../../../utils/ArrayUtils";
+import ArrayUtils from "../../../utils/ArrayUtils";
 
 it ("NeuralNetork constructor works", () => {
     // CALL
@@ -156,9 +156,9 @@ it ("backPropagate test 2", () => {
             let node = layer[nodeIndex];
 
             for (let weightIndex = 0; weightIndex < node.length; weightIndex++) {
-                console.log(`layerIndex = ${layerIndex}`);
-                console.log(`nodeIndex = ${nodeIndex}`);
-                console.log(`weightIndex = ${weightIndex}`);
+                // console.log(`layerIndex = ${layerIndex}`);
+                // console.log(`nodeIndex = ${nodeIndex}`);
+                // console.log(`weightIndex = ${weightIndex}`);
 
                 let newWeight = newWeights[layerIndex][nodeIndex][weightIndex];
                 let destWeight = destWeights[layerIndex][nodeIndex][weightIndex];
@@ -296,4 +296,68 @@ it ("train works", () => {
     expect(numEpochs > 0).toBe(true);
 
     jest.useRealTimers();
+});
+
+const reluTest = function () {
+    // SETUP
+    let nn = new NeuralNetwork([3, 2], false, ActivationFunctions.relu, 1.0, 2);
+    nn.setWeights([
+        [
+            [0.25, 0.1],
+            [-0.25, -0.1],
+            [0.5, 0.5]
+        ], // LAYER 0
+        [
+            [0.5, 0.3, 0.5],
+            [0.4, -0.4, -0.3]
+        ] // LAYER 1
+    ]);
+    let input = [-5, -5];
+    let expectedOutput = [[0.525, 0.0]];
+    let lastOutput = null;
+
+    // CALL
+    lastOutput = nn.feedForward([input]);
+
+    // ASSERT
+    expect(lastOutput[0][0]).toBeCloseTo(expectedOutput[0][0]);
+    expect(lastOutput[0][1]).toBeCloseTo(expectedOutput[0][1]);
+
+    return nn;
+};
+
+it ("relu feedForward test", () => {
+    reluTest();
+});
+
+it ("relu backprop test", () => {
+    let nn = reluTest();
+
+    // CALL
+    nn.backPropagate([[1, 0]]);
+
+    // ASSERT
+    let weightsShouldEqual = [
+        [
+            [0.25, 0.1],
+            [-0.9625, -0.8125],
+            [0.5, 0.5]
+        ], // LAYER 0
+        [
+            [0.5, 1.13125, 0.5],
+            [0.4, -0.4, -0.3]
+        ] // LAYER 1
+    ];
+    let weights = nn.getWeights();
+
+    let flattenedWeights = ArrayUtils.flatten(weights);
+    let flattenedShouldEqualWeights = ArrayUtils.flatten(weightsShouldEqual);
+
+    console.log(flattenedWeights);
+    console.log(flattenedShouldEqualWeights);
+
+    expect(ArrayUtils.arrayApproxEquals(flattenedWeights, flattenedShouldEqualWeights)).toBe(true);
+
+
+
 });
