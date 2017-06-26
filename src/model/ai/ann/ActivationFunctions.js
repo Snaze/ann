@@ -5,6 +5,20 @@ import math from "../../../../node_modules/mathjs/dist/math";
  */
 class ActivationFunctions {
 
+    static _all = null;
+    static get all() {
+        if (ActivationFunctions._all === null) {
+            ActivationFunctions._all = [
+                ActivationFunctions.sigmoid,
+                ActivationFunctions.tanh,
+                ActivationFunctions.relu,
+                ActivationFunctions.lrelu
+            ];
+        }
+
+        return ActivationFunctions._all;
+    }
+
     static _sigmoid = null;
     static get sigmoid() {
         if (ActivationFunctions._sigmoid === null) {
@@ -94,6 +108,31 @@ class ActivationFunctions {
         }
 
         return ActivationFunctions._relu;
+    }
+
+    static _lrelu = null;
+    static get lrelu() {
+        if (ActivationFunctions._lrelu === null) {
+            ActivationFunctions._lrelu = {
+                output: function (x) {
+                    return math.max(0, x);
+                },
+                outputError: function (targetValue, outputValue) {
+                    let targetMinusOutput = math.subtract(targetValue, outputValue);
+                    let derivative = outputValue > 0 ? 1 : 0.01;
+
+                    return math.multiply(targetMinusOutput, derivative);
+                },
+                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
+                    let derivative = outputValue > 0 ? 1 : 0.01;
+                    let dotProduct = math.dot(nextLayerErrors, nextNodeWeights);
+
+                    return math.multiply(derivative, dotProduct);
+                }
+            };
+        }
+
+        return ActivationFunctions._lrelu;
     }
 
 }

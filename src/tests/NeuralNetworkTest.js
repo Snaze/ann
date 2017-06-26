@@ -4,6 +4,7 @@ import NeuralNetwork from "../model/ai/ann/NeuralNetwork";
 import MathUtil from "../model/ai/MathUtil";
 import "./NeuralNetworkTest.css";
 import ActivationFunctions from "../model/ai/ann/ActivationFunctions";
+import WeightInitializer from "../model/ai/ann/WeightInitializer";
 import ArrayUtils from "../utils/ArrayUtils";
 import NeuralNetworkParameter from "../model/ai/ann/NeuralNetworkParameter";
 // import {assert} from "../utils/Assert";
@@ -44,7 +45,8 @@ class NeuralNetworkTest extends Component {
             greenCount: 0,
             redCount: 0,
             showDetail: false,
-            includeBias: true
+            includeBias: true,
+            weightInitialization: "COMPRESSED_NORMAL"
         };
 
         this._testData = {};
@@ -93,18 +95,21 @@ class NeuralNetworkTest extends Component {
         falseValue = -1.0;
         trueValue = 1.0;
 
-        // if (this.state.activationFunction === "sigmoid") {
-        //     falseValue = 0.0;
-        //     trueValue = 1.0;
-        // } else if (this.state.activationFunction === "tanh") {
-        //     falseValue = -1.0;
-        //     trueValue = 1.0;
-        // } else if (this.state.activationFunction === "relu") {
-        //     falseValue = 0;
-        //     trueValue = 1.0;
-        // } else {
-        //     throw new Error("Unknown activation function");
-        // }
+        if (this.state.activationFunction === "sigmoid") {
+            falseValue = 0.0;
+            trueValue = 1.0;
+        } else if (this.state.activationFunction === "tanh") {
+            falseValue = -1.0;
+            trueValue = 1.0;
+        } else if (this.state.activationFunction === "relu") {
+            falseValue = 0;
+            trueValue = 1.0;
+        } else if (this.state.activationFunction === "lrelu") {
+            falseValue = 0;
+            trueValue = 1.0;
+        } else {
+            throw new Error("Unknown activation function");
+        }
 
         let toRet = [falseValue, falseValue];
         // let distance = MathUtil.distance(point, [0, 0]);
@@ -147,7 +152,7 @@ class NeuralNetworkTest extends Component {
             epochs: nn.epochs
         });
 
-        if ((nn.epochs % 5 === 0) || (nn.epochs === 1)) {
+        if ((nn.epochs % 2 === 0) || (nn.epochs === 1)) {
             this.testData();
         }
     }
@@ -489,6 +494,13 @@ class NeuralNetworkTest extends Component {
                     includeBias: includeBias
                 });
                 break;
+            case "ddlWeightInitialization":
+                let weightInitialization = e.target.value;
+
+                this.setState({
+                    weightInitialization: weightInitialization
+                });
+                break;
             default:
                 break;
         }
@@ -517,7 +529,8 @@ class NeuralNetworkTest extends Component {
             this._neuralNetwork = new NeuralNetwork(layersArray,
                 this.state.includeBias,
                 ActivationFunctions[this.state.activationFunction],
-                this.state.learningRate);
+                this.state.learningRate,
+                WeightInitializer[this.state.weightInitialization]);
 
             this.trainAndTest();
         } else if (e.target.name === "btnStop") {
@@ -624,6 +637,20 @@ class NeuralNetworkTest extends Component {
                                             <option value="tanh">tanh</option>
                                             <option value="sigmoid">sigmoid</option>
                                             <option value="relu">relu</option>
+                                            <option value="lrelu">lrelu</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Weight Init Type:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <select name="ddlWeightInitialization" value={this.state.weightInitialization}
+                                                onChange={(e) => this.tableOnChange(e)}>
+                                            <option value="COMPRESSED_NORMAL">Compressed Gaussian</option>
+                                            <option value="GENERIC_NORMAL">Gaussian</option>
+                                            <option value="FAN_IN_FAN_OUT">Fan-in / Fan-out</option>
                                         </select>
                                     </td>
                                 </tr>

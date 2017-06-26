@@ -1,6 +1,6 @@
 import Normalizer from "./Normalizer";
 import ActivationFunctions from "./ActivationFunctions";
-// import ArrayUtils from "../../../utils/ArrayUtils";
+import ArrayUtils from "../../../utils/ArrayUtils";
 
 // it ("normalize column removes negative values if relu and normalizes between 0 and 1", () => {
 //     let toNormalize = [[5, 10, 15],
@@ -21,16 +21,17 @@ import ActivationFunctions from "./ActivationFunctions";
 it ("normalize column works", () => {
     // SETUP
     let toNormalize = [1, 3, 5];
-    let stdDev = 2;
+    // let stdDev = 2;
     let normalizer = new Normalizer(ActivationFunctions.sigmoid);
 
     // CALL
     let toCheck = normalizer.normalizeColumn(toNormalize).data;
 
     // ASSERT
-    expect(toCheck[0]).toBeCloseTo(-2.0/stdDev);
-    expect(toCheck[1]).toBeCloseTo(0);
-    expect(toCheck[2]).toBeCloseTo(2/stdDev);
+    // minMaxNormalization
+    expect(toCheck[0]).toBeCloseTo(0);
+    expect(toCheck[1]).toBeCloseTo(0.5);
+    expect(toCheck[2]).toBeCloseTo(1);
 });
 
 it ("normalize works", () => {
@@ -38,8 +39,8 @@ it ("normalize works", () => {
     let toNormalize = [[5, 10, 15],
         [10, 15, 20],
         [15, 20, 25]];
-    let stddev = 5;
-    let mean = [10, 15, 20];
+    // let stddev = 5;
+    // let mean = [10, 15, 20];
     let normalizer = new Normalizer(ActivationFunctions.sigmoid);
 
     // CALL
@@ -48,11 +49,15 @@ it ("normalize works", () => {
     // console.log(result);
 
     // ASSERT
-    for (let y = 0; y < result.length; y++) {
-
-        for (let x = 0; x < result[y].length; x++) {
-            let expectedValue = (toNormalize[y][x] - mean[x]) / stddev;
-            expect(result[y][x]).toBeCloseTo(expectedValue);
-        }
-    }
+    // min-max normalization
+    expect(ArrayUtils.arrayApproxEquals(result[0], [0.0, 0.0, 0.0])).toBe(true);
+    expect(ArrayUtils.arrayApproxEquals(result[1], [0.5, 0.5, 0.5])).toBe(true);
+    expect(ArrayUtils.arrayApproxEquals(result[2], [1.0, 1.0, 1.0])).toBe(true);
+    // for (let y = 0; y < result.length; y++) {
+    //
+    //     for (let x = 0; x < result[y].length; x++) {
+    //         let expectedValue = (toNormalize[y][x] - mean[x]) / stddev;
+    //         expect(result[y][x]).toBeCloseTo(expectedValue);
+    //     }
+    // }
 });

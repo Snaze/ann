@@ -7,6 +7,7 @@ import MathUtil from "../MathUtil";
 import moment from "../../../../node_modules/moment/moment";
 import Normalizer from "./Normalizer";
 import EdgeStore from "./EdgeStore";
+import WeightInitializer from "./WeightInitializer";
 // import NeuralNetworkParameter from "./NeuralNetworkParameter";
 
 class NeuralNetwork {
@@ -14,12 +15,13 @@ class NeuralNetwork {
     constructor(nodesPerLayer,
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid,
-                learningRate=1.0) {
+                learningRate=1.0,
+                weightInitializationType=WeightInitializer.COMPRESSED_NORMAL) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
         this._learningRate = learningRate;
-        this._edgeStore = new EdgeStore(nodesPerLayer, includeBias, activationFunction);
+        this._edgeStore = new EdgeStore(nodesPerLayer, includeBias, activationFunction, weightInitializationType);
         this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias,
             activationFunction, learningRate, this._edgeStore);
         this._output = null;

@@ -1,47 +1,26 @@
-import MathUtil from "../MathUtil";
-import ActivationFunctions from "./ActivationFunctions";
-import math from "../../../../node_modules/mathjs/dist/math";
+// import MathUtil from "../MathUtil";
+// import ActivationFunctions from "./ActivationFunctions";
+// import math from "../../../../node_modules/mathjs/dist/math";
+// import WeightInitializer from "./WeightInitializer";
 
 class Edge {
 
-    constructor(id) {
+    /**
+     * Creates a new weighted edge for a Neural Network
+     *
+     * @param id The id shoudl conform to "sourceLayer_sourceNode__destLayer_destNode"
+     * @param weightInitializer {WeightInitializer} The weight Initializer
+     */
+    constructor(id, weightInitializer) {
         this._id = id;
         this._weight = 0;
         this._prevWeight = 0;
         this._isAlive = true;
+        this._weightInitializer = weightInitializer;
     }
 
-    /**
-     * This will assign a random weight to the edge.
-     *
-     * @param activationFunction The current activation function you are using.
-     * @param fanInCount The total number of edges coming in to the current node.
-     * @param fanOutCount The total number of edges leaving the current node.
-     */
-    randomizeWeight(activationFunction, fanInCount, fanOutCount) {
-        let randomNum = null;
-        let randomWeight = null;
-
-        switch (activationFunction) {
-            case ActivationFunctions.relu:
-                randomNum = math.sqrt(math.divide(12, math.add(fanInCount, fanOutCount)));
-                randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
-                break;
-            case ActivationFunctions.tanh:
-                // randomNum = NeuralNetworkNode.createClippedRandomWeight(0, 0.5, -1, 1);
-                // randomWeight = math.divide(randomNum, math.sqrt(math.divide(2.0, numToCreate)));
-                randomNum = math.sqrt(math.divide(6, math.add(fanInCount, fanOutCount)));
-                randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
-                break;
-            case ActivationFunctions.sigmoid:
-                randomNum = math.multiply(4, math.sqrt(math.divide(6, math.add(fanInCount, fanOutCount))));
-                randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
-                break;
-            default:
-                throw new Error("Unknown Activation Function");
-        }
-
-        this.weight = randomWeight;
+    randomizeWeight() {
+        this.weight = this._weightInitializer.createRandomWeight();
     }
 
     get weight() {
@@ -67,6 +46,18 @@ class Edge {
 
     get prevWeight() {
         return this._prevWeight;
+    }
+
+    get activationFunction() {
+        return this._activationFunction;
+    }
+
+    get fanInCount() {
+        return this._fanInCount;
+    }
+
+    get fanOutCount() {
+        return this._fanOutCount;
     }
 }
 

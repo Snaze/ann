@@ -7,7 +7,8 @@ class Normalizer {
     constructor(activationFunction) {
         this._activationFunction = activationFunction;
         this._normalizationData = [];
-        this._toNormalizePositive = [ActivationFunctions.relu];
+        // this._toNormalizePositive = [ActivationFunctions.relu, ActivationFunctions.lrelu];
+        this._toNormalizePositive = ActivationFunctions.all;
     }
 
     normalizeToPositive(data, min = null, max = null) {
@@ -27,13 +28,17 @@ class Normalizer {
             };
         }
 
-        if (min < 0) {
-            data = math.subtract(data, min);
-        }
+        let numerator = math.subtract(data, min);
+        let denominator = math.subtract(max, min);
+        data = math.divide(numerator, denominator);
 
-        if (max > 1) {
-            data = math.divide(data, max);
-        }
+        // if (min < 0) {
+        //     data = math.subtract(data, min);
+        // }
+        //
+        // if (max > 1) {
+        //     data = math.divide(data, max);
+        // }
 
         return {
             data: data,
@@ -42,14 +47,14 @@ class Normalizer {
         };
     }
 
-    normalizeColumn(colData, saveNormalizationData=false) {
-        let mean = math.mean(colData);
-        let stdDev = math.std(colData);
+    normalizeColumn(data) {
+        let mean = math.mean(data);
+        let stdDev = math.std(data);
         if (stdDev === 0) {
             stdDev = 1e-6;
         }
 
-        let data = this.normalizeColumnWithMeanAndStdDev(colData, mean, stdDev);
+        // let data = this.normalizeColumnWithMeanAndStdDev(data, mean, stdDev);
 
         let temp = this.normalizeToPositive(data);
 
@@ -91,12 +96,13 @@ class Normalizer {
                 ArrayUtils.setColumn(toRet, toSet.data, columnIndex);
             } else {
                 let normalizationData = this._normalizationData[columnIndex];
-                let mean = normalizationData.mean;
-                let std = normalizationData.std;
+                // let mean = normalizationData.mean;
+                // let std = normalizationData.std;
                 let min = normalizationData.min;
                 let max = normalizationData.max;
 
-                toSet = this.normalizeColumnWithMeanAndStdDev(column, mean, std);
+                toSet = column;
+                // toSet = this.normalizeColumnWithMeanAndStdDev(column, mean, std);
                 let temp = this.normalizeToPositive(toSet, min, max);
                 toSet = temp.data;
 

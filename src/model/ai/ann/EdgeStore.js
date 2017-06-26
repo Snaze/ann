@@ -1,13 +1,15 @@
 import ArrayUtils from "../../../utils/ArrayUtils";
 import Edge from "./Edge";
+import WeightInitializer from "./WeightInitializer";
 
 class EdgeStore {
 
-    constructor(nodesPerLayer, includeBias, activationFunction) {
+    constructor(nodesPerLayer, includeBias, activationFunction, initializationType=WeightInitializer.COMPRESSED_NORMAL) {
         this._nodesPerLayer = ArrayUtils.copy(nodesPerLayer);
         this._nodesInNextLayer = EdgeStore.createNodesInNextLayer(this._nodesPerLayer);
         this._nodesInPrevLayer = EdgeStore.createNodesInPrevLayer(this._nodesPerLayer);
         this._activationFunction = activationFunction;
+        this._initializationType = initializationType;
         this._includeBias = includeBias;
         this._inputEdges = null;
         this._outputEdges = null;
@@ -48,6 +50,7 @@ class EdgeStore {
         let numPrevEdges = 0;
         let numNextEdges = 0;
         let edgeId;
+        let weightInitializer;
 
         for (let layerIdx = 0; layerIdx < this._nodesPerLayer.length; layerIdx++) {
             currNumNodes = this._nodesPerLayer[layerIdx];
@@ -68,8 +71,10 @@ class EdgeStore {
                     if (edgeId in edgeCache) {
                         currentEdge = edgeCache[edgeId];
                     } else {
-                        currentEdge = new Edge(edgeId);
-                        currentEdge.randomizeWeight(this._activationFunction, numPrevEdges, numNextEdges);
+                        weightInitializer = new WeightInitializer(this._activationFunction,
+                            this._initializationType, numPrevEdges, currNumNodes);
+                        currentEdge = new Edge(edgeId, weightInitializer);
+                        currentEdge.randomizeWeight();
                         edgeCache[edgeId] = currentEdge;
                     }
 
@@ -82,8 +87,10 @@ class EdgeStore {
                     if (edgeId in edgeCache) {
                         currentEdge = edgeCache[edgeId];
                     } else {
-                        currentEdge = new Edge(edgeId);
-                        currentEdge.randomizeWeight(this._activationFunction, numPrevEdges, numNextEdges);
+                        weightInitializer = new WeightInitializer(this._activationFunction,
+                            this._initializationType, currNumNodes, numNextEdges);
+                        currentEdge = new Edge(edgeId, weightInitializer);
+                        currentEdge.randomizeWeight();
                         edgeCache[edgeId] = currentEdge;
                     }
 
