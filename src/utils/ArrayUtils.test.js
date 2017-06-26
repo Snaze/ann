@@ -200,12 +200,12 @@ it ("test take", () => {
     expect(endResult[0]).toBe(5);
 });
 
-it ("test select", () => {
+it ("test selectByIndices", () => {
     // SETUP
     let toSelectFrom = [0, 1, 2, 3, 4, 5];
 
     // CALL
-    let result = ArrayUtils.select(toSelectFrom, [0, 3, 5]);
+    let result = ArrayUtils.selectByIndices(toSelectFrom, [0, 3, 5]);
 
     // ASSERT
     expect(result[0]).toBe(0);
@@ -324,4 +324,125 @@ it ("isIn works", () => {
     // ASSERT
     expect(ArrayUtils.isIn(toCheck, 0)).toBe(true);
     expect(ArrayUtils.isIn(toCheck, 4)).toBe(false);
+});
+
+it ("expand works", () => {
+    // SETUP
+    let toExpand = [];
+    let index = 3;
+
+    // CALL
+    ArrayUtils.expand(toExpand, index, 0);
+
+    // ASSERT
+    expect(toExpand.length).toBe(4);
+    expect(ArrayUtils.arrayEquals(toExpand, [0, 0, 0, 0])).toBe(true);
+
+    ArrayUtils.expand(toExpand, index, 4);
+    expect(toExpand.length).toBe(4);
+    expect(ArrayUtils.arrayEquals(toExpand, [0, 0, 0, 0])).toBe(true);
+});
+
+it ("copy works", () => {
+    // SETUP
+    let toCopy = [1, 2, 3];
+
+    // CALL
+    let copied = ArrayUtils.copy(toCopy);
+    copied.push(4);
+
+    // ASSERT
+    expect(toCopy.length).toBe(3);
+    expect(ArrayUtils.arrayEquals(toCopy, [1, 2, 3])).toBe(true);
+    expect(copied.length).toBe(4);
+    expect(ArrayUtils.arrayEquals(copied, [1, 2, 3, 4])).toBe(true);
+});
+
+it ("removeByIndex works", () => {
+    // SETUP
+    let toRemoveFrom = [1, 2, 3];
+
+    // CALL
+    let temp = ArrayUtils.removeByIndex(toRemoveFrom, 0);
+
+    // ASSERT
+    expect(temp.length).toBe(2);
+    expect(toRemoveFrom.length).toBe(3);
+    expect(ArrayUtils.arrayEquals(temp, [2, 3])).toBe(true);
+    expect(ArrayUtils.arrayEquals(toRemoveFrom, [1, 2, 3])).toBe(true);
+});
+
+it ("select works", () => {
+    // SETUP
+    let toSelectFrom = [{data:1}, {data: 2}, {data: 3}];
+    let toSelectFrom2 = [];
+
+    // CALL
+    let toCheck = ArrayUtils.select(toSelectFrom, (item) => item.data);
+    let toCheck2 = ArrayUtils.select(toSelectFrom2, (item) => item.data);
+
+    // ASSERT
+    expect(ArrayUtils.arrayEquals(toCheck, [1, 2, 3])).toBe(true);
+    expect(ArrayUtils.arrayEquals(toCheck2, [])).toBe(true);
+
+});
+
+it ("update works", () => {
+    // SETUP
+    let toUpdate = [{data:1}, {data:2}, {data:3}];
+    let toUpdateWith = [4, 5, 6];
+
+    // CALL
+    ArrayUtils.update(toUpdate, (item, idx) => item.data = toUpdateWith[idx]);
+
+    // ASSERT
+    expect(toUpdate[0].data).toBe(4);
+    expect(toUpdate[1].data).toBe(5);
+    expect(toUpdate[2].data).toBe(6);
+});
+
+it ("update works with filter", () => {
+    // SETUP
+    let toUpdate = [{data:1}, {data:2}, {data:3}];
+
+    // CALL
+    ArrayUtils.update(toUpdate, (item, idx) => {
+        item.data = 10;
+    }, (item) => {
+        return item.data === 2;
+    });
+
+    // ASSERT
+    expect(toUpdate[0].data).toBe(1);
+    expect(toUpdate[1].data).toBe(10);
+    expect(toUpdate[2].data).toBe(3);
+});
+
+it ("deepCopy works", () => {
+    // SETUP
+    let toCopy = [[1, 2], [3, 4], [5, 6]];
+
+    // CALL
+    let toCheck = ArrayUtils.deepCopy(toCopy);
+    toCopy[0].push(7);
+    toCopy[1].push(7);
+    toCopy[2].push(7);
+
+    // ASSERT
+    expect(toCheck.length).toBe(3);
+    expect(toCheck[0].length).toBe(2);
+    expect(toCheck[1].length).toBe(2);
+    expect(toCheck[2].length).toBe(2);
+});
+
+it ("create1D works", () => {
+    // SETUP
+    let length = 2;
+
+    // CALL
+    let toCheck = ArrayUtils.create1D(length, 0);
+
+    // ASSERT
+    expect(toCheck.length).toBe(2);
+    expect(ArrayUtils.arrayEquals(toCheck, [0, 0])).toBe(true);
 });

@@ -211,11 +211,11 @@ class NeuralNetworkTest extends Component {
         let trainRangeIndices = ArrayUtils.take(range, numToTake, 0);
         let testRangeIndices = ArrayUtils.take(range, 1000000, numToTake);
 
-        this._testData["inputs"] = ArrayUtils.select(inputs, testRangeIndices);
-        this._testData["expected"] = ArrayUtils.select(expected, testRangeIndices);
+        this._testData["inputs"] = ArrayUtils.selectByIndices(inputs, testRangeIndices);
+        this._testData["expected"] = ArrayUtils.selectByIndices(expected, testRangeIndices);
 
-        inputs = ArrayUtils.select(inputs, trainRangeIndices);
-        expected = ArrayUtils.select(expected, trainRangeIndices);
+        inputs = ArrayUtils.selectByIndices(inputs, trainRangeIndices);
+        expected = ArrayUtils.selectByIndices(expected, trainRangeIndices);
 
         let nnp = new NeuralNetworkParameter();
         nnp.inputs = inputs;
@@ -496,7 +496,7 @@ class NeuralNetworkTest extends Component {
     }
 
     createLayersArray() {
-        let toRet = [];
+        let toRet = [this._numInputs];
 
         if (this.state.hiddenLayers !== "") {
             let innerArray = this.state.hiddenLayers.split(/,\s/);
@@ -517,8 +517,7 @@ class NeuralNetworkTest extends Component {
             this._neuralNetwork = new NeuralNetwork(layersArray,
                 this.state.includeBias,
                 ActivationFunctions[this.state.activationFunction],
-                this.state.learningRate,
-                this._numInputs);
+                this.state.learningRate);
 
             this.trainAndTest();
         } else if (e.target.name === "btnStop") {

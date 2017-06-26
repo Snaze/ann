@@ -1,11 +1,12 @@
 import NeuralNetworkNode from "./NeuralNetworkNode";
 import ActivationFunctions from "./ActivationFunctions";
+import EdgeStore from "./EdgeStore";
 
 it ("feedForward works", () => {
     // SETUP
-    let nnn = new NeuralNetworkNode(2, 2, false, ActivationFunctions.sigmoid);
-    nnn.weights[0] = 0.1;
-    nnn.weights[1] = 0.8;
+    let nnn = new NeuralNetworkNode(2, 0, new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid),
+        2, 2, false, ActivationFunctions.sigmoid);
+    nnn.weights = [0.1, 0.8];
 
     // CALL
     let value = nnn.feedForward([[0.35, 0.9]]);
@@ -16,9 +17,9 @@ it ("feedForward works", () => {
 
 it ("backPropagateOutputNode works", () => {
     // SETUP
-    let nnn = new NeuralNetworkNode(2, 2, false, ActivationFunctions.sigmoid);
-    nnn.weights[0] = 0.3;
-    nnn.weights[1] = 0.9;
+    let nnn = new NeuralNetworkNode(2, 0, new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid),
+        2, 2, false, ActivationFunctions.sigmoid);
+    nnn.weights = [0.3, 0.9]
     let nodeValues = [[0.68, 0.6637]];
     let values = nnn.feedForward(nodeValues);
     expect(values[0]).toBeCloseTo(0.69);
@@ -37,9 +38,9 @@ it ("backPropagateOutputNode works", () => {
 
 it ("backPropagateHiddenNode works", () => {
     // SETUP
-    let nnn = new NeuralNetworkNode(2, 2, false, ActivationFunctions.sigmoid);
-    nnn.weights[0] = 0.1;
-    nnn.weights[1] = 0.8;
+    let nnn = new NeuralNetworkNode(1, 0, new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid),
+        2, 2, false, ActivationFunctions.sigmoid);
+    nnn.weights = [0.1, 0.8];
     let nodeValues = [0.35, 0.9];
     let value = nnn.feedForward([nodeValues]);
     expect(value[0]).toBeCloseTo(0.68);
@@ -56,7 +57,8 @@ it ("backPropagateHiddenNode works", () => {
 
 const testFeedForward = function (weights, inputs, output) {
     // SETUP
-    let nnn = new NeuralNetworkNode(2, 2, true, ActivationFunctions.sigmoid);
+    let nnn = new NeuralNetworkNode(1, 0, new EdgeStore([2, 2, 1], true, ActivationFunctions.sigmoid),
+        2, 2, true, ActivationFunctions.sigmoid);
     nnn.weights = weights;
 
     // CALL
@@ -107,7 +109,8 @@ it ("test forwardPropagation again - out 2", () => {
 
 const testBackPropOutput = function (oldWeights, learningRate, inputs, expectedOutput, newWeights) {
     // SETUP
-    let nnn = new NeuralNetworkNode(2, 2, true, ActivationFunctions.sigmoid);
+    let nnn = new NeuralNetworkNode(2, 0, new EdgeStore([2, 2, 1], true, ActivationFunctions.sigmoid),
+        2, 2, true, ActivationFunctions.sigmoid);
     nnn.weights = oldWeights;
     nnn.learningRate = learningRate;
     nnn.feedForward([inputs]);
@@ -143,7 +146,8 @@ const testBackPropHidden = function (oldWeights, learningRate,
                                      inputs, nextLayersErrors,
                                      outgoingWeights, newWeights) {
     // SETUP
-    let nnn = new NeuralNetworkNode(2, 2, true, ActivationFunctions.sigmoid);
+    let nnn = new NeuralNetworkNode(1, 0, new EdgeStore([2, 2, 1], true, ActivationFunctions.sigmoid),
+        2, 2, true, ActivationFunctions.sigmoid);
     nnn.weights = oldWeights;
     nnn.learningRate = learningRate;
     nnn.feedForward([inputs]);

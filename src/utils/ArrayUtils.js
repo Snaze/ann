@@ -54,6 +54,16 @@ class ArrayUtils {
         return toRet;
     }
 
+    static create1D(length, value=0) {
+        let toRet = [];
+
+        for (let i = 0; i < length; i++) {
+            toRet.push(value);
+        }
+
+        return toRet;
+    }
+
     static height(array2D) {
         return array2D.length;
     }
@@ -138,13 +148,25 @@ class ArrayUtils {
         return toRet;
     }
 
-    static select(theArray, indicesToSelect) {
+    static selectByIndices(theArray, indicesToSelect) {
         assert (theArray.length >= indicesToSelect.length);
 
         let toRet = [];
 
         for (let i = 0; i < indicesToSelect.length; i++) {
             toRet.push(theArray[indicesToSelect[i]]);
+        }
+
+        return toRet;
+    }
+
+    static selectIndices(theArray, filterFunction) {
+        let toRet = [];
+
+        for (let i = 0; i < theArray.length; i++) {
+            if (filterFunction(theArray[i])) {
+                toRet.push(i);
+            }
         }
 
         return toRet;
@@ -226,6 +248,8 @@ class ArrayUtils {
                 toExtend.push(callback(toExtendWith[i]));
             }
         }
+
+        return toExtend;
     }
 
     static filter(toFilter, filterFunction) {
@@ -261,6 +285,78 @@ class ArrayUtils {
         }
 
         return false;
+    }
+
+    static expand(array, index, value) {
+        while (array.length <= index) {
+            array.push(value);
+        }
+
+        return array;
+    }
+
+    static copy(array) {
+        return array.slice(0);
+    }
+
+    static deepCopy(multiDimensionalArray) {
+        let toRet = [];
+        let current;
+
+        for (let i = 0; i < multiDimensionalArray.length; i++) {
+            current = multiDimensionalArray[i];
+
+            if (current instanceof Array) {
+                let copiedArray = ArrayUtils.deepCopy(current);
+                toRet.push(copiedArray);
+            } else {
+                toRet.push(current);
+            }
+        }
+
+        return toRet;
+    }
+
+    /**
+     * this mutates array
+     *
+     * @param array
+     * @param index
+     * @returns {*}
+     */
+    static removeByIndex(array, index) {
+        array = ArrayUtils.copy(array);
+        array.splice(index, 1);
+        return array;
+    }
+
+    static select(array, selectionFunction) {
+        let toRet = [];
+
+        for (let i = 0; i < array.length; i++) {
+            toRet.push(selectionFunction(array[i]));
+        }
+
+        return toRet;
+    }
+
+    static update(array, updateFunction, filterFunction) {
+        assert (!!updateFunction, "You must supply an update function");
+
+        let indicesToUpdate;
+        let currentIndex;
+
+        if (!!filterFunction) {
+            indicesToUpdate = ArrayUtils.selectIndices(array, filterFunction);
+        } else {
+            indicesToUpdate = ArrayUtils.range(array.length);
+        }
+
+        for (let i = 0; i < indicesToUpdate.length; i++) {
+            currentIndex = indicesToUpdate[i];
+
+            updateFunction(array[currentIndex], currentIndex);
+        }
     }
 }
 

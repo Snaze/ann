@@ -1,39 +1,39 @@
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
-// import ActivationFunctions from "./ActivationFunctions";
+import ActivationFunctions from "./ActivationFunctions";
 
 class Normalizer {
 
     constructor(activationFunction) {
         this._activationFunction = activationFunction;
         this._normalizationData = [];
+        this._toNormalizePositive = [ActivationFunctions.relu];
     }
 
-    normalizeCenteredForRelu(data, min = null, max = null) {
-        // if (this._activationFunction !== ActivationFunctions.relu) {
-        //     return {
-        //         data: data,
-        //         min: min,
-        //         max: max
-        //     };
-        // }
-
-
+    normalizeToPositive(data, min = null, max = null) {
         if (min === null) {
             min = math.min(data);
         }
-
-        // if (min < 0) {
-        //     data = math.subtract(data, min);
-        // }
 
         if (max === null) {
             max = math.max(data);
         }
 
-        // if (max > 1) {
-        //     data = math.divide(data, max);
-        // }
+        if (!ArrayUtils.isIn(this._toNormalizePositive, this._activationFunction)) {
+            return {
+                data: data,
+                min: min,
+                max: max
+            };
+        }
+
+        if (min < 0) {
+            data = math.subtract(data, min);
+        }
+
+        if (max > 1) {
+            data = math.divide(data, max);
+        }
 
         return {
             data: data,
@@ -51,7 +51,7 @@ class Normalizer {
 
         let data = this.normalizeColumnWithMeanAndStdDev(colData, mean, stdDev);
 
-        let temp = this.normalizeCenteredForRelu(data);
+        let temp = this.normalizeToPositive(data);
 
         return {
             data: temp.data,
@@ -97,7 +97,7 @@ class Normalizer {
                 let max = normalizationData.max;
 
                 toSet = this.normalizeColumnWithMeanAndStdDev(column, mean, std);
-                let temp = this.normalizeCenteredForRelu(toSet, min, max);
+                let temp = this.normalizeToPositive(toSet, min, max);
                 toSet = temp.data;
 
                 ArrayUtils.setColumn(toRet, toSet, columnIndex);

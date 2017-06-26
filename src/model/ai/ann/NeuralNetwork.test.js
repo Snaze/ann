@@ -2,10 +2,11 @@ import NeuralNetwork from "./NeuralNetwork";
 import ActivationFunctions from "./ActivationFunctions";
 import NeuralNetworkParameter from "./NeuralNetworkParameter";
 import ArrayUtils from "../../../utils/ArrayUtils";
+import EdgeStore from "./EdgeStore";
 
 it ("NeuralNetork constructor works", () => {
     // CALL
-    let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.sigmoid);
+    let nn = new NeuralNetwork([2, 2, 1], true, ActivationFunctions.sigmoid);
 
     // ASSERT
     expect(nn !== null).toBe(true);
@@ -15,23 +16,29 @@ it ("createNodes works", () => {
     // SETUP
 
     // CALL
-    let toCheck = NeuralNetwork.createNodes([2, 1], false, ActivationFunctions.sigmoid, 1.0);
+    let toCheck = NeuralNetwork.createNodes([2, 2, 1], false, ActivationFunctions.sigmoid, 1.0,
+                        new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid));
 
     // ASSERT
-    expect(toCheck.length).toBe(2);
+    expect(toCheck.length).toBe(3);
     expect(toCheck[0].length).toBe(2);
-    expect(toCheck[1].length).toBe(1);
+    expect(toCheck[1].length).toBe(2)
+    expect(toCheck[2].length).toBe(1);
 
-    expect(toCheck[0][0].weights.length).toBe(2);
-    expect(toCheck[0][1].weights.length).toBe(2);
+    expect(toCheck[0][0].weights.length).toBe(0);
+    expect(toCheck[0][1].weights.length).toBe(0);
 
     expect(toCheck[1][0].weights.length).toBe(2);
+    expect(toCheck[1][1].weights.length).toBe(2);
+
+    expect(toCheck[2][0].weights.length).toBe(2);
 });
 
 it ("feedforward test", () => {
     // SETUP
-    let nn = new NeuralNetwork([2, 1], false, ActivationFunctions.sigmoid);
+    let nn = new NeuralNetwork([2, 2, 1], false, ActivationFunctions.sigmoid);
     nn.setWeights([
+        [],
         [
             [0.1, 0.8],
             [0.4, 0.6]
@@ -54,8 +61,9 @@ it ("feedforward test", () => {
 
 it ("feedforward test 2", () => {
     // SETUP
-    let nn = new NeuralNetwork([2, 2], true, ActivationFunctions.sigmoid);
+    let nn = new NeuralNetwork([2, 2, 2], true, ActivationFunctions.sigmoid);
     nn.setWeights([
+        [],
         [
             [0.15, 0.2, 0.35],
             [0.25, 0.3, 0.35]
@@ -80,8 +88,9 @@ it ("feedforward test 2", () => {
 
 it ("backpropagate test", () => {
     // SETUP
-    let nn = new NeuralNetwork([2, 1], false, ActivationFunctions.sigmoid);
+    let nn = new NeuralNetwork([2, 2, 1], false, ActivationFunctions.sigmoid);
     nn.setWeights([
+        [],
         [
             [0.1, 0.8],
             [0.4, 0.6]
@@ -113,8 +122,11 @@ it ("backpropagate test", () => {
 
 it ("backPropagate test 2", () => {
     // SETUP
-    let nn = new NeuralNetwork([2, 2], true, ActivationFunctions.sigmoid, 0.5);
+    let nn = new NeuralNetwork([2, 2, 2], true, ActivationFunctions.sigmoid, 0.5);
     nn.setWeights([
+        [
+
+        ],
         [
             [0.15, 0.2, 0.35],
             [0.25, 0.3, 0.35]
@@ -134,6 +146,7 @@ it ("backPropagate test 2", () => {
 
     let expectedOutput = [[0.01, 0.99]];
     let destWeights = [
+        [],
         [
             [0.149780716, 0.19956143],
             [0.24975114, 0.29950229]
@@ -171,8 +184,9 @@ it ("backPropagate test 2", () => {
 
 it ("convergence test", () => {
     // SETUP
-    let nn = new NeuralNetwork([2, 1], false, ActivationFunctions.sigmoid, 1.0);
+    let nn = new NeuralNetwork([2, 2, 1], false, ActivationFunctions.sigmoid, 1.0);
     nn.setWeights([
+        [],
         [
             [0.1, 0.8],
             [0.4, 0.6]
@@ -198,6 +212,7 @@ it ("convergence test", () => {
 
 const convergenceTestWithBiasTerm = function (nn) {
     nn.setWeights([
+        [],
         [
             [0.1, 0.8, 0.01],
             [0.4, 0.6, 0.01]
@@ -222,23 +237,27 @@ const convergenceTestWithBiasTerm = function (nn) {
     expect(error).toBeLessThan(0.001);
 
     nn.iterateOverNodes(function (node) {
-        expect(node.weights.length).toBeGreaterThan(2);
-        let biasWeight = node.weights[node.weights.length - 1];
-        expect(biasWeight !== 0.01).toBe(true);
-        // console.log(`biasWeight = ${biasWeight}`);
+
+        if (node.layerIndex > 0) {
+            expect(node.weights.length).toBeGreaterThan(2);
+            let biasWeight = node.weights[node.weights.length - 1];
+            expect(biasWeight !== 0.01).toBe(true);
+        } else {
+            expect(node.weights.length).toBe(0);
+        }
     });
 };
 
 it ("convergence test with bias term", () => {
     // SETUP
-    let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.sigmoid, 1.0);
+    let nn = new NeuralNetwork([2, 2, 1], true, ActivationFunctions.sigmoid, 1.0);
 
     convergenceTestWithBiasTerm(nn);
 });
 
 it ("convergence test with bias term with tanh", () => {
     // SETUP
-    let nn = new NeuralNetwork([2, 1], true, ActivationFunctions.tanh, 1.0);
+    let nn = new NeuralNetwork([2, 2, 1], true, ActivationFunctions.tanh, 1.0);
 
     convergenceTestWithBiasTerm(nn);
 });
@@ -247,7 +266,7 @@ it ("train works", () => {
     jest.useFakeTimers();
 
     // SETUP
-    let nn = new NeuralNetwork([2, 1]);
+    let nn = new NeuralNetwork([2, 2, 1]);
     let input = []; // [0.35, 0.9]
     let expectedOutput = []; // [0.5]
     let maxEpochs = 1000;
@@ -300,8 +319,9 @@ it ("train works", () => {
 
 const reluTest = function () {
     // SETUP
-    let nn = new NeuralNetwork([3, 2], false, ActivationFunctions.relu, 1.0, 2);
+    let nn = new NeuralNetwork([2, 3, 2], false, ActivationFunctions.relu, 1.0);
     nn.setWeights([
+        [],
         [
             [0.25, 0.1],
             [-0.25, -0.1],
@@ -314,7 +334,7 @@ const reluTest = function () {
     ]);
     let input = [-5, -5];
     let expectedOutput = [[0.525, 0.0]];
-    let lastOutput = null;
+    let lastOutput;
 
     // CALL
     lastOutput = nn.feedForward([input]);
@@ -353,8 +373,8 @@ it ("relu backprop test", () => {
     let flattenedWeights = ArrayUtils.flatten(weights);
     let flattenedShouldEqualWeights = ArrayUtils.flatten(weightsShouldEqual);
 
-    console.log(flattenedWeights);
-    console.log(flattenedShouldEqualWeights);
+    // console.log(flattenedWeights);
+    // console.log(flattenedShouldEqualWeights);
 
     expect(ArrayUtils.arrayApproxEquals(flattenedWeights, flattenedShouldEqualWeights)).toBe(true);
 
