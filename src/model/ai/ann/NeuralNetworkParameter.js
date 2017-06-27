@@ -10,8 +10,6 @@ class NeuralNetworkParameter {
         this._minError = null;
         this._minWeightDelta = null;
         this._cacheMinError = null;
-        this._epochCompleteCallback = null;
-        this._finishedTrainingCallback = null;
         this._normalizeInputs = false;
     }
 
@@ -77,22 +75,6 @@ class NeuralNetworkParameter {
 
     set cacheMinError(value) {
         this._cacheMinError = value;
-    }
-
-    get epochCompleteCallback() {
-        return this._epochCompleteCallback;
-    }
-
-    set epochCompleteCallback(value) {
-        this._epochCompleteCallback = value;
-    }
-
-    get finishedTrainingCallback() {
-        return this._finishedTrainingCallback;
-    }
-
-    set finishedTrainingCallback(value) {
-        this._finishedTrainingCallback = value;
     }
 }
 

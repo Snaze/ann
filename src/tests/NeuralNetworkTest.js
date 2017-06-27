@@ -19,7 +19,7 @@ class NeuralNetworkTest extends Component {
         super(props);
 
         this._numOutputs = 2;
-        this._numInputs = 4;
+        this._numInputs = 5;
 
         // this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
 
@@ -68,23 +68,26 @@ class NeuralNetworkTest extends Component {
 
         toRet.push(Math.pow(toRet[0], 2));
         toRet.push(Math.pow(toRet[1], 2));
+        toRet.push(MathUtil.distance([toRet[0], toRet[1]], [0, 0]));
 
         return toRet;
     }
 
     isGreen(point) {
-        if (this.state.testType === "xor") {
+        let distance = MathUtil.distance([point[0], point[1]], [0, 0]);
 
-            return ((point[0] >= 0 && point[1] >= 0) || (point[0] < 0 && point[1] < 0));
-
-        } else if (this.state.testType === "circle") {
-
-            let distance = MathUtil.distance([point[0], point[1]], [0, 0]);
-            return (distance < 5.0 && distance >= 0);
-
+        switch (this.state.testType) {
+            case "xor":
+                return ((point[0] >= 0 && point[1] >= 0) || (point[0] < 0 && point[1] < 0));
+            case "circle":
+                return (distance < 5.0 && distance >= 0);
+            case "bullseye":
+                return (distance < 2.0 && distance >= 0) ||
+                    (distance < 6.0 && distance >= 4) ||
+                    (distance < 10.0 && distance >= 8);
+            default:
+                throw new Error("Unknown test type");
         }
-
-        return false;
     }
 
     getExpectedValue(point) {
@@ -195,7 +198,8 @@ class NeuralNetworkTest extends Component {
                 x: randomPoint1[0],
                 y: randomPoint1[1],
                 x2: randomPoint1[2],
-                y2: randomPoint1[3]
+                y2: randomPoint1[3],
+                d: randomPoint1[4]
             });
 
             inputs.push(randomPoint1);
@@ -272,6 +276,7 @@ class NeuralNetworkTest extends Component {
                 x2: randomPoint[2],
                 y2: randomPoint[3],
                 prediction: prediction,
+                d: randomPoint[4]
             });
         }
 
@@ -550,7 +555,8 @@ class NeuralNetworkTest extends Component {
                 Neural Network Tester
             </h4>
             <h5 style={{textAlign: "center"}}>
-                Input Nodes (4): x, y, x^2, y^2, Output Nodes (2): true / false
+                Input Nodes ({this._numInputs}): x, y, x^2, y^2, distance from origin<br />
+                Output Nodes (2): true / false
             </h5>
             <div className="NeuralNetworkTestChart">
                 <table>
@@ -624,6 +630,7 @@ class NeuralNetworkTest extends Component {
                                                 onChange={(e) => this.tableOnChange(e)}>
                                             <option value="xor">xor</option>
                                             <option value="circle">circle</option>
+                                            <option value="bullseye">Bull's Eye</option>
                                         </select>
                                     </td>
                                 </tr>

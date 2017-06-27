@@ -3,6 +3,7 @@ import ActivationFunctions from "./ActivationFunctions";
 import NeuralNetworkParameter from "./NeuralNetworkParameter";
 import ArrayUtils from "../../../utils/ArrayUtils";
 import EdgeStore from "./EdgeStore";
+import WeightInitializer from "./WeightInitializer";
 
 it ("NeuralNetork constructor works", () => {
     // CALL
@@ -266,7 +267,18 @@ it ("train works", () => {
     jest.useFakeTimers();
 
     // SETUP
-    let nn = new NeuralNetwork([2, 2, 1]);
+    let trainingFinished = false;
+    let numEpochs = 0;
+    const callback = function (e) {
+        if (e.type === NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE) {
+            numEpochs++;
+        } else if (e.type === NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE) {
+            trainingFinished = true;
+        }
+    };
+
+    let nn = new NeuralNetwork([2, 2, 1], true,
+        ActivationFunctions.sigmoid, 1.0, WeightInitializer.COMPRESSED_NORMAL, callback);
     let input = []; // [0.35, 0.9]
     let expectedOutput = []; // [0.5]
     let maxEpochs = 1000;
@@ -277,15 +289,7 @@ it ("train works", () => {
         expectedOutput.push([0.5]);
     }
 
-    let numEpochs = 0;
-    const epochCompleteCallback = function () {
-        numEpochs++;
-    };
 
-    let trainingFinished = false;
-    const trainingFinishedCallback = function () {
-        trainingFinished = true;
-    };
     let nnp = new NeuralNetworkParameter();
     nnp.inputs = input;
     nnp.expectedOutputs = expectedOutput;
@@ -295,8 +299,6 @@ it ("train works", () => {
     nnp.minError = error;
     nnp.minWeightDelta = null;
     nnp.cacheMinError = false;
-    nnp.epochCompleteCallback = epochCompleteCallback;
-    nnp.finishedTrainingCallback = trainingFinishedCallback;
 
     // CALL
     let maxError = nn.train(nnp);
@@ -377,7 +379,39 @@ it ("relu backprop test", () => {
     // console.log(flattenedShouldEqualWeights);
 
     expect(ArrayUtils.arrayApproxEquals(flattenedWeights, flattenedShouldEqualWeights)).toBe(true);
+});
 
+it ("callback test", () => {
+    // SETUP
+    let tracker = {};
+    NeuralNetwork.ALL_CALLBACKS.forEach((item) => tracker[item] = false);
 
+    const callback = function (e) {
+        tracker[e.type] = true;
+    };
+    let nn = new NeuralNetwork([2, 3, 2], false,
+        ActivationFunctions.relu,
+        1.0,
+        WeightInitializer.COMPRESSED_NORMAL,
+        callback);
 
+    let input = [[0.35, 0.9]];
+    let expectedOutput = [[1, 0]];
+    let nnp = new NeuralNetworkParameter();
+    nnp.inputs = input;
+    nnp.expectedOutputs = expectedOutput;
+    nnp.miniBatchSize = 10;
+    nnp.normalizeInputs = false;
+    nnp.maxEpochs = 1;
+    nnp.minError = 1e-6;
+    nnp.minWeightDelta = null;
+    nnp.cacheMinError = false;
+
+    // CALL
+    nn.train(nnp);
+
+    // ASSERT
+    for (let key in Object.keys(tracker)) {
+        expect(tracker[key]).toBe(true);
+    }
 });

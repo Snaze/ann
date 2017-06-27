@@ -10,26 +10,46 @@ import EdgeStore from "./EdgeStore";
 import WeightInitializer from "./WeightInitializer";
 // import NeuralNetworkParameter from "./NeuralNetworkParameter";
 
+const neural_network_feed_forward_complete = 0;
+const neural_network_back_prop_complete = 1;
+const neural_network_epoch_complete = 2;
+const neural_network_training_complete = 3;
+const all = [
+    neural_network_feed_forward_complete,
+    neural_network_back_prop_complete,
+    neural_network_epoch_complete,
+    neural_network_training_complete
+];
+
+
 class NeuralNetwork {
 
+    static get NEURAL_NETWORK_FEED_FORWARD_COMPLETE() { return neural_network_feed_forward_complete; }
+    static get NEURAL_NETWORK_BACK_PROP_COMPLETE() { return neural_network_back_prop_complete; }
+    static get NEURAL_NETWORK_EPOCH_COMPLETE() { return neural_network_epoch_complete; }
+    static get NEURAL_NETWORK_TRAINING_COMPLETE() { return neural_network_training_complete; }
+    static get ALL_CALLBACKS() { return all; }
+
+    // TODO: you really should have passed a single object into this thing containing the parameters
+    // (all these classes really).
     constructor(nodesPerLayer,
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid,
                 learningRate=1.0,
-                weightInitializationType=WeightInitializer.COMPRESSED_NORMAL) {
+                weightInitializationType=WeightInitializer.COMPRESSED_NORMAL,
+                callback=null) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
         this._learningRate = learningRate;
         this._edgeStore = new EdgeStore(nodesPerLayer, includeBias, activationFunction, weightInitializationType);
-        this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias,
-            activationFunction, learningRate, this._edgeStore);
         this._output = null;
         this._epoch = 0;
         this._totalError = 0;
         this._normalizer = new Normalizer(activationFunction);
         this._inputsNormalized = false;
         this._debug = true;
+        this._callback = callback;
 
         this._trainingParameter = null;
         this._prevWeights = [];
@@ -39,6 +59,10 @@ class NeuralNetwork {
         this._epochInProgress = false;
         this._trainInterval = null;
         this._timerTickRef = (e) => this._timerTick(e);
+        this._nodeCallbackRef = (e) => this._nodeCallback(e);
+
+        this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias,
+            activationFunction, learningRate, this._edgeStore, this._nodeCallbackRef);
     }
 
     get nodesPerLayer() {
@@ -68,7 +92,7 @@ class NeuralNetwork {
     }
 
     static createNodes(nodesPerLayer, includeBias, activationFunction,
-                       learningRate, edgeStore) {
+                       learningRate, edgeStore, callback=null) {
 
         let toRet = [];
         let prevNumNodes = 0;
@@ -165,11 +189,12 @@ class NeuralNetwork {
         }
 
         let startTime = moment();
-        this.trainOne(trainingParameter);
+        let error = this.trainOne(trainingParameter);
         let endTime = moment();
 
         if (trainingParameter.maxEpochs <= this._epoch) {
-            return;
+            this.stopTimer(NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE);
+            return error;
         }
 
         let duration = moment.duration(endTime.diff(startTime));
@@ -177,8 +202,7 @@ class NeuralNetwork {
         // let milliSecDuration = 5000;
         this.log(`Training at every ${milliSecDuration}ms interval`);
 
-        // This is dumb
-        let error = 0;
+        error = 0;
 
         this.stopTimer();
         this._trainInterval = setInterval(function (e) {
@@ -188,7 +212,7 @@ class NeuralNetwork {
         return error;
     }
 
-    stopTimer(callback) {
+    stopTimer(type=null) {
         if (this._trainInterval !== null) {
             clearInterval(this._trainInterval);
             this._trainInterval = null;
@@ -200,8 +224,11 @@ class NeuralNetwork {
             this._minErrorWeights = null;
         }
 
-        if (!!callback) {
-            callback(this);
+        if (!!this._callback && type !== null) {
+            this._callback({
+                type: type,
+                source: this
+            });
         }
     }
 
@@ -243,7 +270,7 @@ class NeuralNetwork {
                     this.log(`weightDelta = ${weightDelta}`);
 
                     if (weightDelta < minWeightDelta) {
-                        this.stopTimer(trainParameter.finishedTrainingCallback);
+                        this.stopTimer(NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE);
                         return;
                     }
                 }
@@ -254,7 +281,7 @@ class NeuralNetwork {
             if ((minError !== null && maxErrorForEpoch <= minError) ||
                 (maxEpochs !== null && maxEpochs <= this._epoch)) {
 
-                this.stopTimer(trainParameter.finishedTrainingCallback);
+                this.stopTimer(NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE);
 
             }
 
@@ -320,8 +347,11 @@ class NeuralNetwork {
 
         this._epoch++;
 
-        if (!!trainingData.epochCompleteCallback) {
-            trainingData.epochCompleteCallback(this);
+        if (!!this._callback) {
+            this._callback({
+                type: NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE,
+                source: this
+            });
         }
 
         return maxErrorForEpoch;
@@ -348,6 +378,13 @@ class NeuralNetwork {
         }
 
         this._output = prevLayerOutput;
+
+        if (!!this._callback) {
+            this._callback({
+                type: NeuralNetwork.NEURAL_NETWORK_FEED_FORWARD_COMPLETE,
+                source: this
+            });
+        }
 
         return this._output;
     }
@@ -392,7 +429,14 @@ class NeuralNetwork {
 
             nextLayerErrors = ArrayUtils.transpose(thisLayerErrors);
 
-            this._totalError += math.sum(math.mean(math.abs(nextLayerErrors), 0));
+            this._totalError += math.sum(math.abs(math.mean(nextLayerErrors, 0)));
+        }
+
+        if (!!this._callback) {
+            this._callback({
+                type: NeuralNetwork.NEURAL_NETWORK_BACK_PROP_COMPLETE,
+                source: this
+            });
         }
 
         return this._totalError;
@@ -404,6 +448,14 @@ class NeuralNetwork {
 
     get totalError() {
         return this._totalError;
+    }
+
+    get callback() {
+        return this._callback;
+    }
+
+    set callback(value) {
+        this._callback = value;
     }
 
     /**
