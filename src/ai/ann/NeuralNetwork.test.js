@@ -19,3 +19,23 @@ it ("getOptimalLocation works", () => {
 
     expect(toCheck).toBeCloseTo(40);
 });
+
+it ("test line key", () => {
+    // SETUP
+    let sourceNode = 2;
+    let sourceLayer = 1;
+    let destNode = 4;
+    let destLayer = 3;
+
+    // CALL
+    let lineKey = NeuralNetwork.getLineKey(sourceLayer, sourceNode, destLayer, destNode);
+    let retrieved = NeuralNetwork.parseLineKey(lineKey);
+
+    // ASSERT
+    expect(lineKey).toBe(`${sourceLayer}_${sourceNode}__${destLayer}_${destNode}`);
+    expect(retrieved.src.layerIdx).toBe(sourceLayer);
+    expect(retrieved.src.nodeIdx).toBe(sourceNode);
+    expect(retrieved.dest.layerIdx).toBe(destLayer);
+    expect(retrieved.dest.nodeIdx).toBe(destNode);
+
+});

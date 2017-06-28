@@ -21,11 +21,11 @@ import {default as NeuralNetworkModel} from "./model/ai/ann/NeuralNetwork";
 import NeuralNetworkDS from "./model/NeuralNetworkDS";
 
 // const div = document.createElement('div');
-let nn = new NeuralNetworkModel([3, 3, 3]);
+let nn = new NeuralNetworkModel([8, 8, 3], true);
 let nnDS = new NeuralNetworkDS(nn);
 
 ReactDOM.render(
-    <NeuralNetwork dataSource={nnDS} height={512} width={800} />,
+    <NeuralNetwork dataSource={nnDS} height={512} width={512} />,
     document.getElementById("root")
 );
 

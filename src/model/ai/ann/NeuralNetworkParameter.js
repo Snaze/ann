@@ -6,10 +6,10 @@ class NeuralNetworkParameter {
         this._inputs = null;
         this._expectedOutputs = null;
         this._miniBatchSize = 10;
-        this._maxEpochs = null;
+        this._maxEpochs = 100;
         this._minError = null;
         this._minWeightDelta = null;
-        this._cacheMinError = null;
+        this._cacheMinError = false;
         this._normalizeInputs = false;
     }
 

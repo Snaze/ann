@@ -10,29 +10,59 @@ class NeuralNetworkNode extends DataSourceComponent {
 
         this._onMouseEnterRef = (e) => this._onMouseEnter(e);
         this._onMouseLeaveRef = (e) => this._onMouseLeave(e);
+        this._onMouseClickRef = (e) => this._onMouseClick(e);
     }
 
     _onMouseEnter(e) {
-        e.target.style.stroke = this.props.highlightStroke;
+        if (!!this.props.onMouseEnter) {
+            this.props.onMouseEnter({
+                nodeIndex: this.neuralNetworkNode.nodeIndex,
+                layerIndex: this.neuralNetworkNode.layerIndex,
+                originalEvent: e
+            });
+        }
     }
 
     _onMouseLeave(e) {
-        e.target.style.stroke = this.props.stroke;
+        if (!!this.props.onMouseLeave) {
+            this.props.onMouseLeave({
+                nodeIndex: this.neuralNetworkNode.nodeIndex,
+                layerIndex: this.neuralNetworkNode.layerIndex,
+                originalEvent: e
+            });
+        }
+    }
+
+    _onMouseClick(e) {
+        if (!!this.props.onMouseClick) {
+            this.props.onMouseClick({
+                nodeIndex: this.neuralNetworkNode.nodeIndex,
+                layerIndex: this.neuralNetworkNode.layerIndex,
+                originalEvent: e
+            });
+        }
     }
 
     get neuralNetworkNode() {
-        return this.dataSource;
+        if (this.dataSource !== null) {
+            return this.dataSource;
+        }
+
+        return {
+            nodeIndex: this.props.nodeIndex,
+            layerIndex: this.props.layerIndex
+        };
     }
 
     getAnimationCircle() {
-        if (this.neuralNetworkNode.feedForwardExecuting ||
-            this.neuralNetworkNode.backPropExecuting) {
+        if (!!this.neuralNetworkNode.feedForwardExecuting ||
+            !!this.neuralNetworkNode.backPropExecuting) {
             return (
                 <circle
                     cx={this.props.centerX}
                     cy={this.props.centerY}
                     r={0}
-                    stroke="DarkGreen"
+                    stroke={this.props.stroke}
                     strokeWidth={this.props.strokeWidth}
                     fill="none">
                     <animate
@@ -56,13 +86,15 @@ class NeuralNetworkNode extends DataSourceComponent {
                     cx={this.props.centerX}
                     cy={this.props.centerY}
                     r={this.props.radius}
-                    stroke="DarkGreen"
+                    stroke={this.props.stroke}
                     strokeWidth={this.props.strokeWidth}
-                    fill="green"
+                    fill={this.props.fill}
                     onMouseEnter={this._onMouseEnterRef}
-                    onMouseLeave={this._onMouseLeaveRef}>
+                    onMouseLeave={this._onMouseLeaveRef}
+                    onClick={this._onMouseClickRef}>
                 </circle>
                 {this.getAnimationCircle()}
+
             </svg>
         );
     }
@@ -70,19 +102,29 @@ class NeuralNetworkNode extends DataSourceComponent {
 }
 
 NeuralNetworkNode.propTypes = {
-    dataSource: PropTypes.instanceOf(NeuralNetworkNodeDS).isRequired,
+    dataSource: PropTypes.instanceOf(NeuralNetworkNodeDS),
     centerX: PropTypes.number.isRequired,
     centerY: PropTypes.number.isRequired,
     radius: PropTypes.number.isRequired,
     strokeWidth: PropTypes.number,
     stroke: PropTypes.string,
-    highlightStroke: PropTypes.string
+    onMouseEnter: PropTypes.func,
+    onMouseLeave: PropTypes.func,
+    onMouseClick: PropTypes.func,
+    selected: PropTypes.bool,
+    fill: PropTypes.string,
+    layerIndex: PropTypes.number,
+    nodeIndex: PropTypes.number
 };
 
 NeuralNetworkNode.defaultProps = {
     strokeWidth: 4,
     stroke: "DarkGreen",
-    highlightStroke: "aqua"
+    fill: "Green",
+    onMouseEnter: null,
+    onMouseLeave: null,
+    onMouseClick: null,
+    selected: false
 };
 
 export default NeuralNetworkNode;

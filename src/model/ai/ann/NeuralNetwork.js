@@ -458,6 +458,10 @@ class NeuralNetwork {
         this._callback = value;
     }
 
+    get includeBias() {
+        return this._includeBias;
+    }
+
     /**
      * Iterates over all the nodes.
      *

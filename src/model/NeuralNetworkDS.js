@@ -14,6 +14,8 @@ class NeuralNetworkDS extends DataSourceBase {
         this._totalError = neuralNetwork.totalError;
         this._epochs = neuralNetwork.epochs;
         this._nodesPerLayer = neuralNetwork.nodesPerLayer;
+        this._includeBias = neuralNetwork.includeBias;
+        this._weights = neuralNetwork.getWeights();
 
         this._callbackFunctions = {};
         this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_FEED_FORWARD_COMPLETE] = this._updateFromSource;
@@ -52,6 +54,8 @@ class NeuralNetworkDS extends DataSourceBase {
         this.totalError = nn.totalError;
         this.epochs = nn.epochs;
         this.nodesPerLayer = nn.nodesPerLayer;
+        this.includeBias = nn.includeBias;
+        this.weights = nn.getWeights();
     }
 
     get totalError() {
@@ -80,6 +84,22 @@ class NeuralNetworkDS extends DataSourceBase {
 
     set nodesPerLayer(value) {
         this._setValueAndRaiseOnChange("_nodesPerLayer", value);
+    }
+
+    get includeBias() {
+        return this._includeBias;
+    }
+
+    set includeBias(value) {
+        this._setValueAndRaiseOnChange("_includeBias", value);
+    }
+
+    get weights() {
+        return this._weights;
+    }
+
+    set weights(value) {
+        this._setValueAndRaiseOnChange("_weights", value);
     }
 }
 
