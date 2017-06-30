@@ -126,6 +126,10 @@ class NeuralNetworkNode {
         this._callback = value;
     }
 
+    get prevInputs() {
+        return this._prevInputs;
+    }
+
     static calculateError(expected, actual) {
         return math.chain(0.5).multiply(math.pow(math.subtract(expected, actual),2)).done();
     }

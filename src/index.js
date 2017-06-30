@@ -16,16 +16,20 @@ import './index.css';
 //     document.getElementById("root")
 // );
 
-import NeuralNetwork from "./ai/ann/NeuralNetwork";
-import {default as NeuralNetworkModel} from "./model/ai/ann/NeuralNetwork";
-import NeuralNetworkDS from "./model/NeuralNetworkDS";
+// import NeuralNetwork from "./ai/ann/NeuralNetwork";
+// import {default as NeuralNetworkModel} from "./model/ai/ann/NeuralNetwork";
+// import NeuralNetworkDS from "./model/NeuralNetworkDS";
+// let nn = new NeuralNetworkModel([8, 8, 3], true);
+// let nnDS = new NeuralNetworkDS(nn);
+// ReactDOM.render(
+//     <NeuralNetwork dataSource={nnDS} height={512} width={512} />,
+//     document.getElementById("root")
+// );
 
-// const div = document.createElement('div');
-let nn = new NeuralNetworkModel([8, 8, 3], true);
-let nnDS = new NeuralNetworkDS(nn);
+import NeuralNetworkVisualizerTest from "./tests/NeuralNetworkVisualizerTest";
 
 ReactDOM.render(
-    <NeuralNetwork dataSource={nnDS} height={512} width={512} />,
+    <NeuralNetworkVisualizerTest />,
     document.getElementById("root")
 );
 

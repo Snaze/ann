@@ -87,22 +87,30 @@ class DataSourceComponent extends Component {
     componentWillReceiveProps(nextProps) {
         if (this.props.dataSource !== nextProps.dataSource) {
 
-            if (typeof(nextProps.dataSource) !== typeof(this.props.dataSource)) {
+            if (typeof(this.props.dataSource) !== "undefined" &&
+                typeof(nextProps.dataSource) !== "undefined" &&
+                typeof(nextProps.dataSource) !== typeof(this.props.dataSource)) {
                 throw new Error("Swapped out datasources should be of the same type");
             }
 
-            if (this.props.dataSource !== null) {
+            if (!!this.props.dataSource) {
                 this.props.dataSource.removeOnChangeCallback(this._callback);
             }
 
-            if (nextProps.dataSource !== null) {
+            if (!!nextProps.dataSource) {
                 nextProps.dataSource.addOnChangeCallback(this._callback);
             }
 
             this.setState({
                 dataSource: nextProps.dataSource
             });
+
+            this._dataSourceChanged();
         }
+    }
+
+    _dataSourceChanged() {
+
     }
 }
 

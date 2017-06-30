@@ -1,0 +1,42 @@
+
+.NeuralNetworkNodeDetail {
+    font-family: Consolas, monospace;
+}
+
+.NeuralNetworkNodeDetailTopCell {
+    text-align: left;
+    vertical-align: top;
+}
+
+.NeuralNetworkNodeDetailInnerTable {
+    width: 100%;
+    height: 100%;
+}
+
+.NeuralNetworkNodeDetailInnerTableHeader {
+    background-color: #4980C0;
+    color: white;
+}
+
+.NeuralNetworkNodeDetailNumericCell {
+    text-align: right;
+    font-size: 11px;
+}
+
+.NeuralNetworkNodeDetailNumericCellHeader {
+    text-align: right;
+    font-size: 12px;
+}
+
+.NeuralNetworkNodeDetailMainHeader {
+    text-align: center;
+    vertical-align: top;
+}
+
+.NeuralNetworkNodeDetailEvenRow {
+    background-color: #B9CEE7;
+}
+
+.NeuralNetworkNodeDetailOddRow {
+    background-color: #DAE6F3;
+}

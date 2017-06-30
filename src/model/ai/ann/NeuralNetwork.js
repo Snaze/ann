@@ -462,6 +462,8 @@ class NeuralNetwork {
         return this._includeBias;
     }
 
+
+
     /**
      * Iterates over all the nodes.
      *

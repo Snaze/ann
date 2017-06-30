@@ -1,16 +1,20 @@
 import DataSourceBase from "./DataSourceBase";
 import NeuralNetwork from "./ai/ann/NeuralNetwork";
 import NeuralNetworkNodeDS from "./NeuralNetworkNodeDS";
+import ArrayUtils from "../utils/ArrayUtils";
 
 class NeuralNetworkDS extends DataSourceBase {
 
     constructor(neuralNetwork) {
         super();
 
+        this._nnCallbackRef = (e) => this._nnCallback(e);
+        this._updateFromSourceRef = (e) => this._updateFromSource(e);
+
         this._neuralNetwork = neuralNetwork;
         this._neuralNetwork.callback = this._nnCallbackRef;
         this._nodes = NeuralNetworkDS.createNeuralNetworkNodes(neuralNetwork);
-        this._nnCallbackRef = (e) => this._nnCallback(e);
+
         this._totalError = neuralNetwork.totalError;
         this._epochs = neuralNetwork.epochs;
         this._nodesPerLayer = neuralNetwork.nodesPerLayer;
@@ -18,10 +22,10 @@ class NeuralNetworkDS extends DataSourceBase {
         this._weights = neuralNetwork.getWeights();
 
         this._callbackFunctions = {};
-        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_FEED_FORWARD_COMPLETE] = this._updateFromSource;
-        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE] = this._updateFromSource;
-        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_BACK_PROP_COMPLETE] = this._updateFromSource;
-        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE] = this._updateFromSource;
+        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_FEED_FORWARD_COMPLETE] = this._updateFromSourceRef;
+        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE] = this._updateFromSourceRef;
+        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_BACK_PROP_COMPLETE] = this._updateFromSourceRef;
+        this._callbackFunctions[NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE] = this._updateFromSourceRef;
     }
 
     static createNeuralNetworkNodes(nn) {
@@ -44,18 +48,28 @@ class NeuralNetworkDS extends DataSourceBase {
 
     _nnCallback(e) {
         if (!!this._callbackFunctions[e.type]) {
-            this._callbackFunctions[e.type](e.source);
+            // Limit the updates
+            if (e.type === NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE) {
+
+                this._callbackFunctions[e.type](e.source);
+                ArrayUtils.traverse2D(this._nodes, (node) => node.backPropComplete());
+            }
+
+            // console.log("!!this._callbackFunctions[e.type]");
         } else {
             throw new Error("Unknown Neural Network Event");
         }
+
+        // console.log("_nnCallback callback");
     }
 
     _updateFromSource(nn) {
-        this.totalError = nn.totalError;
-        this.epochs = nn.epochs;
-        this.nodesPerLayer = nn.nodesPerLayer;
-        this.includeBias = nn.includeBias;
-        this.weights = nn.getWeights();
+        this._totalError = nn.totalError;
+        this._epochs = nn.epochs;
+        this._nodesPerLayer = nn.nodesPerLayer;
+        this._includeBias = nn.includeBias;
+        this._weights = nn.getWeights();
+        this._raiseOnChangeCallbacks("_neuralNetwork", null, this.neuralNetwork);
     }
 
     get totalError() {
@@ -100,6 +114,42 @@ class NeuralNetworkDS extends DataSourceBase {
 
     set weights(value) {
         this._setValueAndRaiseOnChange("_weights", value);
+    }
+
+    /**
+     *
+     * @param nnParameter {NeuralNetworkParameter}
+     */
+    train(nnParameter) {
+
+        let originalCallback = this.neuralNetwork.callback;
+
+        this.neuralNetwork.callback = function (e) {
+            if (e.type === NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE) {
+                this.stop();
+
+                if (!!originalCallback) {
+                    // TODO: WHOA THIS IS WHACK - Add an add / remove handler for this event on the NN object
+                    originalCallback(e);
+                    this.neuralNetwork.callback = originalCallback;
+                }
+            } else {
+                originalCallback(e);
+            }
+        }.bind(this);
+
+        this.neuralNetwork.train(nnParameter);
+        ArrayUtils.traverse2D(this._nodes, (item) => item.start());
+    }
+
+    stop() {
+        this._neuralNetwork.stopTimer();
+
+        ArrayUtils.traverse2D(this._nodes, (item) => item.stop());
+    }
+
+    getNeuralNetworkNode(layerIndex, nodeIndex) {
+        return this._nodes[layerIndex][nodeIndex];
     }
 }
 

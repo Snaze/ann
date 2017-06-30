@@ -287,6 +287,7 @@ class ArrayUtils {
         return false;
     }
 
+    // TODO: This is a little wonky.  Instead of extending to index, shouldn't it be expanding to length?
     static expand(array, index, value) {
         while (array.length <= index) {
             array.push(value);
@@ -358,6 +359,16 @@ class ArrayUtils {
             updateFunction(array[currentIndex], currentIndex);
         }
     }
+
+    static traverse2D(array2D, theFunction) {
+
+        for (let y = 0; y < array2D.length; y++) {
+            for (let x = 0; x < array2D[y].length; x++) {
+                theFunction(array2D[y][x]);
+            }
+        }
+    }
+
 }
 
 export default ArrayUtils;

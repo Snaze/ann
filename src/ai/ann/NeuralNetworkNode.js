@@ -2,6 +2,7 @@ import React from 'react';
 import DataSourceComponent from "../../DataSourceComponent";
 import PropTypes from "prop-types";
 import NeuralNetworkNodeDS from "../../model/NeuralNetworkNodeDS";
+import moment from "../../../node_modules/moment/moment";
 
 class NeuralNetworkNode extends DataSourceComponent {
 
@@ -11,6 +12,48 @@ class NeuralNetworkNode extends DataSourceComponent {
         this._onMouseEnterRef = (e) => this._onMouseEnter(e);
         this._onMouseLeaveRef = (e) => this._onMouseLeave(e);
         this._onMouseClickRef = (e) => this._onMouseClick(e);
+        this._animationCircle = null;
+        this._lastUpdate = moment();
+    }
+
+    shouldComponentUpdate (nextProps, nextState) {
+        return false;
+    }
+
+    componentDidMount() {
+        super.componentDidMount();
+
+        if (!!document) {
+            this._animationCircle = document.getElementsByName(this.animationCircleKey)[0];
+        }
+    }
+
+    _dataSourceUpdated(e) {
+        super._dataSourceUpdated(e);
+
+        // // if (this._lastUpdate < moment().add(-4, "s")) {
+        // if (e.source === "_feedForwardExecuting") {
+        //     this._animationCircle.style.visibility = this.neuralNetworkNode.feedForwardExecuting ? "visible" : "hidden";
+        //     // console.log(`this._animationCircle.style.visibility = ${this._animationCircle.style.visibility}`);
+        // } else if (e.source === "_backPropExecuting") {
+        //     this._animationCircle.style.visibility = this.neuralNetworkNode.backPropExecuting ? "visible" : "hidden";
+        //     // console.log(`this._animationCircle.style.visibility = ${this._animationCircle.style.visibility}`);
+        // }
+        // //
+        // //     this._lastUpdate = moment();
+        // // }
+
+        if (e.source === "_animating") {
+            this._animationCircle.style.visibility = this.animationVisibility
+        }
+    }
+
+    get animationVisibility() {
+        if (this.neuralNetworkNode.animating) {
+            return "visible";
+        }
+
+        return "hidden";
     }
 
     _onMouseEnter(e) {
@@ -54,29 +97,8 @@ class NeuralNetworkNode extends DataSourceComponent {
         };
     }
 
-    getAnimationCircle() {
-        if (!!this.neuralNetworkNode.feedForwardExecuting ||
-            !!this.neuralNetworkNode.backPropExecuting) {
-            return (
-                <circle
-                    cx={this.props.centerX}
-                    cy={this.props.centerY}
-                    r={0}
-                    stroke={this.props.stroke}
-                    strokeWidth={this.props.strokeWidth}
-                    fill="none">
-                    <animate
-                        attributeName="r"
-                        from={0}
-                        to={this.radius}
-                        dur="0.5s"
-                        repeatCount="indefinite"
-                    />
-                </circle>
-            );
-        }
-
-        return null;
+    get animationCircleKey() {
+        return "svgCircle_" + this.neuralNetworkNode.layerIndex + "_" + this.neuralNetworkNode.nodeIndex;
     }
 
     render() {
@@ -93,7 +115,23 @@ class NeuralNetworkNode extends DataSourceComponent {
                     onMouseLeave={this._onMouseLeaveRef}
                     onClick={this._onMouseClickRef}>
                 </circle>
-                {this.getAnimationCircle()}
+                <circle
+                    name={this.animationCircleKey}
+                    cx={this.props.centerX}
+                    cy={this.props.centerY}
+                    visibility={this.animationVisibility}
+                    pointerEvents={"none"}
+                    r={0}
+                    stroke={"orange"}
+                    strokeWidth={this.props.strokeWidth}
+                    fill="none">
+                    <animate
+                        attributeName="r"
+                        from={0}
+                        to={this.props.radius / 4.0}
+                        dur="500ms"
+                        repeatCount="indefinite" />
+                </circle>
 
             </svg>
         );

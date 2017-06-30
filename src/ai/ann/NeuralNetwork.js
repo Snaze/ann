@@ -41,9 +41,14 @@ class NeuralNetwork extends DataSourceComponent {
     }
 
     _dataSourceUpdated(e) {
-        if (e.source === "_weights") {
+        if (e.source === "_neuralNetwork") {
             this._colorLines();
         }
+    }
+
+    _dataSourceChanged() {
+        this._colorLines();
+        this.forceUpdate();
     }
 
     componentDidMount() {
@@ -51,6 +56,10 @@ class NeuralNetwork extends DataSourceComponent {
 
         this._colorLines();
     }
+
+    // componentWillUnmount() {
+    //     super.componentWillUnmount();
+    // }
 
     _getWeight(layerIndex, nodeIndex, weightIndex) {
         if (typeof(this.neuralNetwork.weights[layerIndex]) === "undefined" ||
@@ -78,10 +87,13 @@ class NeuralNetwork extends DataSourceComponent {
         let current;
         let currentWeight;
         let data = ArrayUtils.flatten(this.neuralNetwork.weights);
-        let posData = ArrayUtils.filter(data, (item) => item >= 0);
-        let negData = ArrayUtils.filter(data, (item) => item < 0);
-        let posMin = math.min(posData), posMax = math.max(posData);
-        let negMin = math.min(negData), negMax = math.max(negData);
+        // let posData = ArrayUtils.filter(data, (item) => item >= 0);
+        // let negData = ArrayUtils.filter(data, (item) => item < 0);
+        // let posMin = math.min(posData), posMax = math.max(posData);
+        // let negMin = math.min(negData), negMax = math.max(negData);
+        let absData = math.abs(data);
+        let max = math.max(absData);
+        let min = math.min(absData);
 
         let scaledValue, blueValue, greenValue,
             redValue, color, rgbaString, currentLine;
@@ -97,12 +109,12 @@ class NeuralNetwork extends DataSourceComponent {
             greenValue = 0;
             redValue = 0;
 
+            scaledValue = (math.abs(currentWeight) - min) / (max - min);
+
             if (currentWeight >= 0) {
-                scaledValue = (currentWeight - posMin) / (posMax - posMin);
                 blueValue = Math.floor(scaledValue * 255);
             } else {
-                scaledValue = (currentWeight - negMin) / (negMax - negMin);
-                redValue = Math.floor((1.0 - scaledValue) * 255);
+                redValue = Math.floor(scaledValue * 255);
             }
 
             rgbaString = `rgba(${redValue}, ${greenValue}, ${blueValue}, 1)`;
@@ -116,6 +128,8 @@ class NeuralNetwork extends DataSourceComponent {
                 currentLine.childNodes[0].innerHTML = currentWeight.toString();
             }
         }.bind(this));
+
+        console.log("_colorLines executed");
     }
 
     static createSelectedNodeObject(layerIdx, nodeIdx) {
@@ -195,9 +209,18 @@ class NeuralNetwork extends DataSourceComponent {
         };
     }
 
+    _unselectNode() {
+        if (!!this._selectedNodeTarget) {
+            this._selectedNodeTarget.style.stroke = this._stroke;
+            this._selectedNodeTarget = null;
+            this._raiseNodeSelectedEvent(null);
+        }
+    }
+
     _svgOnMouseClick(e) {
         if (e.target.tagName === "svg") {
             this._setAllLineVisibility("visible");
+            this._unselectNode();
         }
     }
 
@@ -281,10 +304,7 @@ class NeuralNetwork extends DataSourceComponent {
 
     _nodeOnMouseClick(e) {
 
-        if (!!this._selectedNodeTarget) {
-            this._selectedNodeTarget.style.stroke = this._stroke;
-            this._selectedNodeTarget = null;
-        }
+        this._unselectNode();
 
         let selectedNode = NeuralNetwork.createSelectedNodeObject(e.layerIndex, e.nodeIndex);
         let nodeKey = NeuralNetwork.getNodeKey(e.layerIndex, e.nodeIndex);
@@ -297,6 +317,17 @@ class NeuralNetwork extends DataSourceComponent {
         this.setState({
             selectedNode: selectedNode
         });
+
+        this._raiseNodeSelectedEvent(selectedNode);
+    }
+
+    _raiseNodeSelectedEvent(selectedNode) {
+        if (!!this.props.onNodeSelected) {
+            this.props.onNodeSelected({
+                selectedNode: selectedNode,
+                source: this
+            });
+        }
     }
 
     _isNodeSelected(layerIndex, nodeIndex) {
@@ -465,11 +496,13 @@ NeuralNetwork.propTypes = {
     dataSource: PropTypes.instanceOf(NeuralNetworkDS).isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-    radiusScaleFactor: PropTypes.number
+    radiusScaleFactor: PropTypes.number,
+    onNodeSelected: PropTypes.func
 };
 
 NeuralNetwork.defaultProps = {
-    radiusScaleFactor: 0.8
+    radiusScaleFactor: 0.8,
+    onNodeSelected: null
 };
 
 export default NeuralNetwork;

@@ -6,6 +6,7 @@
   "dependencies": {
     "animate.css": "^3.5.2",
     "array2d": "^0.0.5",
+    "gpu.js": "^0.0.0",
     "howler": "^2.0.3",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4",
