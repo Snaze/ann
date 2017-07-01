@@ -16,6 +16,12 @@ class NeuralNetworkVisualizer extends DataSourceComponent {
         this._onNodeSelectedRef = (e) => this._onNodeSelected(e);
     }
 
+    _dataSourceChanged() {
+        super._dataSourceChanged();
+
+        console.log("NeuralNetworkVisualizer dataSourceChanged");
+    }
+
     componentDidMount() {
         super.componentDidMount();
 

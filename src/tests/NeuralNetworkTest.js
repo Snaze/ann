@@ -7,6 +7,8 @@ import ActivationFunctions from "../model/ai/ann/ActivationFunctions";
 import WeightInitializer from "../model/ai/ann/WeightInitializer";
 import ArrayUtils from "../utils/ArrayUtils";
 import NeuralNetworkParameter from "../model/ai/ann/NeuralNetworkParameter";
+import NeuralNetworkVisualizer from "../ai/ann/NeuralNetworkVisualizer";
+import NeuralNetworkDS from "../model/NeuralNetworkDS";
 // import {assert} from "../utils/Assert";
 
 class NeuralNetworkTest extends Component {
@@ -20,6 +22,7 @@ class NeuralNetworkTest extends Component {
 
         this._numOutputs = 2;
         this._numInputs = 5;
+        this._nnCallbackRef = (e) => this._nnCallback(e);
 
         // this._neuralNetwork.setWeights([[[-45.42877134937925,0.06307931678138425,86.16102782528077],[1.0979752237380247,43.93067987200524,-86.27794022812651]],[[10.168778876191363,-9.997238479805933,0.552376336368361],[19.20396670170233,-13.954600932323425,12.059486933582416],[11.620645753000291,-11.462057255950354,0.6045539499607651]],[[-3.302596057655691,-5.123564179398088,-3.7756837144896305,4.960726472470421],[3.219538642433655,5.088310440177473,3.899255941522516,-4.940265049557309]]]);
 
@@ -46,7 +49,9 @@ class NeuralNetworkTest extends Component {
             redCount: 0,
             showDetail: false,
             includeBias: true,
-            weightInitialization: "COMPRESSED_NORMAL"
+            weightInitialization: "COMPRESSED_NORMAL",
+            showVisualizer: false,
+            neuralNetworkDS: null
         };
 
         this._testData = {};
@@ -235,8 +240,8 @@ class NeuralNetworkTest extends Component {
         nnp.minError = null;
         nnp.minWeightDelta = this.state.minWeightDelta;
         nnp.cacheMinError = this.state.cacheMinErrorNetwork;
-        nnp.epochCompleteCallback = (e) => this.epochFinished(e);
-        nnp.finishedTrainingCallback = (e) => this.trainingFinished(e);
+        // nnp.epochCompleteCallback = (e) => this.epochFinished(e);
+        // nnp.finishedTrainingCallback = (e) => this.trainingFinished(e);
 
         // alert (`maxEpochs = ${this.state.maxEpochs}`);
         // this.testData(error);
@@ -506,6 +511,13 @@ class NeuralNetworkTest extends Component {
                     weightInitialization: weightInitialization
                 });
                 break;
+            case "ddlShowVisualizer":
+                let showVisualizer = e.target.value === "true";
+
+                this.setState({
+                    showVisualizer: showVisualizer
+                });
+                break;
             default:
                 break;
         }
@@ -516,7 +528,8 @@ class NeuralNetworkTest extends Component {
         let toRet = [this._numInputs];
 
         if (this.state.hiddenLayers !== "") {
-            let innerArray = this.state.hiddenLayers.split(/,\s/);
+            let innerArray = this.state.hiddenLayers.split(/[,\s]/);
+            innerArray = ArrayUtils.filter(innerArray, (item) => item !== "" && item !== " ");
 
             ArrayUtils.extend(toRet, innerArray, function (item) {
                 return parseInt(item, 10);
@@ -525,6 +538,14 @@ class NeuralNetworkTest extends Component {
         ArrayUtils.extend(toRet, [this._numOutputs]);
 
         return toRet;
+    }
+
+    _nnCallback(e) {
+        if (e.type === NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE) {
+            this.epochFinished(this._neuralNetwork);
+        } else if (e.type === NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE) {
+            this.trainingFinished(this._neuralNetwork);
+        }
     }
 
     btnClick(e) {
@@ -537,12 +558,31 @@ class NeuralNetworkTest extends Component {
                 this.state.learningRate,
                 WeightInitializer[this.state.weightInitialization]);
 
+            this._neuralNetwork.callback = this._nnCallbackRef;
+
+            this.setState({
+                _neuralNetworkDS: new NeuralNetworkDS(this._neuralNetwork),
+                showVisualizer: false
+            });
+
             this.trainAndTest();
+
+            // this.forceUpdate();
         } else if (e.target.name === "btnStop") {
             this._neuralNetwork.stopTimer();
         }
 
-        // this.forceUpdate();
+
+    }
+
+    getVisualizer() {
+        if (this.state.showVisualizer) {
+            return (
+                <NeuralNetworkVisualizer dataSource={this.state._neuralNetworkDS} />
+            );
+        }
+
+        return null;
     }
 
     /**
@@ -757,6 +797,18 @@ class NeuralNetworkTest extends Component {
                                 </tr>
                                 <tr>
                                     <td className="NeuralNetworkRightCell">
+                                        Show Visualizer:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <select name="ddlShowVisualizer" value={this.state.showVisualizer.toString()}
+                                                onChange={(e) => this.tableOnChange(e)}>
+                                            <option value="true">true</option>
+                                            <option value="false">false</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
                                     </td>
                                     <td className="NeuralNetworkLeftCell">
                                         <button name="btnTrain" style={{width: "100%"}} onClick={(e) => this.btnClick(e)}>Train</button>
@@ -802,6 +854,9 @@ class NeuralNetworkTest extends Component {
                         </tr>
                         </tbody>
                     </table>
+                </div>
+                <div>
+                    {this.getVisualizer()}
                 </div>
             </div>
         </div>);

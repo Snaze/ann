@@ -40,3 +40,9 @@
 .NeuralNetworkNodeDetailOddRow {
     background-color: #DAE6F3;
 }
+
+.NeuralNetworkNodeDetailChartTable {
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}

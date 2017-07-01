@@ -108,6 +108,18 @@ class LinkedList {
         return false;
     }
 
+    iterateOver(theCallback) {
+        if (this._head === null) {
+            return; // Nothing to do
+        }
+        let index = 0;
+
+        for (let current = this._head; current !== null; current = current.next) {
+            theCallback(current.value, index);
+            index++;
+        }
+    }
+
     get head() {
         return this._head;
     }

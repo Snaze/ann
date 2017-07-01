@@ -169,3 +169,21 @@ it ("contains object", () => {
     expect(trueVal).toBe(true);
     expect(falseVal).toBe(false);
 });
+
+it ("iterateOver", () => {
+    // SETUP
+    let ll = new LinkedList();
+    ll.append(0);
+    ll.append(1);
+    ll.append(2);
+    let callback = jest.fn();
+
+    // CALL
+    ll.iterateOver(callback);
+
+    // ASSERT
+    expect(callback.mock.calls.length).toBe(3);
+    expect(callback.mock.calls[0][0]).toBe(0);
+    expect(callback.mock.calls[1][0]).toBe(1);
+    expect(callback.mock.calls[2][0]).toBe(2);
+});

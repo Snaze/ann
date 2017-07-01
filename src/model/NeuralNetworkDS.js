@@ -12,6 +12,7 @@ class NeuralNetworkDS extends DataSourceBase {
         this._updateFromSourceRef = (e) => this._updateFromSource(e);
 
         this._neuralNetwork = neuralNetwork;
+        this._neuralNetworkOriginalCallback = this._neuralNetwork.callback;
         this._neuralNetwork.callback = this._nnCallbackRef;
         this._nodes = NeuralNetworkDS.createNeuralNetworkNodes(neuralNetwork);
 
@@ -47,6 +48,10 @@ class NeuralNetworkDS extends DataSourceBase {
     }
 
     _nnCallback(e) {
+        if (!!this._neuralNetworkOriginalCallback) {
+            this._neuralNetworkOriginalCallback(e);
+        }
+
         if (!!this._callbackFunctions[e.type]) {
             // Limit the updates
             if (e.type === NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE) {
@@ -59,6 +64,7 @@ class NeuralNetworkDS extends DataSourceBase {
         } else {
             throw new Error("Unknown Neural Network Event");
         }
+
 
         // console.log("_nnCallback callback");
     }

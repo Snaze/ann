@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import ActivationFunctionChart from "./ActivationFunctionChart";
 import ActivationFunctions from "../../../model/ai/ann/ActivationFunctions";
 
-const getActivationFunctionChart = function (activationFunction, x, functionIntervals=2) {
+const getActivationFunctionChart = function (activationFunction, x, functionIntervals=2, notchIncrement=1, scale=2) {
     const div = document.createElement('div');
 
     // let activationFunction = ActivationFunctions.sigmoid;
@@ -11,7 +11,9 @@ const getActivationFunctionChart = function (activationFunction, x, functionInte
 
     return ReactDOM.render(<ActivationFunctionChart
         lineFunction={activationFunction.output} x={x}
-        width={128} height={128} axisStroke={"brown"} axisStrokeWidth={1} functionIntervals={2} />, div);
+        width={128} height={128} axisStroke={"brown"}
+        axisStrokeWidth={1} functionIntervals={functionIntervals}
+        notchIncrement={notchIncrement} scale={scale} />, div);
 };
 
 it('renders without crashing', () => {
@@ -145,7 +147,38 @@ it ("getAxis vertical", () => {
     verifyVerticalAxisNotch(1, false, 16, axis[2]);
     verifyVerticalAxisNotch(2, true, 16, axis[3]);
     verifyVerticalAxisNotch(2, false, 16, axis[4]);
+});
 
+it ("getAxis vertical notchIncrement5", () => {
+    // SETUP
+    let chart = getActivationFunctionChart(ActivationFunctions.sigmoid, 1, 2, 5, 10);
+
+    // CALL
+    let axis = chart.getAxis(true);
+
+    // ASSERT
+    expect(axis.length).toBe(5);
+    verifyVerticalAxis(axis[0]);
+    verifyVerticalAxisNotch(1, true, 16, axis[1]);
+    verifyVerticalAxisNotch(1, false, 16, axis[2]);
+    verifyVerticalAxisNotch(2, true, 16, axis[3]);
+    verifyVerticalAxisNotch(2, false, 16, axis[4]);
+});
+
+it ("getAxis horizontal notchIncrement5", () => {
+    // SETUP
+    let chart = getActivationFunctionChart(ActivationFunctions.sigmoid, 1, 2, 5, 10);
+
+    // CALL
+    let axis = chart.getAxis(false);
+
+    // ASSERT
+    expect(axis.length).toBe(5);
+    verifyHorizontalAxis(axis[0]);
+    verifyHorizontalAxisNotch(1, true, 16, axis[1]);
+    verifyHorizontalAxisNotch(1, false, 16, axis[2]);
+    verifyHorizontalAxisNotch(2, true, 16, axis[3]);
+    verifyHorizontalAxisNotch(2, false, 16, axis[4]);
 });
 
 it ("pointToScreenCoords", () => {

@@ -8,6 +8,7 @@ import moment from "../../../../node_modules/moment/moment";
 import Normalizer from "./Normalizer";
 import EdgeStore from "./EdgeStore";
 import WeightInitializer from "./WeightInitializer";
+import LearningRate from "./LearningRate";
 // import NeuralNetworkParameter from "./NeuralNetworkParameter";
 
 const neural_network_feed_forward_complete = 0;
@@ -41,7 +42,7 @@ class NeuralNetwork {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
-        this._learningRate = learningRate;
+        this._learningRate = new LearningRate(learningRate, 0.01, 100);
         this._edgeStore = new EdgeStore(nodesPerLayer, includeBias, activationFunction, weightInitializationType);
         this._output = null;
         this._epoch = 0;
@@ -62,7 +63,7 @@ class NeuralNetwork {
         this._nodeCallbackRef = (e) => this._nodeCallback(e);
 
         this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias,
-            activationFunction, learningRate, this._edgeStore, this._nodeCallbackRef);
+            activationFunction, this._learningRate, this._edgeStore, this._nodeCallbackRef);
     }
 
     get nodesPerLayer() {
@@ -178,6 +179,7 @@ class NeuralNetwork {
         // this._inputs = inputs;
         // this._expectedOutputs = expectedOutputs;
         this._trainingParameter = trainingParameter;
+        this._learningRate.numEpochs = this._trainingParameter.maxEpochs;
         this._minErrorWeights = null;
         this._minErrorValue = Number.POSITIVE_INFINITY;
         this._minErrorEpoch = this._epoch;
@@ -420,10 +422,10 @@ class NeuralNetwork {
                 // This updates the weights of the node
                 if (layerIndex === lastLayerIndex) {
                     let expectedOutputCol = ArrayUtils.getColumn(expectedOutputs, nodeIndex);
-                    thisLayerErrors[nodeIndex] = node.backPropagateOutputNode(expectedOutputCol);
+                    thisLayerErrors[nodeIndex] = node.backPropagateOutputNode(expectedOutputCol, this._epoch);
                 } else {
 
-                    thisLayerErrors[nodeIndex] = node.backPropagateHiddenNode(nextLayerErrors);
+                    thisLayerErrors[nodeIndex] = node.backPropagateHiddenNode(nextLayerErrors, null, this._epoch);
                 }
             }
 

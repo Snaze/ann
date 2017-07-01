@@ -47,6 +47,8 @@ class NeuralNetwork extends DataSourceComponent {
     }
 
     _dataSourceChanged() {
+        console.log("NeuralNetworkSVG Data Source changed");
+
         this._colorLines();
         this.forceUpdate();
     }
@@ -140,7 +142,7 @@ class NeuralNetwork extends DataSourceComponent {
     }
 
     shouldComponentUpdate (nextProps, nextState) {
-        return false;
+        return nextProps.dataSource !== this.props.dataSource;
     }
 
     get neuralNetwork() {

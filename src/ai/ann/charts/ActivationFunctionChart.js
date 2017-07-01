@@ -5,6 +5,8 @@ import { assert } from "../../../utils/Assert";
 class ActivationFunctionChart extends Component {
 
     getAxis(isVertical) {
+        assert (this.props.notchIncrement <= this.props.scale, "notch increment must be less than scale");
+
         let toRet = [];
 
         if (isVertical) {
@@ -13,7 +15,7 @@ class ActivationFunctionChart extends Component {
             toRet.push(this.getHorizontalAxis());
         }
 
-        for (let i = 1; i <= this.props.scale; i++) {
+        for (let i = this.props.notchIncrement; i <= this.props.scale; i += this.props.notchIncrement) {
             if (isVertical) {
                 toRet.push(this.getVerticalAxisNotch(i, true, this.props.notchLength));
                 toRet.push(this.getVerticalAxisNotch(i, false, this.props.notchLength));
@@ -101,22 +103,27 @@ class ActivationFunctionChart extends Component {
         );
     }
 
-    getFunctionPath() {
+    getFunctionPath(startPoint=-this.props.scale) {
         assert (this.props.scale > 0);
+        assert (startPoint >= -this.props.scale && startPoint <= this.props.scale);
 
         if (!this.props.lineFunction) {
             return null;
         }
 
-        let toSet = null, pointY, screenCoords;
+        let toSet = " ", pointY, screenCoords;
         let intervalSize = (this.props.scale * 2) / this.props.functionIntervals;
 
-        for (let pointX = -this.props.scale; pointX <= this.props.scale; pointX += intervalSize) {
+        for (let pointX = startPoint; pointX <= this.props.scale; pointX += intervalSize) {
             pointY = this.props.lineFunction(pointX);
+
+            if ((pointY === null) || (pointY === "undefined")) {
+                break;
+            }
 
             screenCoords = this.pointToScreenCoords(pointX, pointY);
 
-            if (toSet === null) {
+            if (toSet === " ") {
                 toSet = `M ${screenCoords.x} ${screenCoords.y} `;
             } else {
                 toSet += `L ${screenCoords.x} ${screenCoords.y} `;
@@ -148,11 +155,13 @@ class ActivationFunctionChart extends Component {
     }
 
     render() {
+        let startPoint = this.props.startPoint === null ? -this.props.scale : this.props.startPoint;
+
         return (
             <svg width={this.props.width} height={this.props.height}>
                 {this.getAxis(false)}
                 {this.getAxis(true)}
-                {this.getFunctionPath()}
+                {this.getFunctionPath(startPoint)}
                 {this.getXLine()}
             </svg>
         );
@@ -173,7 +182,9 @@ ActivationFunctionChart.propTypes = {
     functionStrokeWidth: PropTypes.number,
     functionIntervals: PropTypes.number,
     xLineStroke: PropTypes.string,
-    xLineStrokeWidth: PropTypes.number
+    xLineStrokeWidth: PropTypes.number,
+    notchIncrement: PropTypes.number,
+    startPoint: PropTypes.number
 };
 
 ActivationFunctionChart.defaultProps = {
@@ -189,7 +200,9 @@ ActivationFunctionChart.defaultProps = {
     functionStrokeWidth: 2,
     functionIntervals: 100,
     xLineStroke: "black",
-    xLineStrokeWidth: 1
+    xLineStrokeWidth: 1,
+    notchIncrement: 1,
+    startPoint: null
 };
 
 export default ActivationFunctionChart;

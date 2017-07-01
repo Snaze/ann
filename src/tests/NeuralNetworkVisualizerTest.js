@@ -23,7 +23,7 @@ class NeuralNetworkVisualizerTest extends Component {
     }
 
     static createNNDS() {
-        let nn = new NeuralNetwork([2, 3, 2], true, ActivationFunctions.tanh, 0.15);
+        let nn = new NeuralNetwork([2, 3, 2], true, ActivationFunctions.sigmoid, 0.15);
         return new NeuralNetworkDS(nn);
     }
 
@@ -44,7 +44,7 @@ class NeuralNetworkVisualizerTest extends Component {
         let nntp = new NeuralNetworkTrainingParameter();
         nntp.inputs = toTrainWith;
         nntp.expectedOutputs = labels;
-        nntp.maxEpochs = 20;
+        nntp.maxEpochs = 100;
 
         nnDS.train(nntp);
     }

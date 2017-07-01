@@ -24,6 +24,8 @@ class NeuralNetworkNodeDS extends DataSourceBase {
         this._prevInputs = this._neuralNetworkNode.prevInputs;
         this._weights = this._neuralNetworkNode.weights;
         this._activationFunction = this._neuralNetworkNode.activationFunction;
+        this._errorHistory = [];
+        this._maxErrorHistoryLength = 10000;
     }
 
     // TODO: This thing is going to fire a lot.  You may want to make this more performant.
@@ -38,6 +40,8 @@ class NeuralNetworkNodeDS extends DataSourceBase {
         this._activationInput = this._neuralNetworkNode.activationInput; // should I clone this?
         this._output = this._neuralNetworkNode.output;
         this._error = this._neuralNetworkNode.error;
+        this._recordAverageErrorHistory(this._error);
+
         this._layerIndex = this._neuralNetworkNode.layerIndex;
         this._nodeIndex = this._neuralNetworkNode.nodeIndex;
         this._prevInputs = this._neuralNetworkNode.prevInputs;
@@ -48,6 +52,20 @@ class NeuralNetworkNodeDS extends DataSourceBase {
         this._backPropExecuting = e.type === NeuralNetworkNode.EVENT_BACK_PROP_START;
 
         // console.log("NeuralNetworkNodeDS callback");
+    }
+
+    _recordAverageErrorHistory(error) {
+        if (this._errorHistory.length >= this._maxErrorHistoryLength) {
+            this._errorHistory.shift(); // You may need to find a more performent way to do this
+        }
+
+        let averageError = math.mean(math.abs(error));
+
+        this._errorHistory.push(averageError);
+    }
+
+    get errorHistory() {
+        return this._errorHistory;
     }
 
     get activationInput() {

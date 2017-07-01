@@ -1,6 +1,7 @@
 import NeuralNetworkNode from "./NeuralNetworkNode";
 import ActivationFunctions from "./ActivationFunctions";
 import EdgeStore from "./EdgeStore";
+import LearningRate from "./LearningRate";
 
 it ("feedForward works", () => {
     // SETUP
@@ -112,7 +113,7 @@ const testBackPropOutput = function (oldWeights, learningRate, inputs, expectedO
     let nnn = new NeuralNetworkNode(2, 0, new EdgeStore([2, 2, 1], true, ActivationFunctions.sigmoid),
         2, 2, true, ActivationFunctions.sigmoid);
     nnn.weights = oldWeights;
-    nnn.learningRate = learningRate;
+    nnn.learningRate = new LearningRate(learningRate, 0.01, 100);
     nnn.feedForward([inputs]);
 
     // CALL
@@ -149,7 +150,7 @@ const testBackPropHidden = function (oldWeights, learningRate,
     let nnn = new NeuralNetworkNode(1, 0, new EdgeStore([2, 2, 1], true, ActivationFunctions.sigmoid),
         2, 2, true, ActivationFunctions.sigmoid);
     nnn.weights = oldWeights;
-    nnn.learningRate = learningRate;
+    nnn.learningRate = new LearningRate(learningRate, 0.01, 100);
     nnn.feedForward([inputs]);
 
     // CALL

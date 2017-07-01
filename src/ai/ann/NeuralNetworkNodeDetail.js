@@ -14,38 +14,8 @@ class NeuralNetworkNodeDetail extends DataSourceComponent {
         super(props);
 
         this._radioButtonChangeRef = (e) => this._radioButtonChange(e);
+        this._buttonClickRef = (e) => this._buttonClick(e);
     }
-
-    // _updateScale() {
-    //     if (!!this.nnn && !!this.nnn.activationInput && this.nnn.activationInput.length > 0) {
-    //         let toSet = math.max(math.ceil(math.abs(this.nnn.activationInput)));
-    //         this.setState({
-    //             scale: toSet
-    //         });
-    //     } else {
-    //         this.setState({
-    //             scale: 3
-    //         });
-    //     }
-    // }
-
-    // componentWillReceiveProps(nextProps) {
-    //     super.componentWillReceiveProps(nextProps);
-    //
-    //     this._updateScale();
-    // }
-
-    // _dataSourceUpdated(e) {
-    //     super._dataSourceUpdated(e);
-    //
-    //     this._updateScale();
-    // }
-
-    // _dataSourceChanged() {
-    //     this._updateScale();
-    //
-    //     super._dataSourceChanged();
-    // }
 
     get neuralNetworkNode() {
         return this.dataSource;
@@ -59,7 +29,10 @@ class NeuralNetworkNodeDetail extends DataSourceComponent {
         super.componentDidMount();
 
         this.setState({
-            selectedIndex: 0
+            selectedIndex: 0,
+            errorScale: 1e3,
+            errorGridScale: 1e3,
+            errorGridNotchSize: 1e2 // This always needs to be 1 less than errorGridScale
         });
     }
 
@@ -76,7 +49,7 @@ class NeuralNetworkNodeDetail extends DataSourceComponent {
             return 2;
         }
 
-        return Math.max(this.nnn.maxActivationInput, 2);
+        return Math.min(Math.max(this.nnn.maxActivationInput, 2), 16);
     }
 
     static getTableRowKey(index) {
@@ -114,6 +87,97 @@ class NeuralNetworkNodeDetail extends DataSourceComponent {
         }
 
         return this.nnn.activationFunction.output;
+    }
+
+    getActivationDerivativeFunction() {
+        if (!this.nnn || !this.nnn.activationFunction) {
+            return null;
+        }
+
+        return function (x) {
+            let output = this.nnn.activationFunction.output(x);
+            return this.nnn.activationFunction.derivative(output);
+        }.bind(this);
+    }
+
+    getErrorHistoryFunction () {
+        if (!this.nnn || !this.nnn.errorHistory) {
+            return null;
+        }
+
+        return function (x) {
+            if (typeof(this.nnn.errorHistory[x]) === "undefined") {
+                return null;
+            }
+
+            return this.nnn.errorHistory[x] * this.state.errorScale;
+        }.bind(this);
+    }
+
+    calculateDerivative(x) {
+        let theFunction = this.getActivationDerivativeFunction();
+        if (!theFunction) {
+            return 0.0;
+        }
+
+        return theFunction(x);
+    }
+
+    getErrorScaleString() {
+        if (typeof(this.state.errorScale) === "undefined") {
+            return "";
+        }
+
+        return this.state.errorScale.toExponential();
+    }
+
+    getErrorGridScaleString() {
+        if (typeof(this.state.errorGridScale) === "undefined") {
+            return "";
+        }
+
+        return this.state.errorGridScale.toExponential();
+    }
+
+    getErrorGridScale() {
+        if (typeof(this.state.errorGridScale) === "undefined") {
+            return 1e5;
+        }
+
+        return this.state.errorGridScale;
+    }
+
+    getErrorGridNotchSize() {
+        if (typeof(this.state.errorGridNotchSize) === "undefined") {
+            return 1e4;
+        }
+
+        return this.state.errorGridNotchSize;
+    }
+
+    _buttonClick(e) {
+        if (e.target.name === "btnIncrement") {
+            this.setState({
+                errorScale: this.state.errorScale * 10
+            });
+        } else if (e.target.name === "btnDecrement") {
+            this.setState({
+                errorScale: this.state.errorScale / 10
+            });
+        } else if (e.target.name === "btnDecrementGridScale") {
+            this.setState({
+                errorGridScale: this.state.errorGridScale / 10,
+                errorGridNotchSize: this.state.errorGridNotchSize / 10
+
+            });
+        } else if (e.target.name === "btnIncrementGridScale") {
+            this.setState({
+                errorGridScale: this.state.errorGridScale * 10,
+                errorGridNotchSize: this.state.errorGridNotchSize * 10
+            });
+        } else {
+            throw new Error("Unknown button");
+        }
     }
 
     getTableRows() {
@@ -155,6 +219,9 @@ class NeuralNetworkNodeDetail extends DataSourceComponent {
                     </td>
                     <td className="NeuralNetworkNodeDetailNumericCell">
                         {currentOutput.toFixed(this.props.precision).toString()}
+                    </td>
+                    <td className="NeuralNetworkNodeDetailNumericCell">
+                        {this.calculateDerivative(activationInput).toFixed(this.props.precision).toString()}
                     </td>
                     <td className="NeuralNetworkNodeDetailNumericCell">
                         {currentError.toFixed(this.props.precision).toString()}
@@ -211,15 +278,84 @@ class NeuralNetworkNodeDetail extends DataSourceComponent {
                     </tr>
                     <tr className="NeuralNetworkNodeDetailTopCell">
                         <td className="NeuralNetworkNodeDetailTopCell">
-                            <ActivationFunctionChart width={128} height={128}
-                                                     x={this.getActivationInput(this.state.selectedIndex)}
-                                                     lineFunction={this.getActivationFunction()}
-                                                     scale={this.getScale()} />
+                            <table className="NeuralNetworkNodeDetailChartTable">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            A.F.
+                                        </th>
+                                        <th>
+                                            A.F. Derivative
+                                        </th>
+                                        <th>
+                                            Error
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <ActivationFunctionChart width={128} height={128}
+                                                                     x={this.getActivationInput(this.state.selectedIndex)}
+                                                                     lineFunction={this.getActivationFunction()}
+                                                                     scale={this.getScale()} notchLength={4} />
+                                        </td>
+                                        <td>
+                                            <ActivationFunctionChart width={128} height={128}
+                                                                     x={this.getActivationInput(this.state.selectedIndex)}
+                                                                     lineFunction={this.getActivationDerivativeFunction()}
+                                                                     scale={this.getScale()} notchLength={4} />
+                                        </td>
+                                        <td>
+                                            <ActivationFunctionChart width={128} height={128}
+                                                                     x={null}
+                                                                     lineFunction={this.getErrorHistoryFunction()}
+                                                                     scale={this.getErrorGridScale()} startPoint={0}
+                                                                     notchIncrement={this.getErrorGridNotchSize()} notchLength={4} />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                        </td>
+                                        <td>
+                                        </td>
+                                        <td>
+                                            <table className="NeuralNetworkNodeDetailChartTable">
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            <button name="btnDecrement" onClick={this._buttonClickRef}>v</button>
+                                                        </td>
+                                                        <td>
+                                                            Scale: {this.getErrorScaleString()}
+                                                        </td>
+                                                        <td>
+                                                            <button name="btnIncrement" onClick={this._buttonClickRef}>^</button>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <button name="btnDecrementGridScale" onClick={this._buttonClickRef}>v</button>
+                                                        </td>
+                                                        <td>
+                                                            Tick: {this.getErrorGridScaleString()}
+                                                        </td>
+                                                        <td>
+                                                            <button name="btnIncrementGridScale" onClick={this._buttonClickRef}>^</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
                         </td>
                     </tr>
                     <tr className="NeuralNetworkNodeDetailTopCell">
                         <td className="NeuralNetworkNodeDetailTopCell">
-                            <table className="NeuralNetworkNodeDetailInnerTable" cellPadding={2} cellSpacing={0}>
+                            <table className="NeuralNetworkNodeDetailInnerTable" cellPadding={8} cellSpacing={0}>
                                 <thead className="NeuralNetworkNodeDetailInnerTableHeader">
                                     <tr>
                                         <th className="NeuralNetworkNodeDetailNumericCellHeader">
@@ -233,6 +369,9 @@ class NeuralNetworkNodeDetail extends DataSourceComponent {
                                         </th>
                                         <th className="NeuralNetworkNodeDetailNumericCellHeader">
                                             Output
+                                        </th>
+                                        <th className="NeuralNetworkNodeDetailNumericCellHeader">
+                                            Derivative
                                         </th>
                                         <th className="NeuralNetworkNodeDetailNumericCellHeader">
                                             Error

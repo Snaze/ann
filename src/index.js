@@ -10,11 +10,11 @@ import './index.css';
 //   document.getElementById('root')
 // );
 
-// import NeuralNetworkTest from "./tests/NeuralNetworkTest";
-// ReactDOM.render(
-//     <NeuralNetworkTest />,
-//     document.getElementById("root")
-// );
+import NeuralNetworkTest from "./tests/NeuralNetworkTest";
+ReactDOM.render(
+    <NeuralNetworkTest />,
+    document.getElementById("root")
+);
 
 // import NeuralNetwork from "./ai/ann/NeuralNetwork";
 // import {default as NeuralNetworkModel} from "./model/ai/ann/NeuralNetwork";
@@ -26,12 +26,12 @@ import './index.css';
 //     document.getElementById("root")
 // );
 
-import NeuralNetworkVisualizerTest from "./tests/NeuralNetworkVisualizerTest";
-
-ReactDOM.render(
-    <NeuralNetworkVisualizerTest />,
-    document.getElementById("root")
-);
+// import NeuralNetworkVisualizerTest from "./tests/NeuralNetworkVisualizerTest";
+//
+// ReactDOM.render(
+//     <NeuralNetworkVisualizerTest />,
+//     document.getElementById("root")
+// );
 
 // import CellTest from "./tests/CellTest";
 // ReactDOM.render(
