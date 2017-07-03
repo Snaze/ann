@@ -446,3 +446,19 @@ it ("create1D works", () => {
     expect(toCheck.length).toBe(2);
     expect(ArrayUtils.arrayEquals(toCheck, [0, 0])).toBe(true);
 });
+
+it ("distinct integers", () => {
+    // SETUP
+    let toTest = [1, 1, 1, 2, 3, 4, 4, 5, 5];
+
+    // CALL
+    let toCheck = ArrayUtils.distinctIntegers(toTest);
+
+    // ASSERT
+    expect(toCheck.length).toBe(5);
+    expect(ArrayUtils.isIn(toCheck, 1)).toBe(true);
+    expect(ArrayUtils.isIn(toCheck, 2)).toBe(true);
+    expect(ArrayUtils.isIn(toCheck, 3)).toBe(true);
+    expect(ArrayUtils.isIn(toCheck, 4)).toBe(true);
+    expect(ArrayUtils.isIn(toCheck, 5)).toBe(true);
+});

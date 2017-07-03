@@ -50,6 +50,23 @@ class MathUtil {
 
         return toClip;
     }
+
+    /**
+     * This method will compute the number of bits required to represent the input decimal value.
+     *
+     * @param decimalValue {Number} The decimal value you wish to know how many bits are required
+     * for it to be represented in binary.  This value must be positive.
+     * @returns {Number} The number of bits required to represent the decimal value in binary.
+     */
+    static getNumBits(decimalValue) {
+        assert (decimalValue >= 0, "decimal value must be positive");
+
+        if (decimalValue === 0) {
+            return 1;
+        }
+
+        return Math.floor(Math.log2(decimalValue)) + 1;
+    }
 }
 
 export default MathUtil;

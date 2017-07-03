@@ -4,6 +4,8 @@ import GhostBrainManual from "./GhostBrains/GhostBrainManual";
 import Player from "./Player";
 import Points from "../Points";
 import SoundPlayer from "../../utils/SoundPlayer";
+import Direction from "../../utils/Direction";
+import Location from "../Location";
 
 const red = 0;
 const blue = 1;
@@ -106,6 +108,14 @@ class Ghost extends ActorBase {
         super._nestedDataSourceChanged(e);
     }
 
+    get brainState() {
+        return this._ghostBrain.currentState;
+    }
+
+    set brainState(value) {
+        this._ghostBrain.enterState(value);
+    }
+
     get color() {
         return this._color;
     }
@@ -204,6 +214,81 @@ class Ghost extends ActorBase {
         super.level = value;
 
         this.resetBrain();
+    }
+
+    static _trainingFeatureIndices = null;
+    static get trainingFeatureIndices() {
+        if (Ghost._trainingFeatureIndices === null) {
+            Ghost._trainingFeatureIndices = [
+                2,  // delta x
+                3,  // delta y
+                4,  // isAlive
+                7,  // direction
+                9   // brainState
+            ];
+        }
+
+        return Ghost._trainingFeatureIndices;
+    }
+
+    static get featureVectorLength() {
+        return 12;
+    }
+
+    /**
+     * This will return the feature vector that can be used to train machine learning algorithms
+     *
+     * @returns {Array}
+     */
+    toFeatureVector() {
+
+        let toRet = [];
+        let delta = this.location.getDelta(this.prevLocation);
+
+        toRet.push(this.location.x);                    // location                 0
+        toRet.push(this.location.y);                    // location                 1
+        toRet.push(delta.x);                            //                          2
+        toRet.push(delta.y);                            //                          3
+        toRet.push(this.isAlive ? 1 : 0);               // isAlive                  4
+        toRet.push(this.prevLocation.x);                // prevLocation             5
+        toRet.push(this.prevLocation.y);                // prevLocation             6
+        toRet.push(Direction.directionToDecimal(this.direction)); // direction      7
+        toRet.push(this._prevKilledByAttackModeId);     // prevKilledByAttackModeId 8
+        toRet.push(this.brainState);                    // brainState               9
+        if (!!this._ghostBrain.destinationLocation) {
+            toRet.push(this._ghostBrain.destinationLocation.x); // destinationLocationX 10
+            toRet.push(this._ghostBrain.destinationLocation.y); // destinationLocationY 11
+        } else {
+            toRet.push(-1); // destinationLocationX 10
+            toRet.push(-1); // destinationLocationY 11
+        }
+
+        return toRet;
+    }
+
+    /**
+     * This will change the state of the Ghost back to the state represented by the feature vector
+     *
+     * @param featureVector {Array} The state you wish to go back to
+     */
+    setFeatureVector(featureVector) {
+        let locationX = featureVector[0], locationY = featureVector[1];
+        this.location.set(locationX, locationY);
+
+        this.isAlive = featureVector[4] === 1;
+
+        let prevLocation = this.location.clone();
+        prevLocation.set(featureVector[5], featureVector[6]);
+        this._prevLocation = prevLocation;
+        this._direction = Direction.decimalToDirection(featureVector[7]);
+        this._prevKilledByAttackModeId = featureVector[8];
+        this.brainState = featureVector[9];
+
+        if (!this._ghostBrain.destinationLocation) {
+            this._ghostBrain.destinationLocation = new Location(featureVector[10], featureVector[11]);
+        } else {
+            this._ghostBrain.destinationLocation.set(featureVector[10], featureVector[11]);
+        }
     }
 }
 

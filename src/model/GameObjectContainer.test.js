@@ -221,6 +221,93 @@ it ("start or resume level should make all this ghost come back alive", ()  => {
 
 });
 
+it ("test toFeatureVector", () => {
+    let theLevel = new Level(10, 1);
+    let goc = new GameObjectContainer(theLevel);
+    goc.player.location.set(0, 0);
+    goc.ghostRed.location.set(1, 0);
+    goc.ghostBlue.location.set(2, 0);
+    goc.ghostOrange.location.set(3, 0);
+    goc.ghostPink.location.set(4, 0);
+    goc.powerUp.location.set(5, 0);
+    theLevel.floydWarshall.getPathDistance = jest.fn(() => {
+        return 3;
+    });
+    goc._powerUpSpawnTime = moment().add(4.9, "s");
+    GameObjectContainer._nextKillScore = 400;
+
+    // CALL
+    let featureVector = goc.toFeatureVector();
+
+    // ASSERT
+    expect(featureVector.length).toBe(7);
+    expect(Math.floor(featureVector[0] / 1000)).toBe(4);
+    expect(featureVector[1]).toBe(400);
+    expect(featureVector[2]).toBe(3);
+    expect(featureVector[3]).toBe(3);
+    expect(featureVector[4]).toBe(3);
+    expect(featureVector[5]).toBe(3);
+    expect(featureVector[5]).toBe(3);
+
+    GameObjectContainer.resetNextKillScore();
+});
+
+it ("test setFeatureVector", () => {
+    // SETUP
+    let theLevel = new Level(10, 1);
+    let goc = new GameObjectContainer(theLevel);
+    goc.player.location.set(0, 0);
+    goc.ghostRed.location.set(1, 0);
+    goc.ghostBlue.location.set(2, 0);
+    goc.ghostOrange.location.set(3, 0);
+    goc.ghostPink.location.set(4, 0);
+    goc.powerUp.location.set(5, 0);
+    theLevel.floydWarshall.getPathDistance = jest.fn(() => {
+        return 3;
+    });
+    goc._powerUpSpawnTime = moment().add(4.9, "s");
+    GameObjectContainer._nextKillScore = 400;
+    let featureVector = goc.toFeatureVector();
+    GameObjectContainer._nextKillScore = 200;
+    let otherGOC = new GameObjectContainer(theLevel);
+
+    // CALL
+    otherGOC.setFeatureVector(featureVector);
+
+    // EXPECT
+    expect(Math.floor(otherGOC._powerUpSpawnTime.diff(moment(), "ms") / 1000)).toBe(4);
+    expect(GameObjectContainer._nextKillScore).toBe(400);
+
+    GameObjectContainer.resetNextKillScore();
+});
+
+it ("test toFeatureVector", () => {
+    let theLevel = new Level(10, 1);
+    let goc = new GameObjectContainer(theLevel);
+    goc.player.location.set(0, 0);
+    goc.ghostRed.location.set(1, 0);
+    goc.ghostBlue.location.set(2, 0);
+    goc.ghostOrange.location.set(3, 0);
+    goc.ghostPink.location.set(4, 0);
+    goc.powerUp.location.set(5, 0);
+    theLevel.floydWarshall.getPathDistance = jest.fn(() => {
+        return 3;
+    });
+    goc._powerUpSpawnTime = moment().add(4.9, "s");
+    GameObjectContainer._nextKillScore = 400;
+    let featureVector = goc.toFeatureVector();
+    GameObjectContainer.resetNextKillScore();
+
+    // CALL
+    let length = GameObjectContainer.featureVectorLength;
+
+    // ASSERT
+    expect(length).toBe(featureVector.length);
+
+
+});
+
+
 // const createTestLevel = function () {
 //     let toRet = new Level(2, 2);
 //

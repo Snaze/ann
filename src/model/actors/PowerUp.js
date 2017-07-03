@@ -184,6 +184,84 @@ class PowerUp extends ActorBase {
         this.isAlive = false;
         this.moveBackToSpawn();
     }
+
+    static _trainingFeatureIndices = null;
+    static get trainingFeatureIndices() {
+        if (PowerUp._trainingFeatureIndices === null) {
+            PowerUp._trainingFeatureIndices = [
+                2,  // delta x
+                3,  // delta y
+                4,  // isAlive
+                11, // powerUpType
+                10  // blink
+            ];
+        }
+
+        return PowerUp._trainingFeatureIndices;
+    }
+
+    static get featureVectorLength() {
+        return 14;
+    }
+
+    /**
+     * This will return the feature vector that can be used to train machine learning algorithms
+     *
+     * @returns {Array}
+     */
+    toFeatureVector() {
+
+        let lifeExpirationTime = 0;
+        if (!!this._lifeExpirationTime && this._lifeExpirationTime > moment()) {
+            lifeExpirationTime = this._lifeExpirationTime.clone().diff(moment(), "ms");
+        }
+        let blinkTime = 0;
+        if (!!this._blinkTime && this._blinkTime > moment()) {
+            blinkTime = this._blinkTime.clone().diff(moment(), "ms");
+        }
+
+        let toRet = [];
+        let delta = this.location.getDelta(this.prevLocation);
+
+        toRet.push(this.location.x);                    // location                 0
+        toRet.push(this.location.y);                    // location                 1
+        toRet.push(delta.x);                            //                          2
+        toRet.push(delta.y);                            //                          3
+        toRet.push(this.isAlive ? 1 : 0);               // isAlive                  4
+        toRet.push(this.prevLocation.x);                // prevLocation             5
+        toRet.push(this.prevLocation.y);                // prevLocation             6
+        toRet.push(Direction.directionToDecimal(this.direction)); // direction      7
+        toRet.push(this._destinationLocation.x);        // destination location x   8
+        toRet.push(this._destinationLocation.y);        // destination location x   9
+        toRet.push(this._blink ? 1 : 0);                // blink                    10
+        toRet.push(this._powerUpType);                  // powerUpType              11
+        toRet.push(lifeExpirationTime);                 // life expiration time     12
+        toRet.push(blinkTime);                          // blink time               13
+
+        return toRet;
+    }
+
+    /**
+     * This will change the state of the PowerUp back to the state represented by the feature vector
+     *
+     * @param featureVector {Array} The state you wish to go back to
+     */
+    setFeatureVector(featureVector) {
+        let locationX = featureVector[0], locationY = featureVector[1];
+        this.location.set(locationX, locationY);
+        this.isAlive = featureVector[4] === 1;
+        let prevLocation = this.location.clone();
+        prevLocation.set(featureVector[5], featureVector[6]);
+        this._prevLocation = prevLocation;
+        this._direction = Direction.decimalToDirection(featureVector[7]);
+        let destinationLocation = this.location.clone();
+        destinationLocation.set(featureVector[8], featureVector[9]);
+        this._destinationLocation = destinationLocation;
+        this._blink = featureVector[10] === 1;
+        this._powerUpType = featureVector[11];
+        this._lifeExpirationTime = moment().add(featureVector[12]);
+        this._blinkTime = moment().add(featureVector[13]);
+    }
 }
 
 export default PowerUp;

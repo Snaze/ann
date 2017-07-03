@@ -369,6 +369,23 @@ class ArrayUtils {
         }
     }
 
+    static distinctIntegers(array) {
+        let temp = {};
+        let toRet = [];
+
+        for (let i = 0; i < array.length; i++) {
+            temp[array[i]] = true;
+        }
+
+        for (let prop in temp) {
+            if (temp.hasOwnProperty(prop)) {
+                toRet.push(parseInt(prop, 10));
+            }
+        }
+
+        return toRet;
+    }
+
 }
 
 export default ArrayUtils;

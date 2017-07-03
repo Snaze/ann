@@ -8,6 +8,7 @@ import EasingFunctions from "../../utils/EasingFunctions";
 import SoundPlayer from "../../utils/SoundPlayer";
 import PlayerAgent from "./PlayerBrains/PlayerAgent";
 import StateHelper from "../ai/StateHelper";
+// import ArrayUtils from "../../utils/ArrayUtils";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
@@ -338,6 +339,76 @@ class Player extends ActorBase {
         }
 
         return this._agent;
+    }
+
+    static _trainingFeatureIndices = null;
+    static get trainingFeatureIndices() {
+        if (Player._trainingFeatureIndices === null) {
+            Player._trainingFeatureIndices = [
+                2,  // delta x
+                3,  // delta y
+                6,  // score
+                12  // direction
+            ];
+        }
+
+        return Player._trainingFeatureIndices;
+    }
+
+    static get featureVectorLength() {
+        return 13;
+    }
+
+    /**
+     * This will return the feature vector that can be used to train machine learning algorithms
+     *
+     * @returns {Array}
+     */
+    toFeatureVector() {
+
+        let milliSecTillAttachModeFinishTime = 0;
+        if (this._attackModeFinishTime > moment()) {
+            milliSecTillAttachModeFinishTime = this._attackModeFinishTime.clone().diff(moment(), "ms");
+        }
+
+        let toRet = [];
+        let delta = this.location.getDelta(this.prevLocation);
+
+        toRet.push(this.location.x);                    // location                 0
+        toRet.push(this.location.y);                    // location                 1
+        toRet.push(delta.x);                            //                          2
+        toRet.push(delta.y);                            //                          3
+        toRet.push(this.isAlive ? 1 : 0);               // isAlive                  4
+        toRet.push(milliSecTillAttachModeFinishTime);   // attackModeFinishTime     5
+        toRet.push(this.score);                         // score                    6
+        toRet.push(this.dotsEaten);                     // dotsEaten                7
+        toRet.push(this.attackModeId);                  // attackModeId             8
+        toRet.push(this.numLives);                      // this._numLives = 3;      9
+        toRet.push(this.prevLocation.x);                // prevLocation             10
+        toRet.push(this.prevLocation.y);                // prevLocation             11
+        toRet.push(Direction.directionToDecimal(this.direction)); // direction      12
+
+        return toRet;
+    }
+
+    /**
+     * This will change the state of the player back to the state represented by the feature vector
+     * @param featureVector {Array} The state you wish to go back to
+     */
+    setFeatureVector(featureVector) {
+        let locationX = featureVector[0], locationY = featureVector[1];
+        this.location.set(locationX, locationY);
+
+        this.isAlive = featureVector[4] === 1;
+        this._attackModeFinishTime = moment().add(featureVector[5], "ms");
+        this.score = featureVector[6];
+        this._dotsEaten = featureVector[7];
+        this._attackModeId = featureVector[8];
+        this._numLives = featureVector[9];
+        let prevLocation = this.location.clone();
+        prevLocation.set(featureVector[10], featureVector[11]);
+        this._prevLocation = prevLocation;
+        this._direction = Direction.decimalToDirection(featureVector[12]);
     }
 }
 

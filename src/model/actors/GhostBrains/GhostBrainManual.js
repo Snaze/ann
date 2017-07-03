@@ -7,12 +7,22 @@ import GhostBrainStrategyScared from "./GhostBrainStrategies/GhostBrainStrategyS
 import GhostBrainStrategyDead from "./GhostBrainStrategies/GhostBrainStrategyDead";
 import EasingFunctions from "../../../utils/EasingFunctions";
 import Player from "../Player";
+import ArrayUtils from "../../../utils/ArrayUtils";
+import { assert } from "../../../utils/Assert";
 
 const ghost_state_wander = 0;
 const ghost_state_holding_pin = 1;
 const ghost_state_attack = 2;
 const ghost_state_scared = 3;
 const ghost_state_dead = 4;
+
+const all = [
+    ghost_state_wander,
+    ghost_state_holding_pin,
+    ghost_state_attack,
+    ghost_state_scared,
+    ghost_state_dead
+];
 
 class GhostBrainManual {
     static get GHOST_STATE_WANDER() { return ghost_state_wander; }
@@ -62,6 +72,8 @@ class GhostBrainManual {
     }
 
     enterState(state) {
+        assert (ArrayUtils.isIn(all, state), "Invalid Brain State");
+
         this._currentState = state;
 
         switch(state) {
@@ -91,6 +103,18 @@ class GhostBrainManual {
             default:
                 throw new Error("Unknown Strategy");
         }
+    }
+
+    get currentState() {
+        return this._currentState;
+    }
+
+    get destinationLocation() {
+        return this._ghostBrainStrategyWander.destinationLocation;
+    }
+
+    set destinationLocation(value) {
+        this._ghostBrainStrategyWander.destinationLocation = value;
     }
 
     // TODO: move some of this logic into the GameObjectContainer

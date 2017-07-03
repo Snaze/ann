@@ -2,6 +2,8 @@ import Ghost from "./Ghost";
 import Level from "../Level";
 import Player from "./Player";
 import GhostBrainManual from "./GhostBrains/GhostBrainManual";
+import Direction from "../../utils/Direction";
+import Location from "../Location";
 
 it ("Ghost constructor works", () => {
 
@@ -143,5 +145,106 @@ it ("reset ghost brain when setting a new level", () => {
 
     // ASSERT
     expect(ghostRed._ghostBrain._currentState === GhostBrainManual.GHOST_STATE_HOLDING_PIN).toBe(true);
+
+});
+
+it ("toFeatureVector", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.ghostRedLocation.set(2, 2);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    let ghostRed = new Ghost(theLevel, Ghost.RED, thePlayer);
+    ghostRed.prevLocation.set(2, 2);
+    ghostRed.location.set(2, 1);
+    ghostRed.isAlive = true;
+    ghostRed.direction = Direction.UP;
+    ghostRed._prevKilledByAttackModeId = 3;
+    ghostRed.brainState = GhostBrainManual.GHOST_STATE_WANDER;
+    ghostRed._ghostBrain.destinationLocation = new Location(2, 0);
+
+    // toRet.push(this.location.x);                    // location                 0
+    // toRet.push(this.location.y);                    // location                 1
+    // toRet.push(delta.x);                            //                          2
+    // toRet.push(delta.y);                            //                          3
+    // toRet.push(this.isAlive ? 1 : 0);               // isAlive                  4
+    // toRet.push(this.prevLocation.x);                // prevLocation             5
+    // toRet.push(this.prevLocation.y);                // prevLocation             6
+    // toRet.push(Direction.directionToDecimal(this.direction)); // direction      7
+    // toRet.push(this._prevKilledByAttackModeId);     // prevKilledByAttackModeId 8
+    // toRet.push(this.brainState);                    // brainState               9
+    // toRet.push(this._ghostBrain.destinationLocation.x); // destinationLocationX 10
+    // toRet.push(this._ghostBrain.destinationLocation.y); // destinationLocationY 11
+
+    // CALL
+    let featureVector = ghostRed.toFeatureVector();
+
+    // ASSERT
+    expect(featureVector.length).toBe(12);
+    expect(featureVector[0]).toBe(2);
+    expect(featureVector[1]).toBe(1);
+    expect(featureVector[2]).toBe(0);
+    expect(featureVector[3]).toBe(-1);
+    expect(featureVector[4]).toBe(1);
+    expect(featureVector[5]).toBe(2);
+    expect(featureVector[6]).toBe(2);
+    expect(featureVector[7]).toBe(Direction.directionToDecimal(Direction.UP));
+    expect(featureVector[8]).toBe(3);
+    expect(featureVector[9]).toBe(GhostBrainManual.GHOST_STATE_WANDER);
+    expect(featureVector[10]).toBe(2);
+    expect(featureVector[11]).toBe(0);
+
+});
+
+it ("setFeatureVector", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.ghostRedLocation.set(2, 2);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    let ghostRed = new Ghost(theLevel, Ghost.RED, thePlayer);
+    ghostRed.prevLocation.set(2, 2);
+    ghostRed.location.set(2, 1);
+    ghostRed.isAlive = true;
+    ghostRed.direction = Direction.UP;
+    ghostRed._prevKilledByAttackModeId = 3;
+    ghostRed.brainState = GhostBrainManual.GHOST_STATE_WANDER;
+    ghostRed._ghostBrain.destinationLocation = new Location(2, 0);
+    let featureVector = ghostRed.toFeatureVector();
+    let otherGhost = new Ghost(theLevel, Ghost.BLUE, thePlayer);
+
+    // CALL
+    otherGhost.setFeatureVector(featureVector);
+
+    // ASSERT
+    expect(otherGhost.location.equals(ghostRed.location)).toBe(true);
+    expect(otherGhost.prevLocation.equals(ghostRed.prevLocation)).toBe(true);
+    expect(otherGhost.isAlive).toBe(ghostRed.isAlive);
+    expect(otherGhost.direction).toBe(ghostRed.direction);
+    expect(otherGhost._prevKilledByAttackModeId).toBe(ghostRed._prevKilledByAttackModeId);
+    expect(otherGhost.brainState).toBe(ghostRed.brainState);
+    expect(otherGhost._ghostBrain.destinationLocation.equals(ghostRed._ghostBrain.destinationLocation)).toBe(true);
+
+});
+
+it ("featureVectorLength", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    theLevel.ghostRedLocation.set(2, 2);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    let ghostRed = new Ghost(theLevel, Ghost.RED, thePlayer);
+    ghostRed.prevLocation.set(2, 2);
+    ghostRed.location.set(2, 1);
+    ghostRed.isAlive = true;
+    ghostRed.direction = Direction.UP;
+    ghostRed._prevKilledByAttackModeId = 3;
+    ghostRed.brainState = GhostBrainManual.GHOST_STATE_WANDER;
+    ghostRed._ghostBrain.destinationLocation = new Location(2, 0);
+
+    let featureVector = ghostRed.toFeatureVector();
+
+    // CALL
+    let length = Ghost.featureVectorLength;
+
+    // ASSERT
+    expect(length).toBe(featureVector.length);
 
 });

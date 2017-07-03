@@ -207,6 +207,13 @@ class Location extends DataSourceBase {
 
         return this;
     }
+
+    getDelta(otherLocation) {
+        return {
+            x: this.x - otherLocation.x,
+            y: this.y - otherLocation.y
+        };
+    }
 }
 
 export default Location;

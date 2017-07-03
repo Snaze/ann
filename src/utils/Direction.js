@@ -81,6 +81,25 @@ class Direction {
                 throw new Error("Invalid Value");
         }
     }
+
+    static directionToDecimal(theValue) {
+        if (theValue < 0 || theValue >= 4) {
+            throw new Error("Invalid value");
+        }
+
+        switch (theValue) {
+            case Direction.LEFT:
+                return 0;
+            case Direction.UP:
+                return 1;
+            case Direction.RIGHT:
+                return 2;
+            case Direction.DOWN:
+                return 3;
+            default:
+                throw new Error("Invalid valid");
+        }
+    }
 }
 
 export default Direction;

@@ -197,7 +197,6 @@ class GameObjectContainer extends DataSourceBase {
             this._levelRunning = false;
             this.paused = true;
 
-
             if (this.callback) {
                 setTimeout(function () {
                     this.callback({
@@ -243,7 +242,6 @@ class GameObjectContainer extends DataSourceBase {
             if (temp) {
                 moved = true;
             }
-
         }.bind(this));
 
         if (moved) {
@@ -477,6 +475,73 @@ class GameObjectContainer extends DataSourceBase {
         }
 
         return this._graph;
+    }
+
+    static _trainingFeatureIndices = null;
+    static get trainingFeatureIndices() {
+        if (GameObjectContainer._trainingFeatureIndices === null) {
+            GameObjectContainer._trainingFeatureIndices = [
+                2,  // ghostRed distance
+                3,  // ghostBlue distance
+                4,  // ghostPink distance
+                5,  // ghostOrange distance
+                6   // powerUp Distance
+            ];
+        }
+
+        return GameObjectContainer._trainingFeatureIndices;
+    }
+
+    static get featureVectorLength() {
+        return 7;
+    }
+
+    toFeatureVector() {
+        let toRet = [];
+        // _powerUpSpawnTime
+        // GameObjectContainer._nextKillScore
+
+        let powerUpSpawnTime = 0;
+        if (this._powerUpSpawnTime > moment()) {
+            powerUpSpawnTime = this._powerUpSpawnTime.diff(moment(), "ms");
+        }
+
+        toRet[0] = powerUpSpawnTime;
+        toRet[1] = GameObjectContainer._nextKillScore;
+        toRet[2] = this.level.floydWarshall.getPathDistance(this.player.location.toCellId(),
+            this.ghostRed.location.toCellId());
+        toRet[3] = this.level.floydWarshall.getPathDistance(this.player.location.toCellId(),
+            this.ghostBlue.location.toCellId());
+        toRet[4] = this.level.floydWarshall.getPathDistance(this.player.location.toCellId(),
+            this.ghostPink.location.toCellId());
+        toRet[5] = this.level.floydWarshall.getPathDistance(this.player.location.toCellId(),
+            this.ghostOrange.location.toCellId());
+        toRet[6] = this.level.floydWarshall.getPathDistance(this.player.location.toCellId(),
+            this.powerUp.location.toCellId());
+
+        if (Number.isNaN(toRet[2])) {
+            toRet[2] = -1;
+        }
+        if (Number.isNaN(toRet[3])) {
+            toRet[3] = -1;
+        }
+        if (Number.isNaN(toRet[4])) {
+            toRet[4] = -1;
+        }
+        if (Number.isNaN(toRet[5])) {
+            toRet[5] = -1;
+        }
+        if (Number.isNaN(toRet[6])) {
+            toRet[6] = -1;
+        }
+
+        return toRet;
+    }
+
+    setFeatureVector(featureVector) {
+        this._powerUpSpawnTime = moment().add(featureVector[0], "ms");
+        GameObjectContainer._nextKillScore = featureVector[1];
+        // The rest should always be static for a give level.
     }
 }
 

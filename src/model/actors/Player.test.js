@@ -3,6 +3,7 @@ import Level from "../Level";
 import Location from "../Location";
 import Dot from "../Dot";
 import moment from "../../../node_modules/moment/moment";
+import Direction from "../../utils/Direction";
 
 it ("Player gender is valid", () => {
 
@@ -333,5 +334,95 @@ it ("scoreDelta works", () => {
 
     // ASSERT
     expect(thePlayer._scoreDelta).toBe(50);
+
+});
+
+it ("toFeatureVector", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    thePlayer.aiMode = true;
+    thePlayer.location.set(2, 3);
+    thePlayer.prevLocation.set(1, 3);
+    thePlayer.isAlive = true;
+    thePlayer.score = 1000;
+    thePlayer._dotsEaten = 5;
+    thePlayer._attackModeId = 4;
+    thePlayer.numLives = 3;
+    thePlayer._attackModeFinishTime = moment().add(2.5, "s");
+    thePlayer.direction = Direction.RIGHT;
+
+    // CALL
+    let featureVector = thePlayer.toFeatureVector();
+
+    // ASSERT
+    expect(featureVector.length).toBe(13);
+    expect(featureVector[0]).toBe(2);
+    expect(featureVector[1]).toBe(3);
+    expect(featureVector[2]).toBe(1);
+    expect(featureVector[3]).toBe(0);
+    expect(featureVector[4]).toBe(1);
+    expect(Math.floor(featureVector[5] / 1000)).toBe(2);
+    expect(featureVector[6]).toBe(1000);
+    expect(featureVector[7]).toBe(5);
+    expect(featureVector[8]).toBe(4);
+    expect(featureVector[9]).toBe(3);
+    expect(featureVector[10]).toBe(1);
+    expect(featureVector[11]).toBe(3);
+    expect(featureVector[12]).toBe(Direction.directionToDecimal(Direction.RIGHT));
+});
+
+it ("setFeatureVector", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    thePlayer.aiMode = true;
+    thePlayer.location.set(2, 3);
+    thePlayer.prevLocation.set(1, 3);
+    thePlayer.isAlive = true;
+    thePlayer.score = 1000;
+    thePlayer._dotsEaten = 5;
+    thePlayer._attackModeId = 4;
+    thePlayer.numLives = 3;
+    thePlayer._attackModeFinishTime = moment().add(2.5, "s");
+    let featureVector = thePlayer.toFeatureVector();
+    let otherPlayer = new Player(theLevel, Player.MR_PAC_MAN);
+
+    // CALL
+    otherPlayer.setFeatureVector(featureVector);
+
+    // ASSERT
+    expect(otherPlayer.location.equals(thePlayer.location)).toBe(true);
+    expect(otherPlayer.prevLocation.equals(thePlayer.prevLocation)).toBe(true);
+    expect(otherPlayer.isAlive).toBe(thePlayer.isAlive);
+    expect(otherPlayer.score).toBe(thePlayer.score);
+    expect(otherPlayer._dotsEaten).toBe(thePlayer._dotsEaten);
+    expect(otherPlayer._attackModeId).toBe(thePlayer._attackModeId);
+    expect(otherPlayer.numLives).toBe(thePlayer.numLives);
+    expect(Math.floor(otherPlayer._attackModeFinishTime.diff(moment(), "ms") / 1000)).toBe(2);
+    expect(otherPlayer.direction).toBe(thePlayer.direction);
+});
+
+it ("featureVectorLength", () => {
+    // SETUP
+    let theLevel = new Level(3, 3);
+    let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
+    thePlayer.aiMode = true;
+    thePlayer.location.set(2, 3);
+    thePlayer.prevLocation.set(1, 3);
+    thePlayer.isAlive = true;
+    thePlayer.score = 1000;
+    thePlayer._dotsEaten = 5;
+    thePlayer._attackModeId = 4;
+    thePlayer.numLives = 3;
+    thePlayer._attackModeFinishTime = moment().add(2.5, "s");
+    thePlayer.direction = Direction.RIGHT;
+    let featureVector = thePlayer.toFeatureVector();
+
+    // CALL
+    let length = Player.featureVectorLength;
+
+    // ASSERT
+    expect(featureVector.length).toBe(length);
 
 });

@@ -31,3 +31,22 @@ it ("clip works", () => {
     expect(filteredResult[3]).toBeCloseTo(1.0);
     expect(filteredResult[4]).toBeCloseTo(0.5);
 });
+
+it ("getNumBits", () => {
+    // SETUP
+
+    // CALL
+
+    // ASSERT
+    expect(MathUtil.getNumBits(0)).toBe(1);
+    expect(MathUtil.getNumBits(1)).toBe(1);
+    expect(MathUtil.getNumBits(2)).toBe(2);
+    expect(MathUtil.getNumBits(3)).toBe(2);
+    expect(MathUtil.getNumBits(4)).toBe(3);
+    expect(MathUtil.getNumBits(5)).toBe(3);
+    expect(MathUtil.getNumBits(6)).toBe(3);
+    expect(MathUtil.getNumBits(7)).toBe(3);
+    expect(MathUtil.getNumBits(8)).toBe(4);
+    expect(MathUtil.getNumBits(9)).toBe(4);
+    expect(MathUtil.getNumBits(10)).toBe(4);
+});

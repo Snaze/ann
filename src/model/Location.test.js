@@ -155,3 +155,16 @@ it ("manhattanDistance test", () => {
     // ASSERT
     expect(distance).toBe(4);
 });
+
+it ("test getDelta", () => {
+    // SETUP
+    let otherLocation = new Location(5, 5);
+    let thisLocation = new Location(4, 5);
+
+    // CALL
+    let delta = thisLocation.getDelta(otherLocation);
+
+    // ASSERT
+    expect(delta.x).toBe(-1);
+    expect(delta.y).toBe(0);
+});

@@ -12,7 +12,7 @@ class BinaryMatrix {
 
         this._binStrMatrix = _.concat(header, _.flattenDeep(binStrMatrix));
         this._numMatrix = BinaryMatrix.createNumericMatrix(this._binStrMatrix);
-        this._prevLocations = {};
+        this._prevState = {};
     }
 
     static createHeader(headerBufferLength) {
@@ -94,8 +94,8 @@ class BinaryMatrix {
      * @param value The value you wish to set.  "0" or "1"
      */
     setBinaryValueAtLocation (prevName, location, index, value) {
-        if (!!prevName && prevName in this._prevLocations && this._prevLocations[prevName].isValid) {
-            let prevLoc = this._prevLocations[prevName];
+        if (!!prevName && prevName in this._prevState && this._prevState[prevName].isValid) {
+            let prevLoc = this._prevState[prevName];
             this._setBinaryValueAtLocation(prevLoc, index, "0");
         }
 
@@ -103,10 +103,10 @@ class BinaryMatrix {
             this._setBinaryValueAtLocation(location, index, value);
         }
 
-        if (!this._prevLocations[prevName]) {
-            this._prevLocations[prevName] = location.clone();
+        if (!this._prevState[prevName]) {
+            this._prevState[prevName] = location.clone();
         } else {
-            this._prevLocations[prevName].setWithLocation(location);
+            this._prevState[prevName].setWithLocation(location);
         }
     }
 
