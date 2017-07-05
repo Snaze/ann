@@ -6,7 +6,7 @@ import ArrayUtils from "../utils/ArrayUtils";
 
 it ("constructor", () => {
     let edgeStore = new EdgeStore([3, 3, 3], true, ActivationFunctions.sigmoid);
-    let nnn = new NeuralNetworkNode(0, 0, edgeStore, 3, 3);
+    let nnn = new NeuralNetworkNode(0, 0, edgeStore, 3);
     let instance = new NeuralNetworkNodeDS(nnn);
 
     expect(instance !== null).toBe(true);
@@ -15,7 +15,7 @@ it ("constructor", () => {
 it ("test getActivationInputEquation", () => {
     // SETUP
     let edgeStore = new EdgeStore([2, 2, 2], false, ActivationFunctions.sigmoid);
-    let nnn = new NeuralNetworkNode(1, 0, edgeStore, 2, 2, false);
+    let nnn = new NeuralNetworkNode(1, 0, edgeStore, 2, false);
     nnn.weights = [0.5, 0.4];
     nnn._prevInputs = [[0.5, 0.4]];
     let instance = new NeuralNetworkNodeDS(nnn);
@@ -30,7 +30,7 @@ it ("test getActivationInputEquation", () => {
 it ("test getActivationInputEquation input node", () => {
     // SETUP
     let edgeStore = new EdgeStore([2, 2, 2], false, ActivationFunctions.sigmoid);
-    let nnn = new NeuralNetworkNode(0, 0, edgeStore, 2, 2, false);
+    let nnn = new NeuralNetworkNode(0, 0, edgeStore, 2, false);
     // nnn.weights = [];
     nnn._prevInputs = [[0.5, 0.4]];
     let instance = new NeuralNetworkNodeDS(nnn);
@@ -45,7 +45,7 @@ it ("test getActivationInputEquation input node", () => {
 it ("_recordAverageErrorHistory", () => {
     // SETUP
     let edgeStore = new EdgeStore([3, 3, 3], true, ActivationFunctions.sigmoid);
-    let nnn = new NeuralNetworkNode(0, 0, edgeStore, 3, 3);
+    let nnn = new NeuralNetworkNode(0, 0, edgeStore, 3);
     let instance = new NeuralNetworkNodeDS(nnn);
     instance._maxErrorHistoryLength = 5;
 

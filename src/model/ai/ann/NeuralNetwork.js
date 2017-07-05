@@ -38,19 +38,21 @@ class NeuralNetwork {
                 activationFunction=ActivationFunctions.sigmoid,
                 learningRate=1.0,
                 weightInitializationType=WeightInitializer.COMPRESSED_NORMAL,
-                callback=null) {
+                callback=null,
+                linearRegression=false) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
-        this._learningRate = new LearningRate(learningRate, 0.01, 100);
+        this._learningRate = new LearningRate(learningRate, 1e-4, 100);
         this._edgeStore = new EdgeStore(nodesPerLayer, includeBias, activationFunction, weightInitializationType);
         this._output = null;
         this._epoch = 0;
         this._totalError = 0;
         this._normalizer = new Normalizer(activationFunction);
         this._inputsNormalized = false;
-        this._debug = true;
+        this._debug = false;
         this._callback = callback;
+        this._linearRegression = linearRegression;
 
         this._trainingParameter = null;
         this._prevWeights = [];
@@ -63,7 +65,8 @@ class NeuralNetwork {
         this._nodeCallbackRef = (e) => this._nodeCallback(e);
 
         this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias,
-            activationFunction, this._learningRate, this._edgeStore, this._nodeCallbackRef);
+            activationFunction, this._learningRate, this._edgeStore, this._nodeCallbackRef,
+            this._linearRegression);
     }
 
     get nodesPerLayer() {
@@ -93,28 +96,29 @@ class NeuralNetwork {
     }
 
     static createNodes(nodesPerLayer, includeBias, activationFunction,
-                       learningRate, edgeStore, callback=null) {
+                       learningRate, edgeStore, callback=null, linearRegression=false) {
 
         let toRet = [];
         let prevNumNodes = 0;
-        // nodesPerLayer = ArrayUtils.removeByIndex(nodesPerLayer, 0);
-
-        let nextLayerSize;
 
         for (let layerIdx = 0; layerIdx < nodesPerLayer.length; layerIdx++) {
             let numNodes = nodesPerLayer[layerIdx];
             let bias = layerIdx === 0 ? false : includeBias;
 
             toRet[layerIdx] = [];
-            if (nodesPerLayer.length > (layerIdx + 1)) {
-                nextLayerSize = nodesPerLayer[(layerIdx + 1)];
-            } else {
-                nextLayerSize = 1;
-            }
 
             for (let nodeIndex = 0; nodeIndex < numNodes; nodeIndex++) {
-                let toSet = new NeuralNetworkNode(layerIdx, nodeIndex, edgeStore, prevNumNodes,
-                    nextLayerSize, bias, activationFunction);
+                let toSet;
+
+                if (linearRegression &&
+                    layerIdx === nodesPerLayer[nodesPerLayer.length - 1]) {
+                    toSet = new NeuralNetworkNode(layerIdx, nodeIndex, edgeStore, prevNumNodes,
+                        bias, ActivationFunctions.identity);
+                } else {
+                    toSet = new NeuralNetworkNode(layerIdx, nodeIndex, edgeStore, prevNumNodes,
+                        bias, activationFunction);
+                }
+
                 toSet.learningRate = learningRate;
                 toRet[layerIdx][nodeIndex] = toSet;
             }
@@ -448,6 +452,35 @@ class NeuralNetwork {
         return this._epoch;
     }
 
+    set epochs (value) {
+        assert (value >= 0);
+
+        this._epoch = value;
+    }
+
+    /**
+     * Returns the maxEpochs from the learning rate object.
+     *
+     * @returns {Number}
+     */
+    get maxEpochs() {
+        return this._learningRate.numEpochs;
+    }
+
+    /**
+     * Use this if you are manually feeding forward and back propagating.  If you are using the
+     * train method, pass in maxEpochs via the parameter.
+     *
+     * TODO: Refactor the train method to use this.
+     *
+     * @param value {Number} the maximum number epochs.
+     */
+    set maxEpochs(value) {
+        assert (value >= 0);
+
+        this._learningRate.numEpochs = value;
+    }
+
     get totalError() {
         return this._totalError;
     }
@@ -463,8 +496,6 @@ class NeuralNetwork {
     get includeBias() {
         return this._includeBias;
     }
-
-
 
     /**
      * Iterates over all the nodes.

@@ -120,7 +120,6 @@ it ("backpropagate test", () => {
     expect(newError).toBeCloseTo(-0.182);
 });
 
-
 it ("backPropagate test 2", () => {
     // SETUP
     let nn = new NeuralNetwork([2, 2, 2], true, ActivationFunctions.sigmoid, 0.5);
@@ -313,6 +312,63 @@ it ("train works", () => {
     }
 
     expect(result[0][0]).toBeCloseTo(0.5, 2);
+    expect(trainingFinished).toBe(true);
+    expect(numEpochs > 0).toBe(true);
+
+    jest.useRealTimers();
+});
+
+it ("train works with linear regression", () => {
+    jest.useFakeTimers();
+
+    // SETUP
+    let trainingFinished = false;
+    let numEpochs = 0;
+    const callback = function (e) {
+        if (e.type === NeuralNetwork.NEURAL_NETWORK_EPOCH_COMPLETE) {
+            numEpochs++;
+        } else if (e.type === NeuralNetwork.NEURAL_NETWORK_TRAINING_COMPLETE) {
+            trainingFinished = true;
+        }
+    };
+
+    let nn = new NeuralNetwork([1, 4, 4, 1], true,
+        ActivationFunctions.lrelu, 1e-3, WeightInitializer.COMPRESSED_NORMAL, callback, true);
+    let input = []; // [0.35, 0.9]
+    let expectedOutput = []; // [0.5]
+    let maxEpochs = 100;
+    let error = 1e-3;
+
+    for (let i = 0; i < 100; i++) {
+        input.push([i]);
+        expectedOutput.push([i*2]);
+    }
+
+
+    let nnp = new NeuralNetworkParameter();
+    nnp.inputs = input;
+    nnp.expectedOutputs = expectedOutput;
+    nnp.miniBatchSize = 10;
+    nnp.normalizeInputs = true;
+    nnp.maxEpochs = maxEpochs;
+    nnp.minError = error;
+    nnp.minWeightDelta = null;
+    nnp.cacheMinError = false;
+
+    // CALL
+    nn.train(nnp);
+
+    jest.runAllTimers();
+
+    let result = nn.predict([[10]]);
+
+    // ASSERT
+    if (!!console) {
+        console.log("prediction = " + result[0][0]);
+        console.log("should be 20");
+    }
+
+    expect(Math.round(result[0][0])).toBeCloseTo(20.0);
     expect(trainingFinished).toBe(true);
     expect(numEpochs > 0).toBe(true);
 

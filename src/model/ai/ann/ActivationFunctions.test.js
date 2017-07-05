@@ -1,4 +1,5 @@
 import ActivationFunctions from "./ActivationFunctions";
+import ArrayUtils from "../../../utils/ArrayUtils";
 
 it ("sigmoid output works", () => {
 
@@ -86,4 +87,24 @@ it ("relu hidden layer error works", () => {
     expect(result).toBeCloseTo(0.09);
     expect(result2).toBeCloseTo(0);
 
+});
+
+it ("identity works", () => {
+    expect(ActivationFunctions.identity.output(-1)).toBe(-1);
+    expect(ActivationFunctions.identity.output(0)).toBe(0);
+    expect(ActivationFunctions.identity.output(1)).toBe(1);
+    expect(ActivationFunctions.identity.output(2)).toBe(2);
+    expect(ActivationFunctions.identity.output(3)).toBe(3);
+
+    expect(ActivationFunctions.identity.derivative(-1)).toBe(1);
+    expect(ActivationFunctions.identity.derivative(0)).toBe(1);
+    expect(ActivationFunctions.identity.derivative(1)).toBe(1);
+    expect(ActivationFunctions.identity.derivative(2)).toBe(1);
+    expect(ActivationFunctions.identity.derivative(3)).toBe(1);
+
+    let result = ActivationFunctions.identity.outputError([1, 2, 3], [1, 2, 3]);
+    expect(ArrayUtils.arrayEquals(result, [0, 0, 0])).toBe(true);
+
+    result = ActivationFunctions.identity.hiddenError([1, 2, 3], [1, 2, 3], 1);
+    expect(result).toBe(14);
 });

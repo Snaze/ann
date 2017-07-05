@@ -4,7 +4,7 @@ import { assert } from "../../utils/Assert";
 import ConvertBase from "../../utils/ConvertBase";
 import ArrayUtils from "../../utils/ArrayUtils";
 import MathUtil from "./MathUtil";
-import math from "../../../node_modules/mathjs/dist/math";
+// import math from "../../../node_modules/mathjs/dist/math";
 
 /**
  * This will train a Q-Learner whose Q value is approximated by a neural network.
@@ -28,6 +28,7 @@ class DeepQLearner {
      * @param verbose {Boolean} This dictates whether or not you want verbose output.
      * @param epochSize {Number} This will increment the epoch and effectively reduce the learning rate.
      * @param numHiddenLayers {Number} The number of hidden layers to use in the neural network.
+     * @param maxEpochs {Number} The epoch number where the learning rate bottoms out
      */
     constructor(trainingVectorSize,
                 numActions=4,
@@ -38,7 +39,8 @@ class DeepQLearner {
                 radr=0.9999,
                 verbose=false,
                 epochSize=10000,
-                numHiddenLayers=3) {
+                numHiddenLayers=3,
+                maxEpochs=1000) {
 
         this._trainingVectorSize = trainingVectorSize;
         this._numActions = numActions;
@@ -50,10 +52,15 @@ class DeepQLearner {
         this._verbose = verbose;
         this._epochSize = epochSize;
         this._numHiddenLayers = numHiddenLayers;
+        this._queryCount = 0;
+        this._maxEpochs = maxEpochs;
 
         this._nodesPerLayer = DeepQLearner.createNodesPerLayerArray(qValueSize, numActions,
             trainingVectorSize, numHiddenLayers);
-        this._neuralNetwork = new NeuralNetwork(this._nodesPerLayer, true, ActivationFunctions.tanh);
+        this._neuralNetwork = new NeuralNetwork(this._nodesPerLayer,
+            true,
+            ActivationFunctions.tanh);
+        this._neuralNetwork.maxEpochs = maxEpochs;
         this._s = 0;
         this._a = 0;
         this._q = null;
@@ -99,15 +106,16 @@ class DeepQLearner {
     }
 
     /**
-     * Update the state without updating the Q-table
-     * @param s: The new state
-     * @returns: The selected action
+     * Update the state without updating the neural network
+     *
+     * @param s {Array} The new state represented as an array
+     * @returns {Number} The number representing the next action to take.
      */
     querySetState(s) {
 
-        let action = this.getAction(s, false);
+        assert (s.length === this._trainingVectorSize, "Invalid State Vector Size");
 
-        this.log(`s = ${this._s}, a = ${this._a}, s_prime = ${s}, a_prime = ${action}, rar = ${this._rar}`);
+        let action = this.getAction(s, false);
 
         this._s = s;
         this._a = action;
@@ -116,66 +124,53 @@ class DeepQLearner {
     }
 
     /**
-     * Update the Q table and return an action
+     * Update the Q table and return an action.
      *
-     * @param sPrime: The new state
-     * @param r: The reward
-     * @returns: The selected action
+     * @param sPrime {Array} the array representing state sPrime.
+     * @param r {Number} the reward for entering state sPrime.
+     * @returns {Number} returns the next action.
+     *
+     * http://neuro.cs.ut.ee/demystifying-deep-reinforcement-learning/
      */
     query(sPrime, r) {
 
-        let aPrime = this.getAction(sPrime, true);
-        let firstPart = math.chain(1.0).subtract(this._alpha).multiply(this._q[this._s][this._a]).done();
+        assert (sPrime.length === this._trainingVectorSize, "Invalid State Vector Size");
 
-        let secondPart = math.chain(this._gamma).multiply(this._q[sPrime][aPrime]).add(r).multiply(this._alpha).done();
-        this._q[this._s][this._a] = math.chain(firstPart).add(secondPart).done();
 
-        // this._q[this._s][this._a] = (1.0 - this._alpha) * this._q[this._s][this._a] +
-        //     this._alpha * (r + this._gamma * this._q[sPrime][aPrime]);
+        let qValuesForNextState = this.getQValueForAllActions(sPrime);
+        let qValuesForCurrentState = this.getQValueForAllActions(this._s);
 
-//      self.Q[self.s, self.a] = (1. - self.alpha) * self.Q[self.s, self.a] \
-//          + self.alpha * (r + self.gamma * self.Q[s_prime, a_prime])
+        let randomValue = Math.random();
+        let aPrime;
 
-        // this.log(`s = ${this._s}, a = ${this._a}, sPrime = ${sPrime}, aPrime = ${aPrime}, r = ${r}`);
+        if (this._rar >= randomValue) {
+            aPrime = Math.floor(Math.random() * this._numActions);
+        } else {
+            aPrime = MathUtil.argMax(qValuesForNextState);
+        }
+
+        this._rar *= this._radr;
+
+        let qValueForNextState = qValuesForNextState[aPrime];
+
+        let qValueTargets = ArrayUtils.copy(qValuesForCurrentState);
+        qValueTargets[this._a] = r + this._gamma * qValueForNextState;
+
+        let expectedOutputs = qValueTargets.map(function (decimalValue) {
+            return this.convertDecimalToBackPropArray(decimalValue);
+        }.bind(this));
+
+        this._neuralNetwork.backPropagate(expectedOutputs);
 
         this._s = sPrime;
         this._a = aPrime;
 
-        return aPrime;
-    }
-
-    /**
-     * TODO: Move this to a common location
-     *
-     * @param theArray
-     */
-    static argMax(theArray) {
-        let index = -1;
-        let max = Number.NEGATIVE_INFINITY;
-
-        if (typeof(theArray) === "undefined") {
-            debugger;
+        this._queryCount++;
+        if (this._queryCount % this._epochSize === 0) {
+            this._neuralNetwork.epochs = this._neuralNetwork.epochs + 1;
         }
 
-        theArray.forEach(function (item, i) {
-            if (item > max) {
-                max = item;
-                index = i;
-            }
-        });
-
-        return index;
-    }
-
-    /**
-     * TODO: Move this to a common location
-     *
-     * @param min
-     * @param max
-     * @returns {*}
-     */
-    static getRandomArbitrary(min, max) {
-        return Math.random() * (max - min) + min;
+        return aPrime;
     }
 
     getAction(sPrime, updateRar=true) {
@@ -197,18 +192,22 @@ class DeepQLearner {
     }
 
     getActionWithLargestQValue(sPrime) {
-        assert (sPrime.length === this._trainingVectorSize, "sPrime is the wrong size");
+        let output = this.getQValueForAllActions(sPrime);
+        return MathUtil.argMax(output); // This should be the action number with the highest q-value
+    }
+
+    getQValueForAllActions(state) {
+        assert(state.length === this._trainingVectorSize, "state is the wrong size");
 
         let trainingVectors = [];
         let actionNumbers = [];
 
         for (let i = 0; i < this._numActions; i++) {
-            trainingVectors.push(sPrime);
+            trainingVectors.push(state);
             actionNumbers.push(i);
         }
 
-        let output = this.feedForwardMiniBatch(trainingVectors, actionNumbers);
-        return MathUtil.argMax(output); // This should be the action number with the highest q-value
+        return this.feedForwardMiniBatch(trainingVectors, actionNumbers);
     }
 
     /**
@@ -306,6 +305,37 @@ class DeepQLearner {
     }
 
     /**
+     * This will convert a qValue back into an array that is the size of the output layer of the NN
+     * which can be used for backprop
+     * @param decimal {Number} This is the number you wish to convert.
+     * @returns {Array} This is the array you can use to back prop the NN.
+     */
+    convertDecimalToBackPropArray(decimal) {
+        let outputLayerLength = this._nodesPerLayer[this._nodesPerLayer.length - 1];
+        let binaryString = ConvertBase.dec2bin(decimal);
+        assert (binaryString.length <= outputLayerLength);
+
+        let toRet = [];
+        let lengthDiff = outputLayerLength - binaryString.length;
+        let binaryStringIndex = 0;
+
+        for (let i = 0; i < outputLayerLength; i++) {
+            if (i >= lengthDiff) {
+                if (binaryString[binaryStringIndex] === "0") {
+                    toRet.push(-1.0);
+                } else {
+                    toRet.push(1.0);
+                }
+                binaryStringIndex++;
+            } else {
+                toRet.push(-1.0);
+            }
+        }
+
+        return toRet;
+    }
+
+    /**
      * This method will feedforward a mini-batch of input vectors an action numbers
      * and will return a mini-batch of the predicted q-values.
      *
@@ -357,6 +387,10 @@ class DeepQLearner {
 
     get numHiddenLayers() {
         return this._numHiddenLayers;
+    }
+
+    get epochs() {
+        return this._neuralNetwork.epochs;
     }
 }
 

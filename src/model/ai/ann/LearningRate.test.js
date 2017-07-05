@@ -30,3 +30,14 @@ it ("test getLearningRate", () => {
     // ASSERT
     expect(learningRate).toBeCloseTo(0.031622776601684);
 });
+
+it ("test getLearningRate should go past the final value", () => {
+    // SETUP
+    let lr = new LearningRate(1.0, 0.001, 100);
+
+    // CALL
+    let learningRate = lr.getLearningRate(200);
+
+    // ASSERT
+    expect(learningRate).toBeCloseTo(0.001, 5);
+});

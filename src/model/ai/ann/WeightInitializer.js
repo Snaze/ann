@@ -40,6 +40,7 @@ class WeightInitializer {
         switch (this.activationFunction) {
             case ActivationFunctions.relu:
             case ActivationFunctions.lrelu:
+            case ActivationFunctions.identity:
                 randomNum = math.sqrt(math.divide(12, math.add(this.fanInCount, this.fanOutCount)));
                 randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
                 break;

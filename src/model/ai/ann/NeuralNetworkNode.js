@@ -20,7 +20,6 @@ class NeuralNetworkNode {
                 nodeIndex,
                 edgeStore,
                 numWeights,
-                nodesInNextLayer,
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid,
                 callback=null) {
@@ -36,12 +35,12 @@ class NeuralNetworkNode {
         this._error = null;
         this._learningRate = new LearningRate(1.0, 0.01, 100);
         this._prevInputs = null;
-        this._nodesInNextLayer = nodesInNextLayer;
+        // this._nodesInNextLayer = nodesInNextLayer;
         this._callback = callback;
 
         if (includeBias) {
             this._numWeights++;
-            this._nodesInNextLayer++;
+            // this._nodesInNextLayer++;
         }
 
         this._weightDeltas = ArrayUtils.create1D(this._numWeights, 0);
@@ -233,10 +232,16 @@ class NeuralNetworkNode {
             currentError = this.activationFunction.outputError(targetValue, currOutput);
 
             for (let w_i = 0; w_i < this.weights.length; w_i++) {
-                allWeightDeltas[i][w_i] = math.chain(-1 * this.learningRate.getLearningRate(epoch))
-                                                .multiply(currentError)
-                                                .multiply(nodeValues[w_i])
-                                                .done();
+                let temp = math.chain(-1 * this.learningRate.getLearningRate(epoch))
+                    .multiply(currentError)
+                    .multiply(nodeValues[w_i])
+                    .done();
+
+                if (!Number.isFinite(temp)) {
+                    debugger;
+                }
+
+                allWeightDeltas[i][w_i] = temp;
             }
 
             errorArray[i] = currentError;

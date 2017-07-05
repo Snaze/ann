@@ -2,6 +2,8 @@ import math from "../../../../node_modules/mathjs/dist/math";
 
 /**
  * https://theclevermachine.wordpress.com/2014/09/08/derivation-derivatives-for-common-neural-network-activation-functions/
+ *
+ * TODO: refactor outputError and hiddenError into the node itself.  They are all the same.
  */
 class ActivationFunctions {
 
@@ -12,11 +14,49 @@ class ActivationFunctions {
                 ActivationFunctions.sigmoid,
                 ActivationFunctions.tanh,
                 ActivationFunctions.relu,
-                ActivationFunctions.lrelu
+                ActivationFunctions.lrelu,
+                ActivationFunctions.identity
             ];
         }
 
         return ActivationFunctions._all;
+    }
+
+    static _identity = null;
+    static get identity() {
+        if (ActivationFunctions._identity === null) {
+            ActivationFunctions._identity = {
+                output: function (x) {
+                    return x;
+                },
+                derivative: function (x) {
+                    return 1;
+                },
+                outputError: function (targetValue, outputValue) {
+                    // let outMinusTarget = math.subtract(outputValue, targetValue);
+                    let targetMinusOutput = math.subtract(targetValue, outputValue);
+                    let derivative = ActivationFunctions._identity.derivative(outputValue);
+
+                    return math.multiply(targetMinusOutput, derivative);
+                },
+
+                /**
+                 * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
+                 * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
+                 * @param outputValue The output value of the current node.
+                 * @returns {Number} Error of this node.
+                 */
+                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
+                    let derivative = ActivationFunctions._identity.derivative(outputValue);
+
+                    return math.chain(derivative)
+                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
+                        .done();
+                }
+            };
+        }
+
+        return ActivationFunctions._identity;
     }
 
     static _sigmoid = null;

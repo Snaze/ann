@@ -23,6 +23,10 @@ class LearningRate {
      * @param t {Number} This should most likely be the epoch number
      */
     getLearningRate(t) {
+        if (t > this._numEpochs) {
+            t = this._numEpochs;
+        }
+
         return this._startValue * Math.exp(this._growthConstant * t);
     }
 
