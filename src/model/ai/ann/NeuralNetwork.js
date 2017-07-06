@@ -40,7 +40,7 @@ class NeuralNetwork {
                 weightInitializationType=WeightInitializer.COMPRESSED_NORMAL,
                 callback=null,
                 linearRegression=false,
-                finalLearningRate=1e-6) {
+                finalLearningRate=1e-3) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;

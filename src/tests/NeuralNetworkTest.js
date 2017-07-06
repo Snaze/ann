@@ -160,7 +160,7 @@ class NeuralNetworkTest extends Component {
             epochs: nn.epochs
         });
 
-        if ((nn.epochs % 2 === 0) || (nn.epochs === 1)) {
+        if ((nn.epochs % 5 === 0) || (nn.epochs === 1)) {
             this.testData();
         }
     }

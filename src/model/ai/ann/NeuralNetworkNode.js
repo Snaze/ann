@@ -3,6 +3,8 @@ import ActivationFunctions from "./ActivationFunctions";
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
 import LearningRate from "./LearningRate";
+import SGD from "./backprop/SGD";
+// import RMSProp from "./backprop/RMSProp";
 
 const event_feed_forward_start = 0;
 const event_feed_forward_complete = 1;
@@ -22,7 +24,8 @@ class NeuralNetworkNode {
                 numWeights,
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid,
-                callback=null) {
+                callback=null,
+                backProp=null) {
 
         this._layerIndex = layerIndex;
         this._nodeIndex = nodeIndex;
@@ -35,15 +38,18 @@ class NeuralNetworkNode {
         this._error = null;
         this._learningRate = new LearningRate(1.0, 0.01, 100);
         this._prevInputs = null;
-        // this._nodesInNextLayer = nodesInNextLayer;
         this._callback = callback;
 
         if (includeBias) {
             this._numWeights++;
-            // this._nodesInNextLayer++;
         }
 
         this._weightDeltas = ArrayUtils.create1D(this._numWeights, 0);
+        this._backProp = backProp;
+        if (this._backProp === null) {
+            this._backProp = new SGD(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction);
+            // this._backProp = new RMSProp(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction);
+        }
     }
 
     static createArrayWithValue(length, value=0) {
@@ -218,50 +224,13 @@ class NeuralNetworkNode {
             return this._error;
         }
 
-        let outputEdges = this._edgeStore.getOutputEdges(this._layerIndex, this._nodeIndex);
-        let outgoingWeights = ArrayUtils.select(outputEdges, (edge) => edge.prevWeight);
-
-        let nodeValues = null;
-        let currOutput = null;
-        let nextLayerErrorsOrTargetValue = null;
-        let currentError = null;
-        let errorArray = [];
-        let allWeightDeltas = [];
-        let derivative;
         let learningRate = this.learningRate.getLearningRate(epoch);
+        let result = this._backProp.getWeightDeltas(this._prevInputs, this._output,
+            nextLayerErrorsMiniBatch, learningRate);
 
-        for (let i = 0; i < this._prevInputs.length; i++) {
+        let errorArray = result.errorArray;
+        this._weightDeltas = result.weightDeltas;
 
-            allWeightDeltas[i] = [];
-
-            nodeValues = this._prevInputs[i];
-            currOutput = this.output[i];
-            nextLayerErrorsOrTargetValue = nextLayerErrorsMiniBatch[i];
-
-            assert(!this.includeBias || nodeValues[nodeValues.length - 1] === 1.0);
-            assert(nodeValues.length === this.weights.length, "Weight length and node length need to match");
-
-            derivative =  this.activationFunction.derivative(currOutput);
-
-            if (nextLayerErrorsOrTargetValue instanceof Array) {
-                let dotProduct = math.dot(nextLayerErrorsOrTargetValue, outgoingWeights);
-                currentError = math.multiply(derivative, dotProduct);
-            } else {
-                let targetMinusOutput = math.subtract(nextLayerErrorsOrTargetValue, currOutput);
-                currentError = math.multiply(targetMinusOutput, derivative);
-            }
-
-            for (let w_i = 0; w_i < this.weights.length; w_i++) {
-                allWeightDeltas[i][w_i] = math.chain(-1 * learningRate)
-                    .multiply(currentError)
-                    .multiply(nodeValues[w_i])
-                    .done();
-            }
-
-            errorArray[i] = currentError;
-        }
-
-        this._weightDeltas = math.mean(allWeightDeltas, 0);
         this.weights = math.subtract(this.weights, this._weightDeltas);
         this._error = errorArray;
 
