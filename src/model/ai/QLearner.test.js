@@ -8,9 +8,9 @@ it ("Constructor works", () => {
 });
 
 it ("QLearner Converges", () => {
-    let qLearner = new QLearner(6, 2, 0.2, 0.9, 0.2, 0.9);
-    let num_runs = 1000;
-    let goalPositions = [0, 5];
+    let qLearner = new QLearner(5, 2, 0.2, 0.9, 0.2, 0.9);
+    let num_runs = 10000;
+    let goalPositions = [0, 4];
 
     let startPos = 2;
     let minSteps = Number.POSITIVE_INFINITY;
@@ -49,7 +49,8 @@ it ("QLearner Converges", () => {
         }
     }
 
+    console.log(window.q);
     // expect(minSteps).toBe(2);
-    expect(playerPos).toBe(5);
+    expect(playerPos).toBe(4);
 
 });

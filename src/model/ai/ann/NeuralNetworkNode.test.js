@@ -26,7 +26,7 @@ it ("backPropagateOutputNode works", () => {
     expect(values[0]).toBeCloseTo(0.69);
 
     // CALL
-    let error = nnn.backPropagateOutputNode([0.5]);
+    let error = nnn.backPropagate([0.5]);
 
     // ASSERT
     expect(error[0]).toBeCloseTo(-0.0406, 3); // ceil because negative
@@ -39,7 +39,10 @@ it ("backPropagateOutputNode works", () => {
 
 it ("backPropagateHiddenNode works", () => {
     // SETUP
-    let nnn = new NeuralNetworkNode(1, 0, new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid),
+    let edgeStore = new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid);
+    let outputEdges = edgeStore.getOutputEdges(1, 0);
+    outputEdges[0]._prevWeight = 0.272392;
+    let nnn = new NeuralNetworkNode(1, 0, edgeStore,
         2, false, ActivationFunctions.sigmoid);
     nnn.weights = [0.1, 0.8];
     let nodeValues = [0.35, 0.9];
@@ -47,7 +50,8 @@ it ("backPropagateHiddenNode works", () => {
     expect(value[0]).toBeCloseTo(0.68);
 
     // CALL
-    let error = nnn.backPropagateHiddenNode([[-0.0406]], [0.272392]);
+    // [0.272392]
+    let error = nnn.backPropagate([[-0.0406]]);
 
     // ASSERT
     expect(error[0]).toBeCloseTo(-2.406e-3, 3);
@@ -117,7 +121,7 @@ const testBackPropOutput = function (oldWeights, learningRate, inputs, expectedO
     nnn.feedForward([inputs]);
 
     // CALL
-    let toRet = nnn.backPropagateOutputNode([expectedOutput]);
+    let toRet = nnn.backPropagate([expectedOutput]);
 
     // ASSERT
     newWeights.forEach(function (weightValue, weightIndex) {
@@ -147,14 +151,19 @@ const testBackPropHidden = function (oldWeights, learningRate,
                                      inputs, nextLayersErrors,
                                      outgoingWeights, newWeights) {
     // SETUP
-    let nnn = new NeuralNetworkNode(1, 0, new EdgeStore([2, 2, 1], true, ActivationFunctions.sigmoid),
+    let edgeStore = new EdgeStore([2, 2, 2], true, ActivationFunctions.sigmoid);
+    outgoingWeights.forEach(function (weight, index) {
+        let edges = edgeStore.getOutputEdges(1, 0);
+        edges[index]._prevWeight = weight;
+    });
+    let nnn = new NeuralNetworkNode(1, 0, edgeStore,
         2, true, ActivationFunctions.sigmoid);
     nnn.weights = oldWeights;
     nnn.learningRate = new LearningRate(learningRate, 0.01, 100);
     nnn.feedForward([inputs]);
 
     // CALL
-    nnn.backPropagateHiddenNode([nextLayersErrors], outgoingWeights);
+    nnn.backPropagate([nextLayersErrors]);
 
     // ASSERT
     newWeights.forEach(function (weightValue, weightIndex) {

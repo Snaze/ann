@@ -39,11 +39,12 @@ class NeuralNetwork {
                 learningRate=1.0,
                 weightInitializationType=WeightInitializer.COMPRESSED_NORMAL,
                 callback=null,
-                linearRegression=false) {
+                linearRegression=false,
+                finalLearningRate=1e-6) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
-        this._learningRate = new LearningRate(learningRate, 1e-4, 100);
+        this._learningRate = new LearningRate(learningRate, finalLearningRate, 100);
         this._edgeStore = new EdgeStore(nodesPerLayer, includeBias, activationFunction, weightInitializationType);
         this._output = null;
         this._epoch = 0;
@@ -423,14 +424,12 @@ class NeuralNetwork {
             for (let nodeIndex = 0; nodeIndex < this._nodes[layerIndex].length; nodeIndex++) {
                 let node = this._nodes[layerIndex][nodeIndex];
 
-                // This updates the weights of the node
-                if (layerIndex === lastLayerIndex) {
-                    let expectedOutputCol = ArrayUtils.getColumn(expectedOutputs, nodeIndex);
-                    thisLayerErrors[nodeIndex] = node.backPropagateOutputNode(expectedOutputCol, this._epoch);
-                } else {
-
-                    thisLayerErrors[nodeIndex] = node.backPropagateHiddenNode(nextLayerErrors, null, this._epoch);
+                if (lastLayerIndex === layerIndex) {
+                    // Must be output layer
+                    nextLayerErrors = ArrayUtils.getColumn(expectedOutputs, nodeIndex);
                 }
+
+                thisLayerErrors[nodeIndex] = node.backPropagate(nextLayerErrors, this._epoch);
             }
 
             nextLayerErrors = ArrayUtils.transpose(thisLayerErrors);

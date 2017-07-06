@@ -198,78 +198,17 @@ class NeuralNetworkNode {
     }
 
     /**
-     * If this is an output node you want to call this to backpropagate a single iteration
+     * This should be called to backPropagate.
      *
-     * @param targetValuesMiniBatch This should be the desired output of the node.
-     * @param epoch {Number}
-     * @returns {*|Number|null} Returns the error.
-     */
-    backPropagateOutputNode(targetValuesMiniBatch, epoch=0) {
-
-        assert (this._prevInputs.length === targetValuesMiniBatch.length,
-            "Inputs and Target MiniBatch lengths need to match");
-
-        this._executeCallback(NeuralNetworkNode.EVENT_BACK_PROP_START);
-
-        let nodeValues = null;
-        let currOutput = null;
-        let targetValue = null;
-        let currentError = null;
-        let errorArray = [];
-        let allWeightDeltas = [];
-
-        for (let i = 0; i < this._prevInputs.length; i++) {
-
-            allWeightDeltas[i] = [];
-
-            nodeValues = this._prevInputs[i];
-            currOutput = this.output[i];
-            targetValue = targetValuesMiniBatch[i];
-
-            assert (!this.includeBias || nodeValues[nodeValues.length - 1] === 1.0);
-            assert (nodeValues.length === this.weights.length, "Weight length and node length need to match");
-
-            currentError = this.activationFunction.outputError(targetValue, currOutput);
-
-            for (let w_i = 0; w_i < this.weights.length; w_i++) {
-                let temp = math.chain(-1 * this.learningRate.getLearningRate(epoch))
-                    .multiply(currentError)
-                    .multiply(nodeValues[w_i])
-                    .done();
-
-                if (!Number.isFinite(temp)) {
-                    debugger;
-                }
-
-                allWeightDeltas[i][w_i] = temp;
-            }
-
-            errorArray[i] = currentError;
-        }
-
-        this._weightDeltas = math.mean(allWeightDeltas, 0);
-        this.weights = math.subtract(this.weights, this._weightDeltas);
-        this._error = errorArray;
-
-        this._executeCallback(NeuralNetworkNode.EVENT_BACK_PROP_COMPLETE);
-
-        return this._error;
-    }
-
-    /**
-     * This should be called to backPropagate if this node is hidden.
-     *
-     * @param nextLayerErrorsMiniBatch This should be an array consisting of the error for each node of the next layer.
-     * @param outgoingWeights This should be an array consisting of the weight edges exiting this node.
-     * @param epoch {Number}
-     * propagated.  This is optional now.
+     * @param nextLayerErrorsMiniBatch {Array} This should be an array consisting of the target values or errors.
+     * @param epoch {Number} This should be the current epoch number.
      *
      * @returns The error of this node.
      */
-    backPropagateHiddenNode(nextLayerErrorsMiniBatch, outgoingWeights=null, epoch=0) {
+    backPropagate(nextLayerErrorsMiniBatch, epoch=0) {
 
         assert (this._prevInputs.length === nextLayerErrorsMiniBatch.length,
-            "Inputs and nextLayerErrors MiniBatch lengths need to match");
+            "Inputs and nextLayerErrorsOrTargetValue MiniBatch lengths need to match");
 
         this._executeCallback(NeuralNetworkNode.EVENT_BACK_PROP_START);
 
@@ -279,17 +218,17 @@ class NeuralNetworkNode {
             return this._error;
         }
 
-        if (outgoingWeights === null) {
-            let outputEdges = this._edgeStore.getOutputEdges(this._layerIndex, this._nodeIndex);
-            outgoingWeights = ArrayUtils.select(outputEdges, (edge) => edge.prevWeight);
-        }
+        let outputEdges = this._edgeStore.getOutputEdges(this._layerIndex, this._nodeIndex);
+        let outgoingWeights = ArrayUtils.select(outputEdges, (edge) => edge.prevWeight);
 
         let nodeValues = null;
         let currOutput = null;
-        let nextLayerErrors = null;
+        let nextLayerErrorsOrTargetValue = null;
         let currentError = null;
         let errorArray = [];
         let allWeightDeltas = [];
+        let derivative;
+        let learningRate = this.learningRate.getLearningRate(epoch);
 
         for (let i = 0; i < this._prevInputs.length; i++) {
 
@@ -297,15 +236,23 @@ class NeuralNetworkNode {
 
             nodeValues = this._prevInputs[i];
             currOutput = this.output[i];
-            nextLayerErrors = nextLayerErrorsMiniBatch[i];
+            nextLayerErrorsOrTargetValue = nextLayerErrorsMiniBatch[i];
 
             assert(!this.includeBias || nodeValues[nodeValues.length - 1] === 1.0);
             assert(nodeValues.length === this.weights.length, "Weight length and node length need to match");
 
-            currentError = this.activationFunction.hiddenError(nextLayerErrors, outgoingWeights, currOutput);
+            derivative =  this.activationFunction.derivative(currOutput);
+
+            if (nextLayerErrorsOrTargetValue instanceof Array) {
+                let dotProduct = math.dot(nextLayerErrorsOrTargetValue, outgoingWeights);
+                currentError = math.multiply(derivative, dotProduct);
+            } else {
+                let targetMinusOutput = math.subtract(nextLayerErrorsOrTargetValue, currOutput);
+                currentError = math.multiply(targetMinusOutput, derivative);
+            }
 
             for (let w_i = 0; w_i < this.weights.length; w_i++) {
-                allWeightDeltas[i][w_i] = math.chain(-1 * this.learningRate.getLearningRate(epoch))
+                allWeightDeltas[i][w_i] = math.chain(-1 * learningRate)
                     .multiply(currentError)
                     .multiply(nodeValues[w_i])
                     .done();

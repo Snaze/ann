@@ -31,27 +31,6 @@ class ActivationFunctions {
                 },
                 derivative: function (x) {
                     return 1;
-                },
-                outputError: function (targetValue, outputValue) {
-                    // let outMinusTarget = math.subtract(outputValue, targetValue);
-                    let targetMinusOutput = math.subtract(targetValue, outputValue);
-                    let derivative = ActivationFunctions._identity.derivative(outputValue);
-
-                    return math.multiply(targetMinusOutput, derivative);
-                },
-
-                /**
-                 * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
-                 * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
-                 * @param outputValue The output value of the current node.
-                 * @returns {Number} Error of this node.
-                 */
-                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
-                    let derivative = ActivationFunctions._identity.derivative(outputValue);
-
-                    return math.chain(derivative)
-                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
-                        .done();
                 }
             };
         }
@@ -68,27 +47,6 @@ class ActivationFunctions {
                 },
                 derivative: function (x) {
                     return math.multiply(math.subtract(1.0, x), x);
-                },
-                outputError: function (targetValue, outputValue) {
-                    // let outMinusTarget = math.subtract(outputValue, targetValue);
-                    let targetMinusOutput = math.subtract(targetValue, outputValue);
-                    let derivative = ActivationFunctions._sigmoid.derivative(outputValue);
-
-                    return math.multiply(targetMinusOutput, derivative);
-                },
-
-                /**
-                 * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
-                 * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
-                 * @param outputValue The output value of the current node.
-                 * @returns {Number} Error of this node.
-                 */
-                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
-                    let derivative = ActivationFunctions._sigmoid.derivative(outputValue);
-
-                    return math.chain(derivative)
-                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
-                        .done();
                 }
             };
         }
@@ -107,26 +65,6 @@ class ActivationFunctions {
                 },
                 derivative: function (x) {
                     return math.subtract(1.0, math.pow(x, 2));
-                },
-                outputError: function (targetValue, outputValue) {
-                    let targetMinusOutput = math.subtract(targetValue, outputValue);
-                    let derivative = ActivationFunctions._tanh.derivative(outputValue);
-
-                    return math.multiply(targetMinusOutput, derivative);
-                },
-
-                /**
-                 * @param nextLayerErrors This should be an array consisting of the error for each node of the next layer.
-                 * @param nextNodeWeights This should be an array consisting of the weight edges exiting this node.
-                 * @param outputValue The output value of the current node.
-                 * @returns {Number} Error of this node.
-                 */
-                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
-                    let derivative = ActivationFunctions._tanh.derivative(outputValue);
-
-                    return math.chain(derivative)
-                        .multiply(math.dot(nextLayerErrors, nextNodeWeights))
-                        .done();
                 }
             };
         }
@@ -143,18 +81,6 @@ class ActivationFunctions {
                 },
                 derivative: function (x) {
                     return x > 0 ? 1 : 0;
-                },
-                outputError: function (targetValue, outputValue) {
-                    let targetMinusOutput = math.subtract(targetValue, outputValue);
-                    let derivative =  ActivationFunctions._relu.derivative(outputValue);
-
-                    return math.multiply(targetMinusOutput, derivative);
-                },
-                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
-                    let derivative =  ActivationFunctions._relu.derivative(outputValue);
-                    let dotProduct = math.dot(nextLayerErrors, nextNodeWeights);
-
-                    return math.multiply(derivative, dotProduct);
                 }
             };
         }
@@ -171,18 +97,6 @@ class ActivationFunctions {
                 },
                 derivative: function (x) {
                     return x > 0 ? 1 : 0.01;
-                },
-                outputError: function (targetValue, outputValue) {
-                    let targetMinusOutput = math.subtract(targetValue, outputValue);
-                    let derivative =  ActivationFunctions._lrelu.derivative(outputValue);
-
-                    return math.multiply(targetMinusOutput, derivative);
-                },
-                hiddenError: function (nextLayerErrors, nextNodeWeights, outputValue) {
-                    let derivative =  ActivationFunctions._lrelu.derivative(outputValue);
-                    let dotProduct = math.dot(nextLayerErrors, nextNodeWeights);
-
-                    return math.multiply(derivative, dotProduct);
                 }
             };
         }
