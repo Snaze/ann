@@ -4,6 +4,7 @@ import { assert } from "../../utils/Assert";
 import ArrayUtils from "../../utils/ArrayUtils";
 import MathUtil from "./MathUtil";
 import WeightInitializer from "./ann/WeightInitializer";
+import BackPropFactory from "./ann/backprop/BackPropFactory";
 
 /**
  * This will train a Q-Learner whose Q value is approximated by a neural network.
@@ -56,7 +57,8 @@ class DeepQLearner {
             trainingVectorSize, numHiddenLayers);
         this._neuralNetwork = new NeuralNetwork(this._nodesPerLayer,
             true,
-            ActivationFunctions.lrelu, 0.001, WeightInitializer.COMPRESSED_NORMAL, null, true, 0.001);
+            ActivationFunctions.lrelu, 0.03, WeightInitializer.COMPRESSED_NORMAL, null, true, 0.001,
+            BackPropFactory.BACK_PROP_TYPE_ADAM);
         this._neuralNetwork.maxEpochs = maxEpochs;
         this._s = 0;
         this._a = 0;

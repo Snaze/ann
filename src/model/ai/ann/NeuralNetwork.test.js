@@ -4,6 +4,7 @@ import NeuralNetworkParameter from "./NeuralNetworkParameter";
 import ArrayUtils from "../../../utils/ArrayUtils";
 import EdgeStore from "./EdgeStore";
 import WeightInitializer from "./WeightInitializer";
+import BackPropFactory from "./backprop/BackPropFactory";
 
 it ("NeuralNetork constructor works", () => {
     // CALL
@@ -332,8 +333,9 @@ it ("train works with linear regression", () => {
         }
     };
 
-    let nn = new NeuralNetwork([1, 4, 4, 1], true,
-        ActivationFunctions.lrelu, 1e-3, WeightInitializer.COMPRESSED_NORMAL, callback, true);
+    let nn = new NeuralNetwork([1, 6, 6, 1], true,
+        ActivationFunctions.lrelu, 0.03, WeightInitializer.COMPRESSED_NORMAL, callback, true, 1e-3,
+        BackPropFactory.BACK_PROP_TYPE_ADAM);
     // The reason I'm doing this is because I know these initial weights will always converge
     // I feel like I should probably do this for some other unit tests floating around out there.
     // let weights = [ [ [] ],

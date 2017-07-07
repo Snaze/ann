@@ -45,6 +45,7 @@ class RMSProp {
      * @returns {{errorArray: Array, weightDeltas: Array}}
      */
     getWeightDeltas(prevInputs, outputs, nextLayerErrorsMiniBatch, learningRate) {
+        // TODO: Refactor this common code back into NeuralNetworkNode
         assert (this._layerIndex > 0, "No need to backpropagate for input node");
 
         let nodeValues = null, currOutput = null, nextLayerErrorsOrTargetValue = null;

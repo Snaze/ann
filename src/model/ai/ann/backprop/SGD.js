@@ -36,6 +36,7 @@ class SGD {
      * @returns {{errorArray: Array, weightDeltas: Array}}
      */
     getWeightDeltas(prevInputs, outputs, nextLayerErrorsMiniBatch, learningRate) {
+        // TODO: Refactor this common code back into NeuralNetworkNode
         let nodeValues = null, currOutput = null, nextLayerErrorsOrTargetValue = null;
         let currentError = null, errorArray = [], allWeightDeltas = [];
         let derivative, temp, gradient;
