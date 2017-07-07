@@ -9,6 +9,7 @@ import Normalizer from "./Normalizer";
 import EdgeStore from "./EdgeStore";
 import WeightInitializer from "./WeightInitializer";
 import LearningRate from "./LearningRate";
+import BackPropFactory from "./backprop/BackPropFactory";
 // import NeuralNetworkParameter from "./NeuralNetworkParameter";
 
 const neural_network_feed_forward_complete = 0;
@@ -31,8 +32,6 @@ class NeuralNetwork {
     static get NEURAL_NETWORK_TRAINING_COMPLETE() { return neural_network_training_complete; }
     static get ALL_CALLBACKS() { return all; }
 
-    // TODO: you really should have passed a single object into this thing containing the parameters
-    // (all these classes really).
     constructor(nodesPerLayer,
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid,
@@ -40,7 +39,8 @@ class NeuralNetwork {
                 weightInitializationType=WeightInitializer.COMPRESSED_NORMAL,
                 callback=null,
                 linearRegression=false,
-                finalLearningRate=1e-3) {
+                finalLearningRate=1e-3,
+                backPropType=BackPropFactory.BACK_PROP_TYPE_SGD) {
         this._nodesPerLayer = nodesPerLayer;
         this._includeBias = includeBias;
         this._activationFunction = activationFunction;
@@ -54,6 +54,7 @@ class NeuralNetwork {
         this._debug = false;
         this._callback = callback;
         this._linearRegression = linearRegression;
+        this._backPropType = backPropType;
 
         this._trainingParameter = null;
         this._prevWeights = [];
@@ -67,7 +68,7 @@ class NeuralNetwork {
 
         this._nodes = NeuralNetwork.createNodes(nodesPerLayer, includeBias,
             activationFunction, this._learningRate, this._edgeStore, this._nodeCallbackRef,
-            this._linearRegression);
+            this._linearRegression, this._backPropType);
     }
 
     get nodesPerLayer() {
@@ -97,7 +98,8 @@ class NeuralNetwork {
     }
 
     static createNodes(nodesPerLayer, includeBias, activationFunction,
-                       learningRate, edgeStore, callback=null, linearRegression=false) {
+                       learningRate, edgeStore, callback=null, linearRegression=false,
+                       backPropType=BackPropFactory.BACK_PROP_TYPE_SGD) {
 
         let toRet = [];
         let prevNumNodes = 0;
@@ -114,10 +116,10 @@ class NeuralNetwork {
                 if (linearRegression &&
                     layerIdx === nodesPerLayer[nodesPerLayer.length - 1]) {
                     toSet = new NeuralNetworkNode(layerIdx, nodeIndex, edgeStore, prevNumNodes,
-                        bias, ActivationFunctions.identity);
+                        bias, ActivationFunctions.identity, null, backPropType);
                 } else {
                     toSet = new NeuralNetworkNode(layerIdx, nodeIndex, edgeStore, prevNumNodes,
-                        bias, activationFunction);
+                        bias, activationFunction, null, backPropType);
                 }
 
                 toSet.learningRate = learningRate;
@@ -494,6 +496,25 @@ class NeuralNetwork {
 
     get includeBias() {
         return this._includeBias;
+    }
+
+    /**
+     * This represents the backpropagation type being used.
+     * @returns {String}
+     */
+    get backPropType() {
+        return this._backPropType;
+    }
+
+    /**
+     * This will set the back prop type for the entire network
+     * @param value {String}
+     */
+    set backPropType(value) {
+        this._backPropType = value;
+        this.iterateOverNodes(function (node) {
+            node.backPropType = value;
+        });
     }
 
     /**

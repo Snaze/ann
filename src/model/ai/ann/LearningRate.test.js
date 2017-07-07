@@ -41,3 +41,7 @@ it ("test getLearningRate should go past the final value", () => {
     // ASSERT
     expect(learningRate).toBeCloseTo(0.001, 5);
 });
+
+it ("getGrowthConstant should return 0 if start and end are the same", () => {
+    expect(LearningRate.getGrowthConstant(0.001, 0.001, 100)).toBe(0);
+});

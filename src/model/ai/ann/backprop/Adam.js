@@ -3,34 +3,40 @@ import { assert } from "../../../../utils/Assert";
 import ArrayUtils from "../../../../utils/ArrayUtils";
 
 /**
- * This is the RMSProp weight update rule for backpropagation.
+ * This is the Adam weight update rule for backpropagation.
  *
- * RMSProp
+ * Adam
  */
 class RMSProp {
 
     /**
-     * This is the constructor for RMSProp.
+     * This is the constructor for Adam.
      * @param layerIndex {Number} This is the layer index of the current node.
      * @param nodeIndex {Number} This is the node index of the current node.
      * @param includeBias {Boolean} This specifies whether or not a bias input is being used.
      * @param edgeStore {EdgeStore} This is the edge store which holds all the NN weights.
      * @param activationFunction {Object} This is the activation function to be used.
-     * @param forgetFactor {Number} This number affects how much of the running average to keep.  Larger = more.
+     * @param gradientDecay {Number} This is the decay factor for the gradient.
+     * @param squaredGradientDecay {Number} This is the decay factor for the gradient.
      * @param errorFactor {Number} This factor is used simply to avoid divide by zero errors.
      */
-    constructor(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction, forgetFactor=0.9,
-                errorFactor=1e-8) {
-        assert (forgetFactor >= 0 && forgetFactor <= 1, "0 <= forgetFactor <= 1");
+    constructor(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction,
+                gradientDecay=0.9, squaredGradientDecay=0.999, errorFactor=1e-8) {
+        assert (gradientDecay >= 0 && gradientDecay <= 1, "0 <= gradientDecay <= 1");
+        assert (squaredGradientDecay >= 0 && squaredGradientDecay <= 1, "0 <= squaredGradientDecay <= 1");
 
         this._layerIndex = layerIndex;
         this._nodeIndex = nodeIndex;
         this._includeBias = includeBias;
         this._edgeStore = edgeStore;
         this._activationFunction = activationFunction;
-        this._forgetFactor = forgetFactor;
+        this._gradientDecay = gradientDecay;
+        this._inverseGradientDecay = (1.0 - this._gradientDecay);
+        this._squaredGradientDecay = squaredGradientDecay;
+        this._inverseSquaredGradientDecay = (1.0 - this._squaredGradientDecay);
         this._errorFactor = errorFactor;
-        this._meanSquare = null;
+        this._gradient = null;
+        this._gradientSquared = null;
 
     }
 
@@ -49,7 +55,7 @@ class RMSProp {
 
         let nodeValues = null, currOutput = null, nextLayerErrorsOrTargetValue = null;
         let currentError = null, errorArray = [], allWeightDeltas = [];
-        let derivative, temp, gradient, currentMeanSquared;
+        let derivative, temp, gradient;
 
         let outputEdges = this._edgeStore.getOutputEdges(this._layerIndex, this._nodeIndex);
         let outgoingWeights = ArrayUtils.select(outputEdges, (edge) => edge.prevWeight);
@@ -85,16 +91,31 @@ class RMSProp {
             errorArray[i] = currentError;
         }
 
-        let totalGradient = math.mean(gradientCache, 0);
-        let firstPart = math.multiply(this.forgetFactor, this.meanSquare);
-        let invertedForgetFactor = 1 - this.forgetFactor;
-        let gradientSquared = totalGradient.map((item) => item * item);
-        currentMeanSquared = math.add(firstPart, math.multiply(invertedForgetFactor, gradientSquared));
-        let weightDeltas = currentMeanSquared.map(function (item, index) {
-            return -learningRate * (totalGradient[index] / Math.sqrt(item + this.errorFactor))
+        let currentGradient = math.mean(gradientCache, 0);
+        let m_t = this.gradient.map(function (m_t_minus_1, index) {
+            return this.gradientDecay * m_t_minus_1 +
+                this.inverseGradientDecay * currentGradient[index];
         }.bind(this));
 
-        this._meanSquare = currentMeanSquared;
+        let v_t = this.gradientSquared.map(function (v_t_minus_1, index) {
+            return this.squaredGradientDecay * v_t_minus_1 +
+                    this.inverseSquaredGradientDecay * Math.pow(currentGradient[index], 2);
+        }.bind(this));
+
+        let mHat_t = m_t.map(function (mT) {
+            return mT / this.inverseGradientDecay;
+        }.bind(this));
+
+        let vHat_t = v_t.map(function (vT) {
+            return vT / this.inverseSquaredGradientDecay;
+        }.bind(this));
+
+        let weightDeltas = mHat_t.map(function(currMHatT, index) {
+            return -(learningRate / (Math.sqrt(vHat_t[index]) + this.errorFactor)) * currMHatT;
+        }.bind(this));
+
+        this._gradient = m_t;
+        this._gradientSquared = v_t;
 
         return {
             errorArray: errorArray,
@@ -103,12 +124,35 @@ class RMSProp {
     }
 
     /**
-     * This is the forget factor used in the equation
-     * MeanSquare(w, t) = ForgetFactor * MeanSquare(w, t-1) + (1 - ForgetFactor) * gradient_w_i
+     * The decay factor for the gradient calculation
      * @returns {Number}
      */
-    get forgetFactor() {
-        return this._forgetFactor;
+    get gradientDecay() {
+        return this._gradientDecay;
+    }
+
+    /**
+     * The squared decay factor for the gradient calculation
+     * @returns {Number}
+     */
+    get squaredGradientDecay() {
+        return this._squaredGradientDecay;
+    }
+
+    /**
+     * This is (1 - gradientDecay)
+     * @returns {Number}
+     */
+    get inverseGradientDecay() {
+        return this._inverseGradientDecay;
+    }
+
+    /**
+     * This is (1 - squaredGradientDecay)
+     * @returns {Number}
+     */
+    get inverseSquaredGradientDecay() {
+        return this._inverseSquaredGradientDecay;
     }
 
     /**
@@ -130,16 +174,28 @@ class RMSProp {
     }
 
     /**
-     * This is the MeanSquare error used to find the weight deltas
+     * This is the previous Gradient used to find the weight deltas
      *
      * @returns {Array}
      */
-    get meanSquare() {
-        if (this._meanSquare === null) {
-            this._meanSquare = ArrayUtils.create1D(this.numInputEdges, 0);
+    get gradient() {
+        if (this._gradient === null) {
+            this._gradient = ArrayUtils.create1D(this.numInputEdges, 0);
         }
 
-        return this._meanSquare;
+        return this._gradient;
+    }
+
+    /**
+     * This is the previous Squared Gradient used to find weight deltas
+     * @returns {Array}}
+     */
+    get gradientSquared() {
+        if (this._gradientSquared === null) {
+            this._gradientSquared = ArrayUtils.create1D(this.numInputEdges, 0);
+        }
+
+        return this._gradientSquared;
     }
 
     /**

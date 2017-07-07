@@ -51,7 +51,8 @@ class NeuralNetworkTest extends Component {
             includeBias: true,
             weightInitialization: "COMPRESSED_NORMAL",
             showVisualizer: false,
-            neuralNetworkDS: null
+            neuralNetworkDS: null,
+            backPropType: "sgd"
         };
 
         this._testData = {};
@@ -447,7 +448,7 @@ class NeuralNetworkTest extends Component {
                 });
                 break;
             case "txtLearningRate":
-                let learningRate = parseInt(e.target.value, 10);
+                let learningRate = parseFloat(e.target.value);
                 this.setState({
                     learningRate: learningRate
                 });
@@ -518,6 +519,13 @@ class NeuralNetworkTest extends Component {
                     showVisualizer: showVisualizer
                 });
                 break;
+            case "ddlBackPropType":
+                let backPropType = e.target.value;
+
+                this.setState({
+                    backPropType: backPropType
+                });
+                break;
             default:
                 break;
         }
@@ -556,7 +564,8 @@ class NeuralNetworkTest extends Component {
                 this.state.includeBias,
                 ActivationFunctions[this.state.activationFunction],
                 this.state.learningRate,
-                WeightInitializer[this.state.weightInitialization]);
+                WeightInitializer[this.state.weightInitialization],
+                null, false, 1e-3, this.state.backPropType);
 
             this._neuralNetwork.callback = this._nnCallbackRef;
 
@@ -698,6 +707,19 @@ class NeuralNetworkTest extends Component {
                                             <option value="COMPRESSED_NORMAL">Compressed Gaussian</option>
                                             <option value="GENERIC_NORMAL">Gaussian</option>
                                             <option value="FAN_IN_FAN_OUT">Fan-in / Fan-out</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className="NeuralNetworkRightCell">
+                                        Back Prop Type:
+                                    </td>
+                                    <td className="NeuralNetworkLeftCell">
+                                        <select name="ddlBackPropType" value={this.state.backPropType}
+                                                onChange={(e) => this.tableOnChange(e)}>
+                                            <option value="sgd">SGD</option>
+                                            <option value="rmsprop">RMSProp</option>
+                                            <option value="adam">ADAM</option>
                                         </select>
                                     </td>
                                 </tr>

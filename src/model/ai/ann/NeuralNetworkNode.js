@@ -3,8 +3,7 @@ import ActivationFunctions from "./ActivationFunctions";
 import math from "../../../../node_modules/mathjs/dist/math";
 import ArrayUtils from "../../../utils/ArrayUtils";
 import LearningRate from "./LearningRate";
-import SGD from "./backprop/SGD";
-// import RMSProp from "./backprop/RMSProp";
+import BackPropFactory from "./backprop/BackPropFactory";
 
 const event_feed_forward_start = 0;
 const event_feed_forward_complete = 1;
@@ -25,7 +24,7 @@ class NeuralNetworkNode {
                 includeBias=true,
                 activationFunction=ActivationFunctions.sigmoid,
                 callback=null,
-                backProp=null) {
+                backPropType=BackPropFactory.BACK_PROP_TYPE_SGD) {
 
         this._layerIndex = layerIndex;
         this._nodeIndex = nodeIndex;
@@ -39,17 +38,14 @@ class NeuralNetworkNode {
         this._learningRate = new LearningRate(1.0, 0.01, 100);
         this._prevInputs = null;
         this._callback = callback;
+        this._backPropType = backPropType;
+        this._backProp = null;
 
         if (includeBias) {
             this._numWeights++;
         }
 
         this._weightDeltas = ArrayUtils.create1D(this._numWeights, 0);
-        this._backProp = backProp;
-        if (this._backProp === null) {
-            this._backProp = new SGD(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction);
-            // this._backProp = new RMSProp(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction);
-        }
     }
 
     static createArrayWithValue(length, value=0) {
@@ -144,6 +140,26 @@ class NeuralNetworkNode {
         return this._prevInputs;
     }
 
+    get backPropType() {
+        return this._backPropType;
+    }
+
+    set backPropType(value) {
+        if (this._backPropType !== value) {
+            this._backProp = null;
+            this._backPropType = value;
+        }
+    }
+
+    get backProp() {
+        if (this._backProp === null) {
+            this._backProp = BackPropFactory.create(this.backPropType, this.layerIndex, this.nodeIndex,
+                this.includeBias, this.edgeStore, this.activationFunction);
+        }
+
+        return this._backProp;
+    }
+
     static calculateError(expected, actual) {
         return math.chain(0.5).multiply(math.pow(math.subtract(expected, actual),2)).done();
     }
@@ -225,7 +241,7 @@ class NeuralNetworkNode {
         }
 
         let learningRate = this.learningRate.getLearningRate(epoch);
-        let result = this._backProp.getWeightDeltas(this._prevInputs, this._output,
+        let result = this.backProp.getWeightDeltas(this._prevInputs, this._output,
             nextLayerErrorsMiniBatch, learningRate);
 
         let errorArray = result.errorArray;
