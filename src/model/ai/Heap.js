@@ -3,12 +3,35 @@ import { assert } from "../../utils/Assert";
 const max_heap = 0;
 const min_heap = 1;
 
+/**
+ * This is an implementation of a Heap.
+ * TODO: finish commenting this class.
+ */
 class Heap {
 
+    /**
+     * This is the Max HEAP_TYPE.
+     * @returns {number}
+     */
     static get HEAP_TYPE_MAX() { return max_heap; }
+
+    /**
+     * This is the Min HEAP_TYPE.
+     * @returns {number}
+     */
     static get HEAP_TYPE_MIN() { return min_heap; }
 
-    constructor(type=Heap.HEAP_TYPE_MAX, theArray=null) {
+    /**
+     * The constructor for the Heap.
+     * @param type {Number} Use the static HEAP_TYPE members of this class.  Designates this as a min
+     * or a max heap.
+     * @param theArray {Array} The array you wish to heapify.  If you leave as null, one will be created.
+     * @param keyFieldName {Function} This will be used to extract the value of each object that is inserted. If
+     * this is left as null, it will be assumed that you are inserting / extracting primitive numbers.
+     * @param maxSize {Number} This specifies the maximum size of the heap.
+     * @constructor
+     */
+    constructor(type=Heap.HEAP_TYPE_MAX, theArray=null, keyFieldName=null, maxSize=Number.POSITIVE_INFINITY) {
         if (theArray === null) {
             theArray = [];
         }
@@ -18,12 +41,24 @@ class Heap {
         this._array = [null].concat(theArray);
         this._heapSize = 0;
         this._isHeapified = false;
+        this._keyFieldName = keyFieldName;
+        this._maxSize = maxSize;
     }
 
+    /**
+     * This returns the parent element index of element i in the storing array
+     * @param i {Number} The element you wish to find the parent of.
+     * @returns {number} The parent element index in the storing array.
+     */
     static parent(i) {
         return Math.floor(i/2);
     }
 
+    /**
+     * This returns the left child of element i in the storing array.
+     * @param i {Number} The element you wish to find the left child of.
+     * @returns {number} The index of the left child of i.
+     */
     static left(i) {
         return 2 * i;
     }
@@ -33,15 +68,39 @@ class Heap {
     }
 
     leftChild(i) {
-        return this._array[Heap.left(i)];
+        return this.getArrayItem(Heap.left(i));
     }
 
     rightChild(i) {
-        return this._array[Heap.right(i)];
+        return this.getArrayItem(Heap.right(i));
     }
 
     parent(i) {
-        return this._array[Heap.parent(i)];
+        return this.getArrayItem(Heap.parent(i));
+    }
+
+    getArrayValue(i) {
+        let item = this.getArrayItem(i);
+
+        if (item instanceof Object) {
+            assert (this._keyFieldName !== null, "_keyFieldName must be set");
+            return item[this._keyFieldName];
+        }
+
+        return item;
+    }
+
+    getArrayItem(i) {
+        return this._array[i];
+    }
+
+    setArrayItem(i, item) {
+        this._array[i] = item;
+
+        if (item instanceof Object) {
+            assert (this._keyFieldName !== null, "_keyFieldName must be set");
+            item.__heap_index = i; // Hmmmm, is this bootleg?
+        }
     }
 
     get type() {
@@ -49,11 +108,11 @@ class Heap {
     }
 
     _maxHeapProperty(i) {
-        return this._array[Heap.parent(i)] >= this._array[i];
+        return this.getArrayValue(Heap.parent(i)) >= this.getArrayValue(i);
     }
 
     _minHeapProperty(i) {
-        return this._array[Heap.parent(i)] <= this._array[i];
+        return this.getArrayValue(Heap.parent(i)) <= this.getArrayValue(i);
     }
 
     heapProperty(i) {
@@ -70,18 +129,18 @@ class Heap {
         let r = Heap.right(i);
         let largest = i;
 
-        if (l <= this._heapSize && this._array[l] > this._array[i]) {
+        if (l <= this._heapSize && this.getArrayValue(l) > this.getArrayValue(i)) {
             largest = l;
         }
 
-        if (r <= this._heapSize && this._array[r] > this._array[largest]) {
+        if (r <= this._heapSize && this.getArrayValue(r) > this.getArrayValue(largest)) {
             largest = r;
         }
 
         if (largest !== i) {
-            let temp = this._array[i];
-            this._array[i] = this._array[largest];
-            this._array[largest] = temp;
+            let temp = this.getArrayItem(i);
+            this.setArrayItem(i, this.getArrayItem(largest));
+            this.setArrayItem(largest, temp);
 
             this._maxHeapify(largest);
         }
@@ -93,20 +152,20 @@ class Heap {
         let r = Heap.right(i);
         let smallest = null;
 
-        if (l <= this._heapSize && this._array[l] < this._array[i]) {
+        if (l <= this._heapSize && this.getArrayValue(l) < this.getArrayValue(i)) {
             smallest = l;
         }  else {
             smallest = i;
         }
 
-        if (r <= this._heapSize && this._array[r] < this._array[smallest]) {
+        if (r <= this._heapSize && this.getArrayValue(r) < this.getArrayValue(smallest)) {
             smallest = r;
         }
 
         if (smallest !== i) {
-            let temp = this._array[i];
-            this._array[i] = this._array[smallest];
-            this._array[smallest] = temp;
+            let temp = this.getArrayItem(i);
+            this.setArrayItem(i, this.getArrayItem(smallest));
+            this.setArrayItem(smallest, temp);
 
             this._minHeapify(smallest);
         }
@@ -157,7 +216,7 @@ class Heap {
 
         this._buildHeapIfNotHeapified();
 
-        return this._array[1];
+        return this.getArrayItem(1);
     }
 
     getMin() {
@@ -165,7 +224,7 @@ class Heap {
 
         this._buildHeapIfNotHeapified();
 
-        return this._array[1];
+        return this.getArrayItem(1);
     }
 
     extractMax() {
@@ -174,8 +233,8 @@ class Heap {
         assert (this._heapSize >= 1, "Heap underflow");
         assert (this._type === Heap.HEAP_TYPE_MAX, "You shouldn't grab the max unless this is a max-heap");
 
-        let max = this._array[1];
-        this._array[1] = this._array[this._heapSize]; // Should this be -1
+        let max = this.getArrayItem(1);
+        this.setArrayItem(1, this.getArrayItem(this._heapSize)); // Should this be -1
         this._heapSize--;
         this._maxHeapify(1);
 
@@ -188,8 +247,8 @@ class Heap {
         assert (this._heapSize >= 1, "Heap underflow");
         assert (this._type === Heap.HEAP_TYPE_MIN, "You shouldn't grab the min unless this is a min-heap");
 
-        let min = this._array[1];
-        this._array[1] = this._array[this._heapSize]; // Should this be -1
+        let min = this.getArrayItem(1);
+        this.setArrayItem(1, this.getArrayItem(this._heapSize)); // Should this be -1
         this._heapSize--;
         this._minHeapify(1);
 
@@ -202,11 +261,11 @@ class Heap {
 
         this._buildHeapIfNotHeapified();
 
-        this._array[i] = key;
-        while (i > 1 && this._array[Heap.parent(i)] < this._array[i]) {
-            let temp = this._array[i];
-            this._array[i] = this._array[Heap.parent(i)];
-            this._array[Heap.parent(i)] = temp;
+        this.setArrayItem(i, key);
+        while (i > 1 && this.getArrayValue(Heap.parent(i)) < this.getArrayValue(i)) {
+            let temp = this.getArrayItem(i);
+            this.setArrayItem(i, this.getArrayItem(Heap.parent(i)));
+            this.setArrayItem(Heap.parent(i), temp);
             i = Heap.parent(i);
         }
     }
@@ -218,31 +277,123 @@ class Heap {
         this._buildHeapIfNotHeapified();
 
         this._array[i] = key;
-        while (i > 1 && this._array[Heap.parent(i)] > this._array[i]) {
-            let temp = this._array[i];
-            this._array[i] = this._array[Heap.parent(i)];
-            this._array[Heap.parent(i)] = temp;
+
+        while (i > 1 && this.getArrayValue(Heap.parent(i)) > this.getArrayValue(i)) {
+            let temp = this.getArrayItem(i);
+            this.setArrayItem(i, this.getArrayItem(Heap.parent(i)));
+            this.setArrayItem(Heap.parent(i), temp);
             i = Heap.parent(i);
         }
     }
 
+    /**
+     * Use this method to update obj's position in the heap if it's key has changed.
+     * @param obj {Object} The object whose key has changed.
+     */
+    update(obj) {
+        assert (this._keyFieldName !== null, "You must specify extractKey in the constructor to use this method.");
+        assert (typeof(obj.__heap_index) !== "undefined", "__heap_index must be defined on obj to use update method.");
+
+        this._buildHeapIfNotHeapified();
+
+        this.remove(obj.__heap_index);
+        this.insert(obj);
+
+    }
+
+    /**
+     * Use this to insert a new number or object into the Heap.  You can only insert an
+     * object if you specified extractKey in the constructor.
+     * @param key {Number|Object} The Number of Object you wish to insert into the Heap.
+     */
     insert(key) {
         this._buildHeapIfNotHeapified();
 
         this._heapSize++;
         if (this._type === Heap.HEAP_TYPE_MAX) {
-            this._array[this._heapSize] = Number.NEGATIVE_INFINITY; // Is this correct heapSize - 1?
+            if (this._keyFieldName === null) {
+                this.setArrayItem(this._heapSize, Number.NEGATIVE_INFINITY); // Is this correct heapSize - 1?
+            } else {
+                this.setArrayItem(this._heapSize, key); // Is this correct heapSize - 1?
+            }
+
             this.increaseKey(this._heapSize, key);
         } else if (this._type === Heap.HEAP_TYPE_MIN) {
-            this._array[this._heapSize] = Number.POSITIVE_INFINITY; // Is this correct heapSize - 1?
+            if (this._keyFieldName === null) {
+                this.setArrayItem(this._heapSize, Number.POSITIVE_INFINITY); // Is this correct heapSize - 1?
+            } else {
+                this.setArrayItem(this._heapSize, key); // Is this correct heapSize - 1?
+            }
+
             this.decreaseKey(this._heapSize, key);
         } else {
             throw new Error("Unknown heap type");
+        }
+
+        if (this._heapSize > (this._maxSize)) {
+            let lastValue = this.getArrayValue(this._heapSize);
+            let prevLastValue = this.getArrayValue(this._heapSize - 1);
+
+            if (lastValue < prevLastValue) {
+                this.remove(this._heapSize);
+            } else {
+                this.remove(this._heapSize - 1);
+            }
+            // this._heapSize--;
+        }
+    }
+
+    remove(i) {
+        this._buildHeapIfNotHeapified();
+
+        let origItemValue = this.getArrayValue(i);
+        let item = this.getArrayItem(i);
+
+        if (this._type === Heap.HEAP_TYPE_MAX) {
+            if (this._keyFieldName === null) {
+                this.setArrayItem(i, Number.POSITIVE_INFINITY); // Is this correct heapSize - 1?
+                item = Number.POSITIVE_INFINITY;
+            } else {
+                item[this._keyFieldName] = Number.POSITIVE_INFINITY;
+                this.setArrayItem(i, item); // Is this correct heapSize - 1?
+            }
+
+            this.increaseKey(i, item);
+            let tempObj = this.extractMax();
+
+            assert (tempObj === item, "tempObj should be obj");
+        } else if (this._type === Heap.HEAP_TYPE_MIN) {
+            if (this._keyFieldName === null) {
+                this.setArrayItem(i, Number.NEGATIVE_INFINITY); // Is this correct heapSize - 1?
+                item = Number.NEGATIVE_INFINITY;
+            } else {
+                item[this._keyFieldName] = Number.NEGATIVE_INFINITY;
+                this.setArrayItem(i, item); // Is this correct heapSize - 1?
+            }
+
+            this.decreaseKey(i, item);
+            let tempObj = this.extractMin();
+
+            assert (tempObj === item, "tempObj should be obj");
+        } else {
+            throw new Error("Unknown heap type");
+        }
+
+        if (this._keyFieldName !== null) {
+            item[this._keyFieldName] = origItemValue;
         }
     }
 
     getArray() {
         return this._array.slice(0);
+    }
+
+    /**
+     * This is the underlying array of the heap.  DO NOT MODIFY.
+     * @returns {Array}
+     */
+    get array() {
+        return this._array;
     }
 
     /**

@@ -202,3 +202,97 @@ it ("insert works - min", () => {
     expect(heap.extractMin()).toBe(10);
     expect(heap.size).toBe(0);
 });
+
+const TestObject = function (value) {
+    this._value = value;
+};
+
+it ("object test - min", () => {
+    // SETUP
+    let heap = new Heap(Heap.HEAP_TYPE_MIN, null, "_value");
+
+    // CALL
+    heap.insert(new TestObject(1));
+    heap.insert(new TestObject(-1));
+    heap.insert(new TestObject(10));
+    heap.insert(new TestObject(-30));
+    let maxObject = new TestObject(-60);
+    heap.insert(maxObject);
+
+    maxObject._value = 30;
+    heap.update(maxObject);
+
+    // ASSERT
+    expect(heap.getMin()._value).toBe(-30);
+    expect(heap.extractMin()._value).toBe(-30);
+    expect(heap.extractMin()._value).toBe(-1);
+    expect(heap.extractMin()._value).toBe(1);
+    expect(heap.extractMin()._value).toBe(10);
+    expect(heap.extractMin()._value).toBe(30);
+    expect(heap.size).toBe(0);
+});
+
+it ("object test - max", () => {
+    // SETUP
+    let heap = new Heap(Heap.HEAP_TYPE_MAX, null, "_value");
+
+    // CALL
+    heap.insert(new TestObject(1));
+    heap.insert(new TestObject(-1));
+    heap.insert(new TestObject(10));
+    heap.insert(new TestObject(30));
+    let minObject = new TestObject(60);
+    heap.insert(minObject);
+
+    minObject._value = -30;
+    heap.update(minObject);
+
+    // ASSERT
+    expect(heap.getMax()._value).toBe(30);
+    expect(heap.extractMax()._value).toBe(30);
+    expect(heap.extractMax()._value).toBe(10);
+    expect(heap.extractMax()._value).toBe(1);
+    expect(heap.extractMax()._value).toBe(-1);
+    expect(heap.extractMax()._value).toBe(-30);
+    expect(heap.size).toBe(0);
+});
+
+it ("test maxSize", () => {
+    // SETUP
+    let heap = new Heap(Heap.HEAP_TYPE_MAX, null, null, 3);
+
+    // CALL
+    heap.insert(0);
+    heap.insert(1);
+    heap.insert(2);
+    heap.insert(3);
+    heap.insert(4);
+    heap.insert(5);
+
+    // ASSERT
+    expect(heap.size).toBe(3);
+    expect(heap.extractMax()).toBe(5);
+    expect(heap.extractMax()).toBe(4);
+    expect(heap.extractMax()).toBe(3);
+    expect(heap.size).toBe(0);
+});
+
+it ("test maxSize 2", () => {
+    // SETUP
+    let heap = new Heap(Heap.HEAP_TYPE_MAX, null, null, 3);
+
+    // CALL
+    heap.insert(5);
+    heap.insert(0);
+    heap.insert(4);
+    heap.insert(2);
+    heap.insert(3);
+    heap.insert(1);
+
+    // ASSERT
+    expect(heap.size).toBe(3);
+    expect(heap.extractMax()).toBe(5);
+    expect(heap.extractMax()).toBe(4);
+    expect(heap.extractMax()).toBe(3);
+    expect(heap.size).toBe(0);
+});
