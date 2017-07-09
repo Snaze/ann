@@ -107,21 +107,37 @@ class ArrayUtils {
         return toRet;
     }
 
-    static sample(toSample, numToSample, replacement=false) {
+    /**
+     * This method will extract a number samples from an array
+     * @param toSample {Array} This is the array you wish to sample from.
+     * @param numToSample {Number} This is the number of elements you wish to sample.
+     * @param replacement {Boolean} True if the same element can be sampled twice.  False o/w
+     * @param sampleUpToIndex {Number} This number designates indicates an exclusive index
+     * at which you want to stop sampling.  If replacement is false, this number must be greater
+     * than or equal numToSample.
+     * @returns {Array} This array should contain the samples.
+     */
+    static sample(toSample, numToSample, replacement=false, sampleUpToIndex=null) {
 
         let toRet = [];
+
+        if (sampleUpToIndex === null) {
+            sampleUpToIndex = toSample.length;
+        }
+
+        assert (sampleUpToIndex <= toSample.length, "Invalid sampleUpToIndex");
 
         if (replacement) {
 
             for (let i = 0; i < numToSample; i++) {
-                let randomIndex = Math.floor(Math.random() * toSample.length);
+                let randomIndex = Math.floor(Math.random() * sampleUpToIndex);
                 toRet.push(toSample[randomIndex]);
             }
 
         } else {
-            assert (toSample.length >= numToSample, "Cannot sample more than array length if replacement is false");
+            assert (sampleUpToIndex >= numToSample, "Cannot sample more than array length if replacement is false");
 
-            let range = ArrayUtils.range(toSample.length);
+            let range = ArrayUtils.range(sampleUpToIndex);
             let shuffledRange = ArrayUtils.shuffle(range);
 
             for (let i = 0; i < numToSample; i++) {

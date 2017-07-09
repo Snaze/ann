@@ -410,6 +410,7 @@ class NeuralNetwork {
      * This should be used to backPropagate which makes the NN learn.
      *
      * @param expectedOutputs An array representing what the actual value of the Neural Network should be.
+     * @returns {Number} Returns the absolute value of total error of all nodes.
      */
     backPropagate(expectedOutputs) {
 

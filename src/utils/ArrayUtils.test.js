@@ -165,6 +165,20 @@ it ("sample with replacement", () => {
     }
 });
 
+it ("sample with replacement up to index 2", () => {
+    // SETUP
+    let toSampleFrom = [1, 2, 3];
+
+    // CALL
+    let result = ArrayUtils.sample(toSampleFrom, 9, true, 2);
+
+    // ASSERT
+    expect(result.length).toBe(9);
+    for (let i = 0; i < 9; i++) {
+        expect([1, 2]).toContain(result[i]);
+    }
+});
+
 it ("sample without replacement", () => {
     // SETUP
     let toSampleFrom = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -177,6 +191,24 @@ it ("sample without replacement", () => {
     expect(result.length).toBe(numToSample);
     for (let i = 0; i < numToSample; i++) {
         expect(toSampleFrom).toContain(result[i]);
+    }
+    expect(result[0] !== result[1]).toBe(true);
+    expect(result[0] !== result[2]).toBe(true);
+    expect(result[1] !== result[2]).toBe(true);
+});
+
+it ("sample without replacement up to index", () => {
+    // SETUP
+    let toSampleFrom = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let numToSample = 3;
+
+    // CALL
+    let result = ArrayUtils.sample(toSampleFrom, numToSample, false, 3);
+
+    // ASSERT
+    expect(result.length).toBe(numToSample);
+    for (let i = 0; i < numToSample; i++) {
+        expect([1, 2, 3]).toContain(result[i]);
     }
     expect(result[0] !== result[1]).toBe(true);
     expect(result[0] !== result[2]).toBe(true);

@@ -15,6 +15,8 @@ const all = [
 
 /**
  * This is a factory for creating back propagation strategies.
+ *
+ * http://sebastianruder.com/optimizing-gradient-descent/index.html#gradientdescentoptimizationalgorithms
  */
 class BackPropFactory {
 
