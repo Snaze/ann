@@ -22,7 +22,7 @@ class DeepQLearner {
      * Network.  Note that this will be smaller than what I used to refer to as the "feature vector".  This vector
      * should really just be called the state vector.
      * @param numActions {Number} This is the number of actions that can be performed by the DeepQLearner
-     * @param alpha {Number} This is the learning rate.
+     * @param alpha {Number} This is the initial learning rate of the neural network.
      * @param gamma {Number} This is the discount rate.
      * @param rar {Number} This is the Random Action Rate.  (Percent chance to take a random action).
      * @param radr {Number} This is the Random Action Decay Rate.  Each iteration the rar is multiplied by this value.
@@ -41,7 +41,7 @@ class DeepQLearner {
      */
     constructor(trainingVectorSize,
                 numActions=4,
-                alpha=0.2,
+                alpha=0.03,
                 gamma=0.9,
                 rar=0.98,
                 radr=0.9999,
@@ -80,7 +80,7 @@ class DeepQLearner {
 
         this._nodesPerLayer = DeepQLearner.createNodesPerLayerArray(numActions,
             trainingVectorSize, numHiddenLayers, sequenceSize);
-        this._neuralNetwork = DeepQLearner.createNeuralNetwork(this._nodesPerLayer, this._maxEpochs);
+        this._neuralNetwork = DeepQLearner.createNeuralNetwork(this._nodesPerLayer, this._maxEpochs, this._alpha);
         this._s = 0;
         this._a = 0;
     }
@@ -91,12 +91,13 @@ class DeepQLearner {
      * in each layer of the NeuralNetwork.
      * @param maxEpochs {Number} This specifies the epoch number where the learning rate reaches its
      * minimum value.
+     * @param alpha {Number} Initial learning rate.
      * @returns {NeuralNetwork}
      */
-    static createNeuralNetwork(nodesPerLayer, maxEpochs) {
+    static createNeuralNetwork(nodesPerLayer, maxEpochs, alpha=0.03) {
         let toRet = new NeuralNetwork(nodesPerLayer,
             true,
-            ActivationFunctions.lrelu, 0.03, WeightInitializer.COMPRESSED_NORMAL, null, true, 0.001,
+            ActivationFunctions.lrelu, alpha, WeightInitializer.COMPRESSED_NORMAL, null, true, 0.001,
             BackPropFactory.BACK_PROP_TYPE_ADAM);
         toRet.maxEpochs = maxEpochs;
         if (!!window) {
@@ -264,7 +265,7 @@ class DeepQLearner {
         assert (executeActionCallback !== null, "executeActionCallback must be a valid function");
         assert (initialState instanceof Array, "initialState should be instance of an Array");
 
-        this._neuralNetwork = DeepQLearner.createNeuralNetwork(this._nodesPerLayer, this._maxEpochs);
+        this._neuralNetwork = DeepQLearner.createNeuralNetwork(this._nodesPerLayer, this._maxEpochs, this._alpha);
         this._replayMemory = new ReplayMemory(this._replayMemoryCapacity);
 
         this.stopLearning();
@@ -327,7 +328,7 @@ class DeepQLearner {
         this._a = aPrime;
 
         let transition = new Transition(currentPreProcessedSequence, aPrime, result.reward,
-            preProcessedTPlus1, this._tickNum);
+            preProcessedTPlus1, this._tickNum, 1e-9);
 
         this.replayMemory.store(transition);
 
@@ -336,7 +337,10 @@ class DeepQLearner {
         let targetValues = this.convertMiniBatchToTargetValues(miniBatch, result.isTerminal);
         let predictedValues = this.convertMiniBatchToPredictedValues(miniBatch);
 
-        let toRet = this.performGradientDescent(targetValues, predictedValues);
+        let temp = this.performGradientDescent(targetValues, predictedValues);
+        // this.replayMemory.updateTDErrors(miniBatch, temp.tdErrors);
+
+        let toRet = temp.error;
 
         if (result.isTerminal) {
             this.log(`Epoch ${this._epochNum} finished with ${this._tickNum} ticks.  Total Error = ${toRet}`);
@@ -391,7 +395,7 @@ class DeepQLearner {
      */
     performGradientDescent(targetValues, predictedValues) {
         assert (targetValues.length === predictedValues.length, "These need to be the same length");
-
+        let tdErrors = [];
         /**
          * This is creating the expected output for the Neural Network.  All the values are left the
          * same except for the value for the action taken to receive the reward.  We know the value of this
@@ -402,13 +406,19 @@ class DeepQLearner {
         let outputMiniBatch = predictedValues.map(function (predictedValueObj, index) {
             let targetValueObj = targetValues[index];
             let toRet = predictedValueObj.qValuesForEachAction;
+            tdErrors[index] = Math.abs(targetValueObj.targetValue -
+                predictedValueObj.qValuesForEachAction[predictedValueObj.action]);
             toRet[predictedValueObj.action] = targetValueObj.targetValue;
 
             assert (toRet.length === this.outputSize, "Invalid size of expected output");
             return toRet;
         }.bind(this));
 
-        return this._neuralNetwork.backPropagate(outputMiniBatch);
+        let error = this._neuralNetwork.backPropagate(outputMiniBatch);
+        return {
+            error: error,
+            tdErrors: tdErrors
+        };
     }
 
     /**

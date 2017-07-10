@@ -67,6 +67,17 @@ class MathUtil {
 
         return Math.floor(Math.log2(decimalValue)) + 1;
     }
+
+    /**
+     * Use this method to compare 2 float values for equality.
+     * @param float1 {Number} The first number to compare.
+     * @param float2 {Number} The second number to compare.
+     * @param minDistance {Number} The minimum distance between float1 and float2 in order to return true.
+     * @returns {boolean} Returns true if the 2 numbers are within minDistance of each other.
+     */
+    static isClose(float1, float2, minDistance=1e-9) {
+        return Math.abs(float1 - float2) <= minDistance;
+    }
 }
 
 export default MathUtil;

@@ -15,17 +15,21 @@ class Transition {
      * @param sequenceTPlus1 {Sequence} This should be the limited "preprocessed" sequence you end up
      * in after taking actionT.
      * @param t {Number} The time t.
+     * @param tdError {Number} The TD Error of the transition. ==> r + gamma * Q_max_a(s', a') - Q(s, a)
      */
     constructor(sequenceT,
                 actionT,
                 rewardT,
                 sequenceTPlus1,
-                t) {
+                t,
+                tdError) {
         this._sequenceT = sequenceT;
         this._actionT = actionT;
         this._rewardT = rewardT;
         this._sequenceTPlus1 = sequenceTPlus1;
         this._t = t;
+        this._tdError = tdError;
+        this._prevTdError = null;
     }
 
     /**
@@ -67,6 +71,31 @@ class Transition {
      */
     get t() {
         return this._t;
+    }
+
+    /**
+     * Return the TD Error of this transition for the last time it was processed
+     * @returns {Number}
+     */
+    get tdError() {
+        return this._tdError;
+    }
+
+    /**
+     * Set the TD Error
+     * @param value {Number}
+     */
+    set tdError(value) {
+        this._prevTdError = this._tdError;
+        this._tdError = value;
+    }
+
+    /**
+     * Previous TD Error Value
+     * @returns {null|Number}
+     */
+    get prevTdError() {
+        return this._prevTdError;
     }
 }
 

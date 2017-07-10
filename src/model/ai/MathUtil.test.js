@@ -50,3 +50,13 @@ it ("getNumBits", () => {
     expect(MathUtil.getNumBits(9)).toBe(4);
     expect(MathUtil.getNumBits(10)).toBe(4);
 });
+
+it ("isClose", () => {
+    // SETUP
+
+    // CALL
+
+    // ASSERT
+    expect(MathUtil.isClose(0.1, 0.2)).toBe(false);
+    expect(MathUtil.isClose(0.001, 0.0012, 1e-3)).toBe(true);
+});

@@ -6,6 +6,7 @@
   "dependencies": {
     "animate.css": "^3.5.2",
     "array2d": "^0.0.5",
+    "babel-cli": "^6.24.1",
     "gpu.js": "^0.0.0",
     "howler": "^2.0.3",
     "immutable": "^3.8.1",
@@ -21,6 +22,7 @@
     "reinforcenode": "^1.0.1"
   },
   "devDependencies": {
+    "babel-preset-es2015": "^6.24.1",
     "react-scripts": "0.9.5"
   },
   "scripts": {

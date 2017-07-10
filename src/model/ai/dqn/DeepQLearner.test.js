@@ -2,6 +2,7 @@ import DeepQLearner from "./DeepQLearner";
 import ArrayUtils from "../../../utils/ArrayUtils";
 import Sequence from "./Sequence";
 import Transition from "./Transition";
+// import math from "../../../../node_modules/mathjs/dist/math";
 
 it ("constructor works", () => {
    let toCheck = new DeepQLearner(10);
@@ -22,7 +23,7 @@ it ("createNodesPerLayerArray", () => {
 it ("getActionWithLargestQValue", () => {
     // SETUP
     let numActions = 4;
-    let learner = new DeepQLearner(14, numActions, 0.2, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
+    let learner = new DeepQLearner(14, numActions, 0.03, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
     let sPrime = [-0.5, 0.5, 0, 0.75, 0.35, -0.5, -0.1, -0.2, 0.7, 0.75, 0.934, 0.74, 0.29, 0.9];
 
     // CALL
@@ -35,7 +36,7 @@ it ("getActionWithLargestQValue", () => {
 
 it ("getQValueForAllActions", () => {
     let numActions = 4;
-    let learner = new DeepQLearner(14, numActions, 0.2, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
+    let learner = new DeepQLearner(14, numActions, 0.03, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
     let sPrime = [-0.5, 0.5, 0, 0.75, 0.35, -0.5, -0.1, -0.2, 0.7, 0.75, 0.934, 0.74, 0.29, 0.9];
 
     // CALL
@@ -49,7 +50,7 @@ it ("getAction", () => {
     // SETUP
     let numActions = 4;
     let rar = 0.98;
-    let learner = new DeepQLearner(14, numActions, 0.2, 0.9, rar, 0.5);
+    let learner = new DeepQLearner(14, numActions, 0.03, 0.9, rar, 0.5);
     let sPrime = [-0.5, 0.5, 0, 0.75, 0.35, -0.5, -0.1, -0.2, 0.7, 0.75, 0.934, 0.74, 0.29, 0.9];
 
     // CALL
@@ -63,7 +64,7 @@ it ("getAction", () => {
 
 it ("query", () => {
     // SETUP
-    let learner = new DeepQLearner(4, 4, 0.2, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
+    let learner = new DeepQLearner(4, 4, 0.03, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
     learner._s = [0, 1, 2, 3];
 
     // CALL
@@ -90,7 +91,7 @@ it ("querySetState", () => {
 
 it ("learnOne - beginning of episode", () => {
     // SETUP
-    let learner = new DeepQLearner(1, 4, 0.2, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
+    let learner = new DeepQLearner(1, 4, 0.03, 0.9, 0.98, 0.9999, false, 10000, 3, 1000, 10000, 1, 10);
     // let learner = new DeepQLearner(4);
     let callback = jest.fn(function () {
         return {
@@ -144,7 +145,7 @@ it ("learnOne - select action, perform callback, store transition", () => {
     };
     nnMock.prototype.predict = nnMock.prototype.feedForward;
 
-    let learner = new DeepQLearner(1, 4, 0.2, 0.9, 0.0, 0.0, false);
+    let learner = new DeepQLearner(1, 4, 0.03, 0.9, 0.0, 0.0, false);
     learner._neuralNetwork = new nnMock();
     let callback = jest.fn(function () {
         return {
@@ -240,7 +241,7 @@ it ("convertMiniBatchToPredictedValues", () => {
 //     let rar = 0.98;
 //     let radr = Math.pow((finalRar / rar), num_runs);
 //
-//     let qLearner = new DeepQLearner(1, 2, 0.2, 0.9, rar, radr, false, 10, 2, num_runs);
+//     let qLearner = new DeepQLearner(1, 2, 0.03, 0.99, rar, radr, false, 10, 2, num_runs);
 //     // let num_runs = 10000;
 //     let goalPositions = [1, 6];
 //
@@ -291,17 +292,40 @@ it ("convertMiniBatchToPredictedValues", () => {
 // it ("DeepQLearner Converges", () => {
 //
 //     let numCorrect = 0;
+//     let results = [];
+//     // let numRunsArray = [100, 200, 400, 800, 1600, 3200, 6400, 12800];
+//     // let numRunsArray = [100, 200, 400, 800, 1600];
+//     // let numRunsToAverage = 3;
+//     let numRunsArray = [100];
+//     let numRunsToAverage = 1;
 //     let totalTests = 100;
 //
-//     for (let i = 0; i < totalTests; i++) {
-//         if (testDeepQLearnerConverges(20000)) {
-//             numCorrect++;
+//     numRunsArray.forEach(function (numRuns, index) {
+//
+//         let currentResults = [];
+//
+//         for (let runNum = 0; runNum < numRunsToAverage; runNum++) {
+//             numCorrect = 0;
+//
+//             for (let i = 0; i < totalTests; i++) {
+//                 if (testDeepQLearnerConverges(numRuns)) {
+//                     numCorrect++;
+//                 }
+//             }
+//
+//             let percentCorrect = Math.floor((numCorrect / totalTests) * 100);
+//             console.log(`Intermediate Results for ${numRuns} runs = ${percentCorrect}`);
+//             currentResults.push(percentCorrect);
 //         }
-//     }
 //
-//     let percentCorrect = Math.floor((numCorrect / totalTests) * 100);
-//     console.log(percentCorrect);
+//         let toRecord = math.mean(currentResults);
+//         results.push(toRecord);
+//         console.log(`Results for ${numRuns} runs = ${toRecord}`);
+//     });
 //
+//     numRunsArray.forEach(function (numRuns, index) {
+//         console.log(`Results for ${numRuns} runs = ${results[index]}`);
+//     });
 //     // 100 runs = 77% percent correct
 //     // 200 runs = 82% percent correct
 //     // 300 runs = 81% percent correct
@@ -311,9 +335,9 @@ it ("convertMiniBatchToPredictedValues", () => {
 //     // 700 runs =
 //     // 800 runs =
 //     // 900 runs =
-//     // 1000 runs = 84% - 8m 10s, 73%   with decaying learning rate.
+//     // 1000 runs = 84% - 8m 10s, 73%   with decaying learning rate., 83%, 70%, 74% with prioritized. (11m 19s though).
 //     // 10000 runs = 87% - 1h 25 m 38 s with decaying learning rate
 //     // 20000 runs = 90%   2h 42 m 34 s with decaying learning rate - 7:32
-//     expect(percentCorrect).toBeGreaterThanOrEqual(90);
+//     // expect(percentCorrect).toBeGreaterThanOrEqual(90);
 //
 // });

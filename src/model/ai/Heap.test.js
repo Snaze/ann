@@ -296,3 +296,21 @@ it ("test maxSize 2", () => {
     expect(heap.extractMax()).toBe(3);
     expect(heap.size).toBe(0);
 });
+
+it ("clone test", () => {
+    // SETUP
+    let heap = new Heap(Heap.HEAP_TYPE_MAX);
+    heap.insert(1);
+    heap.insert(2);
+    heap.insert(3);
+
+    // CALL
+    let toCheck = heap.clone();
+
+    // ASSERT
+    expect(toCheck.size).toBe(3);
+    expect(toCheck.extractMax()).toBe(3);
+    expect(toCheck.extractMax()).toBe(2);
+    expect(toCheck.extractMax()).toBe(1);
+    expect(toCheck.size).toBe(0);
+});

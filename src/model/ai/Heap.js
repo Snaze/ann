@@ -26,7 +26,7 @@ class Heap {
      * @param type {Number} Use the static HEAP_TYPE members of this class.  Designates this as a min
      * or a max heap.
      * @param theArray {Array} The array you wish to heapify.  If you leave as null, one will be created.
-     * @param keyFieldName {Function} This will be used to extract the value of each object that is inserted. If
+     * @param keyFieldName {String} This will be used to extract the value of each object that is inserted. If
      * this is left as null, it will be assumed that you are inserting / extracting primitive numbers.
      * @param maxSize {Number} This specifies the maximum size of the heap.
      * @constructor
@@ -305,9 +305,23 @@ class Heap {
      * Use this to insert a new number or object into the Heap.  You can only insert an
      * object if you specified extractKey in the constructor.
      * @param key {Number|Object} The Number of Object you wish to insert into the Heap.
+     * @returns {Number|Object} Returns a removed item if there is a max capacity set and the capacity
+     * was reached (forcing an item to be removed from the bottom of the heap).  If nothing is removed,
+     * null is returned.
      */
     insert(key) {
         this._buildHeapIfNotHeapified();
+
+        let itemValue;
+        if (this._keyFieldName === null) {
+            itemValue = key;
+        } else {
+            itemValue = key[this._keyFieldName];
+        }
+
+        assert (Number.isFinite(itemValue),
+            "Item Values in the Heap must be finite.  I use Inf and -Inf to add" +
+            " and remove from the heap");
 
         this._heapSize++;
         if (this._type === Heap.HEAP_TYPE_MAX) {
@@ -330,19 +344,28 @@ class Heap {
             throw new Error("Unknown heap type");
         }
 
+        let toRet = null;
+
         if (this._heapSize > (this._maxSize)) {
             let lastValue = this.getArrayValue(this._heapSize);
             let prevLastValue = this.getArrayValue(this._heapSize - 1);
 
             if (lastValue < prevLastValue) {
-                this.remove(this._heapSize);
+                toRet = this.remove(this._heapSize);
             } else {
-                this.remove(this._heapSize - 1);
+                toRet = this.remove(this._heapSize - 1);
             }
             // this._heapSize--;
         }
+
+        return toRet;
     }
 
+    /**
+     * This method will remove the item found at index i
+     * @param i {Number} The index you wish to remove from the heap.
+     * @returns {*} Returns the removed item.
+     */
     remove(i) {
         this._buildHeapIfNotHeapified();
 
@@ -382,6 +405,8 @@ class Heap {
         if (this._keyFieldName !== null) {
             item[this._keyFieldName] = origItemValue;
         }
+
+        return item;
     }
 
     getArray() {
@@ -416,6 +441,29 @@ class Heap {
      */
     get size() {
         return this._heapSize;
+    }
+
+    /**
+     * This method will clone this Heap and return a new rebuilt Heap.
+     *
+     * Note that this method will mutate and essentially destroy the existing heap.
+     *
+     * Maybe I should name this something else?
+     *
+     * @returns {Heap} A new freshly rebuilt heap.
+     */
+    clone() {
+        let toRet = new Heap(this._type, null, this._keyFieldName, this._maxSize);
+
+        while (this.size > 0) {
+            if (this.type === Heap.HEAP_TYPE_MAX) {
+                toRet.insert(this.extractMax());
+            } else {
+                toRet.insert(this.extractMin());
+            }
+        }
+
+        return toRet;
     }
 
 }
