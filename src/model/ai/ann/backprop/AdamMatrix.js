@@ -1,13 +1,15 @@
 import math from "../../../../../node_modules/mathjs/dist/math";
 import { assert } from "../../../../utils/Assert";
 import ArrayUtils from "../../../../utils/ArrayUtils";
+import MatrixUtils from "../../../../utils/MatrixUtils";
+import numeric from "../../../../../node_modules/numericjs/numeric-1.2.6";
 
 /**
  * This is the Adam weight update rule for backpropagation.
  *
- * Adam
+ * AdamMatrix
  */
-class Adam {
+class AdamMatrix {
 
     /**
      * This is the constructor for Adam.
@@ -54,43 +56,28 @@ class Adam {
         // TODO: Refactor this common code back into NeuralNetworkNode
         assert (this._layerIndex > 0, "No need to backpropagate for input node");
 
-        let nodeValues = null, currOutput = null, nextLayerErrorsOrTargetValue = null;
-        let currentError = null, errorArray = [], allWeightDeltas = [];
-        let derivative, temp, gradient;
+        let gradientCache, temp, errorArray, errorDiag;
 
-        let outputEdges = this._edgeStore.getOutputEdges(this._layerIndex, this._nodeIndex);
-        let outgoingWeights = ArrayUtils.select(outputEdges, (edge) => edge.prevWeight);
-        let numInputEdges = this.numInputEdges;
-        let gradientCache = ArrayUtils.create(prevInputs.length, numInputEdges);
+        let derivatives2D = outputs.map((output) => [this._activationFunction.derivative(output)]);
 
-        for (let i = 0; i < prevInputs.length; i++) {
+        if (nextLayerErrorsMiniBatch[0] instanceof Array) {
+            let outputEdges = this._edgeStore.getOutputEdges(this._layerIndex, this._nodeIndex);
+            let outgoingWeights = ArrayUtils.select(outputEdges, (edge) => edge.prevWeight);
+            outgoingWeights = MatrixUtils.convertTo2D(outgoingWeights);
 
-            allWeightDeltas[i] = [];
+            temp = numeric.dot(nextLayerErrorsMiniBatch, outgoingWeights);
+        } else {
+            // else output array
+            let outputs2D = MatrixUtils.convertTo2D(outputs);
+            let nextLayerErrors2D = MatrixUtils.convertTo2D(nextLayerErrorsMiniBatch);
 
-            nodeValues = prevInputs[i];
-            currOutput = outputs[i];
-            nextLayerErrorsOrTargetValue = nextLayerErrorsMiniBatch[i];
-
-            assert(!this._includeBias || nodeValues[nodeValues.length - 1] === 1.0);
-            assert(nodeValues.length === numInputEdges, "Weight length and node length need to match");
-
-            derivative = this._activationFunction.derivative(currOutput);
-
-            if (nextLayerErrorsOrTargetValue instanceof Array) {
-                temp = math.dot(nextLayerErrorsOrTargetValue, outgoingWeights);
-            } else {
-                temp = math.subtract(nextLayerErrorsOrTargetValue, currOutput);
-            }
-
-            currentError = math.multiply(derivative, temp);
-
-            for (let w_i = 0; w_i < numInputEdges; w_i++) {
-                gradient = currentError * nodeValues[w_i];
-                gradientCache[i][w_i] = gradient;
-            }
-
-            errorArray[i] = currentError;
+            temp = numeric.add(nextLayerErrors2D, numeric.neg(outputs2D));
         }
+
+        errorArray = numeric.mul(derivatives2D, temp);
+        errorArray = ArrayUtils.flatten(errorArray);
+        errorDiag = numeric.diag(errorArray);
+        gradientCache = numeric.dot(errorDiag, prevInputs);
 
         let currentGradient = math.mean(gradientCache, 0);
         let m_t = this.gradient.map(function (m_t_minus_1, index) {
@@ -240,4 +227,4 @@ class Adam {
     }
 }
 
-export default Adam;
+export default AdamMatrix;

@@ -98,7 +98,7 @@ class DeepQLearner {
         let toRet = new NeuralNetwork(nodesPerLayer,
             true,
             ActivationFunctions.lrelu, alpha, WeightInitializer.COMPRESSED_NORMAL, null, true, 0.001,
-            BackPropFactory.BACK_PROP_TYPE_ADAM);
+            BackPropFactory.BACK_PROP_TYPE_ADAM_MATRIX);
         toRet.maxEpochs = maxEpochs;
         if (!!window) {
             window.neuralNetwork = toRet;

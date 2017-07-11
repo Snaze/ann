@@ -720,6 +720,7 @@ class NeuralNetworkTest extends Component {
                                             <option value="sgd">SGD</option>
                                             <option value="rmsprop">RMSProp</option>
                                             <option value="adam">ADAM</option>
+                                            <option value="adammatrix">ADAM Matrix</option>
                                         </select>
                                     </td>
                                 </tr>

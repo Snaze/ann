@@ -50,7 +50,7 @@ it ("getAction", () => {
     // SETUP
     let numActions = 4;
     let rar = 0.98;
-    let learner = new DeepQLearner(14, numActions, 0.03, 0.9, rar, 0.5);
+    let learner = new DeepQLearner(14, numActions, 0.03, 0.9, rar, 0.5, false, 10000, 2, 1000, 10000, 1);
     let sPrime = [-0.5, 0.5, 0, 0.75, 0.35, -0.5, -0.1, -0.2, 0.7, 0.75, 0.934, 0.74, 0.29, 0.9];
 
     // CALL

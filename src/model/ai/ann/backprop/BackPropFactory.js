@@ -1,16 +1,20 @@
 import RMSProp from "./RMSProp";
 import SGD from "./SGD";
 import Adam from "./Adam";
+import AdamMatrix from "./AdamMatrix";
 import ArrayUtils from "../../../../utils/ArrayUtils";
 import { assert } from "../../../../utils/Assert";
 
 const back_prop_type_sgd = "sgd";
 const back_prop_type_rms_prop = "rmsprop";
 const back_prop_type_adam = "adam";
+const back_prop_type_adam_matrix = "adammatrix";
+
 const all = [
     back_prop_type_sgd,
     back_prop_type_rms_prop,
-    back_prop_type_adam
+    back_prop_type_adam,
+    back_prop_type_adam_matrix
 ];
 
 /**
@@ -39,10 +43,18 @@ class BackPropFactory {
     static get BACK_PROP_TYPE_ADAM() { return back_prop_type_adam; }
 
     /**
+     * Same as Adam but Im hoping this performs better.
+     * @returns {string}
+     */
+    static get BACK_PROP_TYPE_ADAM_MATRIX() { return back_prop_type_adam_matrix; }
+
+    /**
      * This returns an array containing all the valid back prop strategy types.
      * @returns {Array}
      */
     static get BACK_PROP_TYPE_ALL() { return all; }
+
+
 
     /**
      * Use this method to create an instance of the BackPropFactory.
@@ -67,6 +79,8 @@ class BackPropFactory {
                 return new RMSProp(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction);
             case BackPropFactory.BACK_PROP_TYPE_ADAM:
                 return new Adam(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction);
+            case BackPropFactory.BACK_PROP_TYPE_ADAM_MATRIX:
+                return new AdamMatrix(layerIndex, nodeIndex, includeBias, edgeStore, activationFunction);
             default:
                 throw new Error("Invalid BackProp Type");
         }

@@ -13,6 +13,7 @@
     "lodash": "^4.17.4",
     "mathjs": "^3.13.3",
     "moment": "^2.18.1",
+    "numericjs": "^1.2.6",
     "prop-types": "^15.5.10",
     "randgen": "^0.1.0",
     "react": "^15.5.4",
