@@ -3790,6 +3790,10 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
 
+nblas@^1.2.0, nblas@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/nblas/-/nblas-1.2.2.tgz#cc750ca672920de59c2074abd4063beee6b83384"
+
 ncname@1.0.x:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/ncname/-/ncname-1.0.0.tgz#5b57ad18b1ca092864ef62b0b1ed8194f383b71c"
@@ -5663,6 +5667,12 @@ validate-npm-package-license@^3.0.1:
 vary@~1.1.0, vary@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.1.tgz#67535ebb694c1d52257457984665323f587e8d37"
+
+vectorious@^4.8.1:
+  version "4.8.1"
+  resolved "https://registry.yarnpkg.com/vectorious/-/vectorious-4.8.1.tgz#9ba50110e5380a135378dd8b53d47ac3a3bb690a"
+  optionalDependencies:
+    nblas "^1.2.0"
 
 vendors@^1.0.0:
   version "1.0.1"

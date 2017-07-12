@@ -335,7 +335,7 @@ class ArrayUtils {
     }
 
     /**
-     * this mutates array
+     * Remove element at index from the array.  Returns a new modified array
      *
      * @param array
      * @param index

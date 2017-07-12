@@ -2,6 +2,7 @@ import NeuralNetworkNode from "./NeuralNetworkNode";
 import ActivationFunctions from "./ActivationFunctions";
 import EdgeStore from "./EdgeStore";
 import LearningRate from "./LearningRate";
+import BackPropFactory from "./backprop/BackPropFactory";
 
 it ("feedForward works", () => {
     // SETUP
@@ -20,7 +21,7 @@ it ("backPropagateOutputNode works", () => {
     // SETUP
     let nnn = new NeuralNetworkNode(2, 0, new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid),
         2, false, ActivationFunctions.sigmoid);
-    nnn.weights = [0.3, 0.9]
+    nnn.weights = [0.3, 0.9];
     let nodeValues = [[0.68, 0.6637]];
     let values = nnn.feedForward(nodeValues);
     expect(values[0]).toBeCloseTo(0.69);
@@ -35,6 +36,28 @@ it ("backPropagateOutputNode works", () => {
     expect(nnn.weights[0]).toBeCloseTo(0.2723391, 6);
     // paper says 0.87305 --> I assume this is because we are using the full precision of the error
     expect(nnn.weights[1]).toBeCloseTo(0.8730022, 6);
+});
+
+it ("backPropagateOutputNode works - ADAM", () => {
+    // SETUP
+    let nnn = new NeuralNetworkNode(2, 0, new EdgeStore([2, 2, 1], false, ActivationFunctions.sigmoid),
+        2, false, ActivationFunctions.sigmoid, null, BackPropFactory.BACK_PROP_TYPE_ADAM_MATRIX);
+    nnn.learningRate.startValue = 0.03;
+    nnn.weights = [0.3, 0.9];
+    let nodeValues = [[0.68, 0.6637]];
+    let values = nnn.feedForward(nodeValues);
+    expect(values[0]).toBeCloseTo(0.69);
+
+    // CALL
+    let error = nnn.backPropagate([0.5]);
+
+    // ASSERT
+    expect(error[0]).toBeCloseTo(-0.0406, 3); // ceil because negative
+
+    // I didn't calculate these by hand but I know these values must be correct
+    // because it works greats.
+    expect(nnn.weights[0]).toBeCloseTo(0.2700000108456688, 6);
+    expect(nnn.weights[1]).toBeCloseTo(0.8700000111120306, 6);
 });
 
 it ("backPropagateHiddenNode works", () => {

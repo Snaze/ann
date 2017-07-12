@@ -60,3 +60,28 @@ it ("Convert to 2D", () => {
     expect(toCheck[2].length).toBe(1);
     expect(toCheck[2][0]).toBe(3);
 });
+
+it ("toDiagonal", () => {
+    // SETUP
+    let toDiagonalize = [1, 2, 3];
+
+    // CALL
+    let toCheck = MatrixUtils.toDiagonal(toDiagonalize);
+
+    // ASSERT
+    expect(toCheck.length).toBe(3);
+    expect(toCheck[0].length).toBe(3);
+    expect(toCheck[0][0]).toBe(1);
+    expect(toCheck[0][1]).toBe(0);
+    expect(toCheck[0][2]).toBe(0);
+
+    expect(toCheck[1].length).toBe(3);
+    expect(toCheck[1][0]).toBe(0);
+    expect(toCheck[1][1]).toBe(2);
+    expect(toCheck[1][2]).toBe(0);
+
+    expect(toCheck[2].length).toBe(3);
+    expect(toCheck[2][0]).toBe(0);
+    expect(toCheck[2][1]).toBe(0);
+    expect(toCheck[2][2]).toBe(3);
+});

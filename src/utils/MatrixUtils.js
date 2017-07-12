@@ -68,6 +68,25 @@ class MatrixUtils {
         return toRet;
     }
 
+    /**
+     * This method should convert a 1D array into a Diagonal Matrix
+     * @param array1D {Array} 1D array which represents the diagonal.
+     * @returns {Array} 2D Array of all zeros and the 1D diagonal.
+     */
+    static toDiagonal(array1D) {
+        let toRet = [];
+        let length = array1D.length;
+        let currentArray;
+
+        array1D.forEach(function (item, index) {
+            currentArray = ArrayUtils.create1D(length, 0);
+            currentArray[index] = item;
+            toRet.push(currentArray);
+        });
+
+        return toRet;
+    }
+
 }
 
 export default MatrixUtils;

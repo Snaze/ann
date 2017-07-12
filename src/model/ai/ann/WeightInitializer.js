@@ -21,11 +21,11 @@ class WeightInitializer {
     static get COMPRESSED_NORMAL() { return compressed_normal; }
     static get ALL() { return valid; }
 
-    constructor(activationFunction, initializationType, fanInCount, fanOutCount) {
+    constructor(activationFunction, initializationType, fanInCount=null, fanOutCount=null) {
         assert (ArrayUtils.isIn(ActivationFunctions.all, activationFunction), "Invalid activation function");
         assert (ArrayUtils.isIn(valid, initializationType), "Invalid initialization type");
-        assert (fanInCount >= 0, "fanInCount must be >= 0");
-        assert (fanOutCount >= 0, "fanOutCount must be >= 0");
+        // assert (fanInCount >= 0, "fanInCount must be >= 0");
+        // assert (fanOutCount >= 0, "fanOutCount must be >= 0");
 
         this._activationFunction = activationFunction;
         this._initializationType = initializationType;
@@ -33,23 +33,31 @@ class WeightInitializer {
         this._fanOutCount = fanOutCount;
     }
 
-    _createFanInFanOutWeight() {
+    _createFanInFanOutWeight(fanInCount=null, fanOutCount=null) {
         let randomNum = null;
         let randomWeight = null;
+
+        if (fanInCount === null) {
+            fanInCount = this.fanInCount;
+        }
+
+        if (fanOutCount === null) {
+            fanOutCount = this.fanOutCount;
+        }
 
         switch (this.activationFunction) {
             case ActivationFunctions.relu:
             case ActivationFunctions.lrelu:
             case ActivationFunctions.identity:
-                randomNum = math.sqrt(math.divide(12, math.add(this.fanInCount, this.fanOutCount)));
+                randomNum = math.sqrt(math.divide(12, math.add(fanInCount, fanOutCount)));
                 randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
                 break;
             case ActivationFunctions.tanh:
-                randomNum = math.sqrt(math.divide(6, math.add(this.fanInCount, this.fanOutCount)));
+                randomNum = math.sqrt(math.divide(6, math.add(fanInCount, fanOutCount)));
                 randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
                 break;
             case ActivationFunctions.sigmoid:
-                randomNum = math.multiply(4, math.sqrt(math.divide(6, math.add(this.fanInCount, this.fanOutCount))));
+                randomNum = math.multiply(4, math.sqrt(math.divide(6, math.add(fanInCount, fanOutCount))));
                 randomWeight = MathUtil.getRandomArbitrary(-randomNum, randomNum);
                 break;
             default:
@@ -63,20 +71,28 @@ class WeightInitializer {
         return randgen.rnorm(0.0, 1.0);
     }
 
-    _createCompressedNormal() {
-        let std = math.divide(1, math.sqrt(this.fanInCount));
+    _createCompressedNormal(fanInCount=null) {
+        if (fanInCount === null) {
+            fanInCount = this.fanInCount;
+        }
+
+        // if (fanOutCount === null) {
+        //     fanOutCount = this.fanOutCount;
+        // }
+
+        let std = math.divide(1, math.sqrt(fanInCount));
         return randgen.rnorm(0.0, std);
     }
 
-    createRandomWeight() {
+    createRandomWeight(fanIn=null, fanOut=null) {
 
         switch (this.initializationType) {
             case fan_in_fan_out:
-                return this._createFanInFanOutWeight();
+                return this._createFanInFanOutWeight(fanIn, fanOut);
             case generic_normal:
-                return this._createGenericNormal();
+                return this._createGenericNormal(fanIn, fanOut);
             case compressed_normal:
-                return this._createCompressedNormal();
+                return this._createCompressedNormal(fanIn, fanOut);
             default:
                 throw new Error("Invalid Initialization Type");
         }
