@@ -1,10 +1,10 @@
 import { assert } from "../../../../utils/Assert";
 import ArrayUtils from "../../../../utils/ArrayUtils";
-import MathUtil from "../../MathUtil";
-import moment from "../../../../../node_modules/moment/moment";
-import Normalizer from "../Normalizer";
-import WeightInitializer from "../WeightInitializer";
-import Layer from "./Layer";
+// import MathUtil from "../../MathUtil";
+// import moment from "../../../../../node_modules/moment/moment";
+// import Normalizer from "../Normalizer";
+// import WeightInitializer from "../WeightInitializer";
+// import Layer from "./Layer";
 import { Matrix, Vector } from "vectorious";
 
 
@@ -85,8 +85,8 @@ class NeuralNetwork {
     feedForward(inputMiniBatch) {
 
         let miniBatchMatrix = new Matrix(inputMiniBatch);
-        let originalWidth = miniBatchMatrix.shape[1];
-        let augmentMatrix = new Matrix(ArrayUtils.create(inputMiniBatch.length, 1, 1));
+        // let originalWidth = miniBatchMatrix.shape[1];
+        // let augmentMatrix = new Matrix(ArrayUtils.create(inputMiniBatch.length, 1, 1));
         let currentLayer, currentWeights;
 
         let prevLayerOutput = miniBatchMatrix;
@@ -120,7 +120,7 @@ class NeuralNetwork {
             inputWeights = null,
             nextLayerErrors = expectedOutputsMatrix,
             newWeights = ArrayUtils.create1D(this.weights.length, null);
-        let currLayer, outputWeights, inputWeightsArray;
+        let currLayer, outputWeights;
 
         for (let layerIndex = lastLayerIndex; layerIndex >= 0; layerIndex--) {
             currLayer = this.layers[layerIndex];

@@ -1,5 +1,5 @@
 import ActivationFunctions from "../ActivationFunctions";
-import LearningRate from "../LearningRate";
+// import LearningRate from "../LearningRate";
 import { assert } from "../../../../utils/Assert";
 import ArrayUtils from "../../../../utils/ArrayUtils";
 import { Matrix } from "vectorious";
