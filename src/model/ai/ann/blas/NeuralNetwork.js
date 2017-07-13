@@ -57,7 +57,17 @@ class NeuralNetwork {
      * @returns {NeuralNetwork} this object (builder pattern)
      */
     addLayer(layer) {
+        // layer.hasBias = false;
+        //
+        // let prevIndex = this._layers.length - 1;
+        // if (prevIndex >= 0) {
+        //     this._layers[prevIndex].hasBias = this.includeBias;
+        // }
+
+        layer.hasBias = this.includeBias;
+
         this._layers.push(layer);
+
         return this;
     }
 
@@ -86,7 +96,6 @@ class NeuralNetwork {
 
         let miniBatchMatrix = new Matrix(inputMiniBatch);
         // let originalWidth = miniBatchMatrix.shape[1];
-        // let augmentMatrix = new Matrix(ArrayUtils.create(inputMiniBatch.length, 1, 1));
         let currentLayer, currentWeights;
 
         let prevLayerOutput = miniBatchMatrix;
@@ -160,10 +169,15 @@ class NeuralNetwork {
 
         let toRet = [null];
         let prevNodes = this._layers[0].numNodes;
-        let currNodes, totalNodes, currArray, currVector, currMatrix;
+        let currNodes, totalNodes, currArray, currVector, currMatrix, currLayer;
 
         for (let i = 1; i < this._layers.length; i++) {
-            currNodes = this._layers[i].numNodes;
+            currLayer = this._layers[i];
+            currNodes = currLayer.numNodes;
+
+            if (currLayer.hasBias) {
+                prevNodes++;
+            }
 
             totalNodes = prevNodes * currNodes;
 

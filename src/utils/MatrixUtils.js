@@ -87,6 +87,17 @@ class MatrixUtils {
         return toRet;
     }
 
+    /**
+     * This will modify array2D and remove the last column
+     * @param array2D {Array} The array2D you wish to remove a column from.
+     */
+    static popColumn(array2D) {
+        assert (array2D.length > 0 && array2D[0].length > 0, "Invalid array2d");
+
+        array2D.forEach(function (row) {
+            row.pop();
+        });
+    }
 }
 
 export default MatrixUtils;

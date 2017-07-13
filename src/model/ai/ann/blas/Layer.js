@@ -40,6 +40,17 @@ class Layer {
         this._inputs = null; // Previous inputs used on FeedForward
         this._outputs = null; // Previous outputs produced by feedForward
         this._errors = null; // Previous errors produced by backProp
+        this._hasBias = false;
+        this._outputAugmentMatrix = null;
+    }
+
+    augmentOutputWithOnes(outputMatrix) {
+        if (this._outputAugmentMatrix === null ||
+            this._outputAugmentMatrix.shape[0] !== outputMatrix.shape[0]) {
+            this._outputAugmentMatrix = Matrix.ones(outputMatrix.shape[0], 1);
+        }
+
+        outputMatrix.augment(this._outputAugmentMatrix);
     }
 
     /**
@@ -63,20 +74,25 @@ class Layer {
         this._inputs = miniBatch;
 
         if (inputWeights === null) {
-            assert (miniBatch.shape[1] === this._numNodes || miniBatch.shape[1] === (this._numNodes + 1),
+            assert ((!this.hasBias && miniBatch.shape[1] === this._numNodes)
+                || (this.hasBias && miniBatch.shape[1] === this._numNodes + 1),
                 "Invalid miniBatch size for input layer");
 
             this._outputs = miniBatch;
             return this._outputs;
         }
 
-        assert (miniBatch.shape[1] === inputWeights.shape[0], "Invalid matrix sizes");
+        // assert (this._inputs.shape[1] === inputWeights.shape[0], "Invalid matrix sizes");
 
-        // This should be (m x p)
-        let tempResult = Matrix.multiply(miniBatch, inputWeights);
+        // This should be (m x n) x (n x p) = (m x p)
+        let tempResult = Matrix.multiply(this._inputs, inputWeights);
 
         // Now simply apply the activation function and return
         this._outputs = tempResult.map(x => this._activationFunction.output(x));
+
+        if (this.hasBias) {
+            this.augmentOutputWithOnes(this._outputs);
+        }
 
         return this._outputs;
     }
@@ -125,11 +141,17 @@ class Layer {
         }
 
         // (m x p)
-        this._errors = Matrix.product(derivatives, temp);
+        let tempErrors = Matrix.product(derivatives, temp);
+        let errorMatrixArray = tempErrors.toArray();
+        if (this.hasBias) {
+            // The last column is error for the bias term which we don't need
+            MatrixUtils.popColumn(errorMatrixArray);
+        }
+        this._errors = new Matrix(errorMatrixArray);
         let p = this._errors.shape[1];
-        let errorMatrixArray = this._errors.toArray();
-        let currentErrorCol, currentErrorDiag, gradients, avgGradient,
-            currentGradient = [], learningRate = this.learningRate.getLearningRate(epoch);
+        let currentErrorCol, currentErrorDiag, gradients,
+            avgGradient, currentGradient = [],
+            learningRate = this.learningRate.getLearningRate(epoch);
 
         // Check to see if there is a better way to do this.
         for (let nodeIndex = 0; nodeIndex < p; nodeIndex++) {
@@ -189,6 +211,15 @@ class Layer {
     }
 
     /**
+     * This is the number of nodes in the current layer.  Be careful where you modify
+     * this value.  Really, it should only be modified before a layer is added to a Network.
+     * @param value {Number}
+     */
+    set numNodes(value) {
+        this._numNodes = value;
+    }
+
+    /**
      * This is the current activation function being used.
      * @returns {Object}
      */
@@ -234,6 +265,22 @@ class Layer {
      */
     get errors() {
         return this._errors;
+    }
+
+    /**
+     * This parameter designates whether the last node is really a bias node
+     * @returns {boolean}
+     */
+    get hasBias() {
+        return this._hasBias;
+    }
+
+    /**
+     * This parameter designates whether the last node is really a bias node
+     * @param value {boolean}
+     */
+    set hasBias(value) {
+        this._hasBias = value;
     }
 }
 

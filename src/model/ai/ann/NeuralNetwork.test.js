@@ -5,6 +5,13 @@ import ArrayUtils from "../../../utils/ArrayUtils";
 import EdgeStore from "./EdgeStore";
 import WeightInitializer from "./WeightInitializer";
 import BackPropFactory from "./backprop/BackPropFactory";
+// import { default as NeuralNetworkMatrix } from "./blas/NeuralNetwork";
+// import Layer from "./blas/Layer";
+// import Normalizer from "./Normalizer";
+// import LearningRate from "./LearningRate";
+// import Adam from "./blas/backprop/Adam";
+// import moment from "moment";
+// import math from "mathjs";
 
 it ("NeuralNetork constructor works", () => {
     // CALL
@@ -24,7 +31,7 @@ it ("createNodes works", () => {
     // ASSERT
     expect(toCheck.length).toBe(3);
     expect(toCheck[0].length).toBe(2);
-    expect(toCheck[1].length).toBe(2)
+    expect(toCheck[1].length).toBe(2);
     expect(toCheck[2].length).toBe(1);
 
     expect(toCheck[0][0].weights.length).toBe(0);
@@ -507,3 +514,91 @@ it ("callback test", () => {
         expect(tracker[key]).toBe(true);
     }
 });
+
+// it ("nn comparison", () => {
+//     let nnOldschool = new NeuralNetwork([1, 6, 6, 1], true,
+//         ActivationFunctions.lrelu, 0.03, WeightInitializer.COMPRESSED_NORMAL, null, true, 1e-3,
+//         BackPropFactory.BACK_PROP_TYPE_ADAM);
+//
+//     let normalizer = new Normalizer(ActivationFunctions.lrelu);
+//     let weightInitializer = new WeightInitializer(ActivationFunctions.lrelu, WeightInitializer.COMPRESSED_NORMAL);
+//     let learningRate = new LearningRate(0.03, 1e-3, 100);
+//     let nnNewSchool = new NeuralNetworkMatrix(normalizer, weightInitializer, true, null);
+//     nnNewSchool.addLayer(new Layer(1, ActivationFunctions.lrelu, learningRate, new Adam()));
+//     nnNewSchool.addLayer(new Layer(32, ActivationFunctions.lrelu, learningRate, new Adam()));
+//     nnNewSchool.addLayer(new Layer(32, ActivationFunctions.lrelu, learningRate, new Adam()));
+//     nnNewSchool.addLayer(new Layer(1, ActivationFunctions.identity, learningRate, new Adam()));
+//
+//     let input = []; // [0.35, 0.9]
+//     let expectedOutput = []; // [0.5]
+//     let newSchoolInput = [];
+//     let newSchoolExpectedOutput = [];
+//     let maxEpochs = 250;
+//     let error = 1e-3;
+//
+//     for (let i = 0; i < 100; i++) {
+//         input.push([i]);
+//         newSchoolInput.push([i]);
+//
+//         expectedOutput.push([i*2 + 5]);
+//         newSchoolExpectedOutput.push([i*2 + 5, 1]);
+//     }
+//
+//     let oldSchoolNormalizedInput = normalizer.normalize(input, true);
+//     let newSchoolNormalizedInput = normalizer.normalize(newSchoolInput, true);
+//
+//     let oldSchoolFeedForwardTime = [];
+//     let oldSchoolBackPropTime = [];
+//     let newSchoolFeedForwardTime = [];
+//     let newSchoolBackPropTime = [];
+//     let startTime, miniBatchSize = 10;
+//
+//     newSchoolNormalizedInput.forEach((item) => item.push(1));
+//
+//     for (let epoch = 0; epoch < maxEpochs; epoch++) {
+//
+//         for (let index = 0; index < input.length; index += miniBatchSize) {
+//             let miniBatch = ArrayUtils.take(oldSchoolNormalizedInput, miniBatchSize, index);//[oldSchoolNormalizedInput[index]];
+//             let output = ArrayUtils.take(expectedOutput, miniBatchSize, index); //[expectedOutput[index]];
+//
+//             startTime = moment();
+//             nnOldschool.feedForward(miniBatch);
+//             oldSchoolFeedForwardTime.push(moment().diff(startTime, "ms"))
+//
+//             startTime = moment();
+//             nnOldschool.backPropagate(output);
+//             oldSchoolBackPropTime.push(moment().diff(startTime, "ms"))
+//
+//             miniBatch = ArrayUtils.take(newSchoolNormalizedInput, miniBatchSize, index);
+//             output = ArrayUtils.take(newSchoolExpectedOutput, miniBatchSize, index); //[newSchoolExpectedOutput[index]];
+//
+//             startTime = moment();
+//             nnNewSchool.feedForward(miniBatch);
+//             newSchoolFeedForwardTime.push(moment().diff(startTime, "ms"))
+//
+//             startTime = moment();
+//             nnNewSchool.backPropagate(output);
+//             newSchoolBackPropTime.push(moment().diff(startTime, "ms"))
+//         }
+//     }
+//
+//     let oldSchoolOutput = nnOldschool.feedForward([oldSchoolNormalizedInput[1]]);
+//     let newSchoolOutput = nnNewSchool.feedForward([newSchoolNormalizedInput[1]]);
+//
+//     console.log(`oldSchoolOutput = ${oldSchoolOutput}`);
+//     console.log(`newSchoolOutput = ${newSchoolOutput}`);
+//
+//     let meanOldSchoolFFTime = math.mean(oldSchoolFeedForwardTime);
+//     let meanOldSchoolBPTime = math.mean(oldSchoolBackPropTime);
+//     let meanNewSchoolFFTime = math.mean(newSchoolFeedForwardTime);
+//     let meanNewSchoolBPTime = math.mean(newSchoolBackPropTime);
+//
+//     console.log(`mean old school FeedForward time = ${meanOldSchoolFFTime}`);
+//     console.log(`mean old school BackProp time = ${meanOldSchoolBPTime}`);
+//
+//     console.log(`mean new school FeedForward time = ${meanNewSchoolFFTime}`);
+//     console.log(`mean new school BackProp time = ${meanNewSchoolBPTime}`);
+//
+//     // expect(oldSchoolOutput[0][0]).toBeCloseTo(7);
+//     // expect(newSchoolOutput[0][0]).toBeCloseTo(7);
+// });

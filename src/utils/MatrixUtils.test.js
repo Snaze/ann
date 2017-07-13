@@ -1,4 +1,5 @@
 import MatrixUtils from "./MatrixUtils";
+import ArrayUtils from "./ArrayUtils";
 
 it ("test create", () => {
     // SETUP
@@ -84,4 +85,22 @@ it ("toDiagonal", () => {
     expect(toCheck[2][0]).toBe(0);
     expect(toCheck[2][1]).toBe(0);
     expect(toCheck[2][2]).toBe(3);
+});
+
+it ("popColumn", () => {
+    // SETUP
+    let toPopFrom = [
+        [1, 2, 3],
+        [1, 2, 3]
+    ];
+
+    // CALL
+    MatrixUtils.popColumn(toPopFrom);
+
+    // ASSERT
+    expect(toPopFrom.length).toBe(2);
+    expect(toPopFrom[0].length).toBe(2);
+    expect(toPopFrom[1].length).toBe(2);
+    expect(ArrayUtils.arrayEquals(toPopFrom[0], [1, 2])).toBe(true);
+    expect(ArrayUtils.arrayEquals(toPopFrom[1], [1, 2])).toBe(true);
 });
