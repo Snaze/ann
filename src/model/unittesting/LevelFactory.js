@@ -17,6 +17,16 @@ class LevelFactory {
 
     }
 
+    /**
+     * -----------
+     * |   |O|   |
+     * |___|.|___|
+     * |. . P . .|
+     * |---|.|---|
+     * |   |G|   |
+     * -----------
+     * @returns {Level}
+     */
     static createTestLevel() {
         let toRet = new Level(5, 5);
 

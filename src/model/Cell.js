@@ -240,6 +240,14 @@ class Cell extends DataSourceBase {
         this._setValueAndRaiseOnChange("_dotType", value);
     }
 
+    get hasLittleDot() {
+        return this.dotType === Dot.LITTLE;
+    }
+
+    get hasBigDot() {
+        return this.dotType === Dot.BIG;
+    }
+
     toggleBorder(borderType) {
         if (!BorderType.isValid(borderType)) {
             throw new Error("Invalid border type");
