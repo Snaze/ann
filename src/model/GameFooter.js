@@ -1,5 +1,4 @@
 import DataSourceBase from "./DataSourceBase";
-import StateHelper from "./ai/StateHelper";
 
 const active_player_1 = 1;
 const active_player_2 = 2;
@@ -27,7 +26,6 @@ class GameFooter extends DataSourceBase {
         this._activePlayer = activePlayer;
         this._powerUps = null;
         this._numLives = 0;
-        this._playerState = "";
 
         if (this._activePlayer === GameFooter.ACTIVE_PLAYER_1) {
             this._numLives = this._player1._numLives;
@@ -39,8 +37,6 @@ class GameFooter extends DataSourceBase {
     _handlePlayerValueChance(e, player) {
         if (e.source === "_numLives") {
             this.numLives = player.numLives;
-        } else if (e.source === "_state") {
-            this.playerState = StateHelper.convertToDetailString(player.state);
         }
     }
 
@@ -103,14 +99,6 @@ class GameFooter extends DataSourceBase {
 
     get level() {
         return this._level;
-    }
-
-    get playerState() {
-        return this._playerState;
-    }
-
-    set playerState(value) {
-        this._setValueAndRaiseOnChange("_playerState", value);
     }
 
     set level(value) {

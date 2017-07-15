@@ -145,7 +145,7 @@ it ("learnOne - select action, perform callback, store transition", () => {
     };
     nnMock.prototype.predict = nnMock.prototype.feedForward;
 
-    let learner = new DeepQLearner(1, 4, 0.03, 0.9, 0.0, 0.0, false);
+    let learner = new DeepQLearner(1, 4, 0.03, 0.9, 0.0, 0.9999, false);
     learner._neuralNetwork = new nnMock();
     let callback = jest.fn(function () {
         return {

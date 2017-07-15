@@ -5,6 +5,8 @@ import Entity from "../Entity";
 import PropTypes from 'prop-types';
 import DataSourceComponent from "../DataSourceComponent";
 import {default as MainMenuModel} from "../model/menus/MainMenu";
+import { assert } from "../utils/Assert";
+import GameMode from "../model/GameMode";
 
 class MainMenu extends DataSourceComponent {
 
@@ -30,24 +32,41 @@ class MainMenu extends DataSourceComponent {
         KeyEventer.instance.removeCallback(this.keyDownRef, KeyEventer.CALLBACK_KEYDOWN);
     }
 
-    togglePlayer() {
-        let currentSelectedPlayer = this.mainMenu.selectedPlayer;
-        let otherPlayer = MainMenuModel.SELECTED_PLAYERS_2;
-        if (currentSelectedPlayer === 2) {
-            otherPlayer = MainMenuModel.SELECTED_PLAYERS_1;
+    /**
+     * This will change the selection
+     * @param isUp {boolean} True if up arrow pushed.  False otherwise
+     */
+    toggleSelection(isUp) {
+        let currentSelection = this.mainMenu.selectedValue;
+        if (isUp) {
+            currentSelection--;
+        } else {
+            currentSelection++;
+        }
+        let firstValue = GameMode.ALL[0];
+        let lastValue = GameMode.ALL[GameMode.ALL.length - 1];
+
+        assert (lastValue >= firstValue, "Last Value must be greater than or equal first value");
+
+        if (currentSelection < firstValue) {
+            currentSelection = lastValue;
+        } else if (currentSelection > lastValue) {
+            currentSelection = firstValue;
+        } else if (lastValue === firstValue) {
+            currentSelection = firstValue;
         }
 
-        this.mainMenu.selectedPlayer = otherPlayer;
+        this.mainMenu.selectedValue = currentSelection;
     }
 
     keyDown(key) {
 
         switch(key) {
             case "ArrowUp":
-                this.togglePlayer();
+                this.toggleSelection(true);
                 break;
             case "ArrowDown":
-                this.togglePlayer();
+                this.toggleSelection(false);
                 break;
             case "Enter":
             case " ":
@@ -60,7 +79,7 @@ class MainMenu extends DataSourceComponent {
     }
 
     getSelectionSpan(theNum) {
-        if (this.mainMenu.selectedPlayer === theNum) {
+        if (this.mainMenu.selectedValue === theNum) {
             return (<span className="MainMenuBlink">»</span>)
         }
 
@@ -73,7 +92,7 @@ class MainMenu extends DataSourceComponent {
             visibility: "hidden"
         };
 
-        if (this.mainMenu.selectedPlayer === 2) {
+        if (this.mainMenu.selectedValue === 2) {
             toRet["visibility"] = "visible"
         }
 
@@ -123,10 +142,18 @@ class MainMenu extends DataSourceComponent {
                     <tbody>
                         <tr>
                             <td className="MainMenuTableCellLeft">
+                                {this.getSelectionSpan(0)}
+                            </td>
+                            <td className="MainMenuTableCellRight">
+                                <div>Play!</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="MainMenuTableCellLeft">
                                 {this.getSelectionSpan(1)}
                             </td>
                             <td className="MainMenuTableCellRight">
-                                <div>1 Player</div>
+                                <div>Train Player</div>
                             </td>
                         </tr>
                         <tr>
@@ -134,12 +161,15 @@ class MainMenu extends DataSourceComponent {
                                 {this.getSelectionSpan(2)}
                             </td>
                             <td className="MainMenuTableCellRight">
-                                <div style={{display: "inline", whiteSpace: "noWrap"}}>
-                                    <div style={{display: "inline-block"}}>2 Players</div>
-                                    <div style={this.getComingSoonStyle()} className="MainMenuComingSoon">
-                                        &nbsp;&nbsp;(coming soon)
-                                    </div>
-                                </div>
+                                <div>Watch Player</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="MainMenuTableCellLeft">
+                                {this.getSelectionSpan(3)}
+                            </td>
+                            <td className="MainMenuTableCellRight">
+                                <div>Watch Pre-Trained Player</div>
                             </td>
                         </tr>
                     </tbody>

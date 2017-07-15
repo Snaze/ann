@@ -499,6 +499,10 @@ class NeuralNetwork {
         return this._includeBias;
     }
 
+    get learningRate() {
+        return this._learningRate.getLearningRate(this._epoch);
+    }
+
     /**
      * This represents the backpropagation type being used.
      * @returns {String}

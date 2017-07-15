@@ -13,14 +13,34 @@ it ("toFeatureVector", () => {
     let goc = GameObjectContainerFactory.createGameObjectContainer();
     let instance = new SimpleStateConveter();
     let shouldBeFeatureVector = [
-        15,
-        2, 1, 2,
-        41, 0, 2,
-        41, 0, 2,
-        41, 0, 2,
-        2, 2, 2, 200,
-        1, 4,
-        2, 4
+        15 / SimpleStateConveter.MAX_DIRECTION,
+
+        2 / SimpleStateConveter.MAX_DISTANCE,
+        1 / SimpleStateConveter.MAX_DIRECTION,
+        2 / SimpleStateConveter.MAX_LIVING_STATE,
+
+        41 / SimpleStateConveter.MAX_DISTANCE,
+        0 / SimpleStateConveter.MAX_DIRECTION,
+        2 / SimpleStateConveter.MAX_LIVING_STATE,
+
+        41 / SimpleStateConveter.MAX_DISTANCE,
+        0 / SimpleStateConveter.MAX_DIRECTION,
+        2 / SimpleStateConveter.MAX_LIVING_STATE,
+
+        41 / SimpleStateConveter.MAX_DISTANCE,
+        0 / SimpleStateConveter.MAX_DIRECTION,
+        2 / SimpleStateConveter.MAX_LIVING_STATE,
+
+        2 / SimpleStateConveter.MAX_DISTANCE,
+        2 / SimpleStateConveter.MAX_DIRECTION,
+        2 / SimpleStateConveter.MAX_LIVING_STATE,
+        200 / SimpleStateConveter.MAX_POWER_UP_VALUE,
+
+        1 / SimpleStateConveter.MAX_DISTANCE,
+        4 / SimpleStateConveter.MAX_DIRECTION,
+
+        2 / SimpleStateConveter.MAX_DISTANCE,
+        4 / SimpleStateConveter.MAX_DIRECTION
     ];
 
     // CALL
@@ -30,5 +50,5 @@ it ("toFeatureVector", () => {
     // console.log(`feature = ${featureVector}`);
     // console.log(`should  = ${shouldBeFeatureVector}`);
     expect(featureVector).toBeInstanceOf(Array);
-    expect(ArrayUtils.arrayEquals(featureVector, shouldBeFeatureVector)).toBe(true);
+    expect(ArrayUtils.arrayIsCloseTo(featureVector, shouldBeFeatureVector)).toBe(true);
 });

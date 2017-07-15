@@ -7,8 +7,6 @@ import moment from "../../../node_modules/moment/moment";
 import EasingFunctions from "../../utils/EasingFunctions";
 import SoundPlayer from "../../utils/SoundPlayer";
 import PlayerAgent from "./PlayerBrains/PlayerAgent";
-import StateHelper from "../ai/StateHelper";
-// import ArrayUtils from "../../utils/ArrayUtils";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
@@ -18,6 +16,7 @@ const max_cell_duration = 0.175;
 const min_attack_duration = 0.0; // seconds
 const max_attack_duration = 8.0; // seconds
 const new_life_increment = 10000;
+const max_score_delta = 5000;
 
 
 class Player extends ActorBase {
@@ -54,10 +53,9 @@ class Player extends ActorBase {
         this._prevLocation = this.location.clone();
         this._numLives = 3;
         this._originalNumLives = this._numLives;
-        this._scoreDelta = null;
-        this._agent = null;
-        this._stateHelper = new StateHelper();
+        this._scoreDelta = -1 / max_score_delta;
         this._state = 0;
+        this._learnMode = false;
 
         this._cellTransitionDuration = Player.getCellTransitionDuration(this.level); // seconds
     }
@@ -156,7 +154,7 @@ class Player extends ActorBase {
 
     timerTick(goc) {
 
-        if (this.aiMode) {
+        if (this.aiMode || this.learnMode) {
             this.aiTick(goc);
         } else {
             this.humanTick(goc);
@@ -166,19 +164,18 @@ class Player extends ActorBase {
     }
 
     aiTick(goc) {
-        let agent = this.getAgent(StateHelper.NUM_STATES);
 
-        this.state = this._stateHelper.getStateNumber(goc);
-        let decimalDirection = agent.act(this.state, this._scoreDelta);
-        this._scoreDelta = -1;
-        let newDirection = this._stateHelper.mapIndexToDirection(decimalDirection);
+        let decimalDirection = goc.playerActionNum;
+        let newDirection = Direction.decimalToDirection(decimalDirection);
+        this._scoreDelta = -1 / max_score_delta;
+
+        // console.log(`decimalDirection = ${decimalDirection}, newDirection = ${newDirection}`);
 
         this.prevLocation.setWithLocation(this.location);
         this.attemptToMoveInDirection(newDirection);
 
         this.handleLocationChanged(this.location);
 
-        // agent.learn(this._scoreDelta);
     }
 
     humanTick(goc) {
@@ -231,7 +228,7 @@ class Player extends ActorBase {
     }
 
     set score(value) {
-        this._scoreDelta = value - this.score;
+        this._scoreDelta = (value - this.score) / max_score_delta;
 
         let origValue = Math.floor(this.score / new_life_increment);
         let newValue = Math.floor(value / new_life_increment);
@@ -279,7 +276,7 @@ class Player extends ActorBase {
 
         if (this._isAlive && !value) {
             SoundPlayer.instance.play(SoundPlayer.instance.death);
-            this._scoreDelta = -10000;
+            this._scoreDelta = -0.3; // Special case.  -1 is max neg reward.  Think -5000 / 5000 = -5000 / max_score_delta
         }
 
         super.isAlive = value;
@@ -319,6 +316,18 @@ class Player extends ActorBase {
 
     set state(value) {
         this._setValueAndRaiseOnChange("_state", value);
+    }
+
+    get learnMode() {
+        return this._learnMode;
+    }
+
+    set learnMode(value) {
+        this._learnMode = value;
+    }
+
+    get scoreDelta() {
+        return this._scoreDelta;
     }
 
     resetReward() {

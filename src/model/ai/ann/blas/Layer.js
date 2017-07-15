@@ -5,6 +5,7 @@ import ArrayUtils from "../../../../utils/ArrayUtils";
 import { Matrix } from "vectorious";
 import MatrixUtils from "../../../../utils/MatrixUtils";
 import math from "../../../../../node_modules/mathjs/dist/math";
+import TimeRecorder from "../../../../utils/TimeRecorder";
 
 /**
  * This class represents a single Layer in the Neural Network.
@@ -42,6 +43,7 @@ class Layer {
         this._errors = null; // Previous errors produced by backProp
         this._hasBias = false;
         this._outputAugmentMatrix = null;
+        this._timeRecorder = new TimeRecorder();
     }
 
     augmentOutputWithOnes(outputMatrix) {
@@ -71,6 +73,8 @@ class Layer {
      */
     feedForward(inputWeights, miniBatch) {
 
+        let tempResult;
+
         this._inputs = miniBatch;
 
         if (inputWeights === null) {
@@ -85,13 +89,19 @@ class Layer {
         // assert (this._inputs.shape[1] === inputWeights.shape[0], "Invalid matrix sizes");
 
         // This should be (m x n) x (n x p) = (m x p)
-        let tempResult = Matrix.multiply(this._inputs, inputWeights);
+        this._timeRecorder.recordStart("Layer Matrix Multiply");
+        tempResult = Matrix.multiply(this._inputs, inputWeights);
+        this._timeRecorder.recordEnd("Layer Matrix Multiply");
 
         // Now simply apply the activation function and return
+        this._timeRecorder.recordStart("Layer Mapping");
         this._outputs = tempResult.map(x => this._activationFunction.output(x));
+        this._timeRecorder.recordEnd("Layer Mapping");
 
         if (this.hasBias) {
+            this._timeRecorder.recordStart("Augment");
             this.augmentOutputWithOnes(this._outputs);
+            this._timeRecorder.recordEnd("Augment");
         }
 
         return this._outputs;

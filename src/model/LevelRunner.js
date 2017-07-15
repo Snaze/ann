@@ -3,6 +3,8 @@ import GameObjectContainer from "./GameObjectContainer";
 import GameHeader from "./GameHeader";
 import GameFooter from "./GameFooter";
 import LevelFactory from "./LevelFactory";
+import GameMode from "./GameMode";
+import { assert } from "../utils/Assert";
 
 class LevelRunner extends DataSourceBase {
     constructor(levelName) {
@@ -40,12 +42,15 @@ class LevelRunner extends DataSourceBase {
         }
     }
 
-    startLevel(levelName, forceReload=false, levelNum=1) {
+    startLevel(levelName, forceReload=false, levelNum=1, gameMode=GameMode.PLAY) {
+
+        assert (GameMode.ALL.indexOf(gameMode) >= 0, "Invalid Game Mode");
 
         this.loadLevel(levelName, forceReload, levelNum);
 
         this.levelFinished = false;
         this.gameOver = false;
+        this._gameObjectContainer.gameMode = gameMode;
         this._gameObjectContainer.startOrRestartLevel();
     }
 

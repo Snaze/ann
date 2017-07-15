@@ -1,25 +1,13 @@
 import DataSourceBase from "../DataSourceBase";
 import SoundPlayer from "../../utils/SoundPlayer";
-
-const selected_players_1 = 1;
-const selected_players_2 = 2;
-const selected_players_ai_1 = 3;
-const valid_selected_players = [
-    selected_players_1,
-    selected_players_2,
-    selected_players_ai_1
-];
+import GameMode from "../GameMode";
 
 class MainMenu extends DataSourceBase {
-
-    static get SELECTED_PLAYERS_1() { return selected_players_1; }
-    static get SELECTED_PLAYERS_2() { return selected_players_2; }
-    static get SELECTED_PLAYERS_AI_1() { return selected_players_ai_1; }
 
     constructor() {
         super();
 
-        this._selectedPlayer = MainMenu.SELECTED_PLAYERS_1;
+        this._selectedValue = GameMode.PLAY;
         this._selectionConfirmed = false;
         this._soundCompleteCallbackRef = (e) => this._soundCompleteCallback(e);
         this._soundId = SoundPlayer.instance.play(SoundPlayer.instance.intermission);
@@ -31,21 +19,21 @@ class MainMenu extends DataSourceBase {
         // }.bind(this), 10000);
     }
 
-    get selectedPlayer() {
-        return this._selectedPlayer;
+    get selectedValue() {
+        return this._selectedValue;
     }
 
-    set selectedPlayer(value) {
-        if (valid_selected_players.indexOf(value) < 0) {
+    set selectedValue(value) {
+        if (GameMode.ALL.indexOf(value) < 0) {
             throw new Error("Invalid selected player");
         }
 
-        this._setValueAndRaiseOnChange("_selectedPlayer", value);
+        this._setValueAndRaiseOnChange("_selectedValue", value);
         SoundPlayer.instance.play(SoundPlayer.instance.eatfruit);
     }
 
     get numPlayers() {
-        return this.selectedPlayer;
+        return 1;
     }
 
     get selectionConfirmed() {

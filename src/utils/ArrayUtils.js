@@ -402,6 +402,20 @@ class ArrayUtils {
         return toRet;
     }
 
+    static arrayIsCloseTo(array1, array2, minDistance=1e-6) {
+        assert (array2.length === array1.length, "Arrays must be same length");
+
+        for (let i = 0; i < array1.length; i++) {
+            let currentDiff = Math.abs(array1[i] - array2[i]);
+
+            if (currentDiff > minDistance) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }
 
 export default ArrayUtils;

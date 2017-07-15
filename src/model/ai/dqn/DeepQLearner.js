@@ -46,13 +46,15 @@ class DeepQLearner {
                 rar=0.98,
                 radr=0.9999,
                 verbose=false,
-                epochSize=10000,
+                epochSize=1000,
                 numHiddenLayers=3,
                 maxEpochs=1000,
-                replayMemoryCapacity=10000,
+                replayMemoryCapacity=100000,
                 sequenceSize=4,
                 miniBatchSize=10,
                 learnTimeBuffer=100) {
+
+        assert (radr > 0, "radr must be greater than 0");
 
         this._trainingVectorSize = trainingVectorSize;
         this._numActions = numActions;
@@ -100,8 +102,25 @@ class DeepQLearner {
             ActivationFunctions.lrelu, alpha, WeightInitializer.COMPRESSED_NORMAL, null, true, 0.001,
             BackPropFactory.BACK_PROP_TYPE_ADAM_MATRIX);
         toRet.maxEpochs = maxEpochs;
+
+        if (!!window.localStorage) {
+
+            let theWeightsJSON = window.localStorage.getItem("DeepQWeights");
+            if (!!theWeightsJSON) {
+                let theWeights = JSON.parse(theWeightsJSON);
+                toRet.setWeights(theWeights);
+                if (!!console) {
+                    console.log("Weights Loaded from Storage");
+                }
+            }
+        }
         if (!!window) {
             window.neuralNetwork = toRet;
+            if (!!console) {
+                console.log("window.neuralNetwork created");
+            }
+
+            window.deepQLearner = this;
         }
 
         return toRet;
@@ -199,9 +218,9 @@ class DeepQLearner {
 
         this._totalError = this._neuralNetwork.backPropagate([qValueTargets]);
 
-        this.log(`totalError = ${this._totalError}`);
-        this.log(`rar = ${this._rar}`);
-        this.log(`error = ${error}`);
+        // this.log(`totalError = ${this._totalError}`);
+        // this.log(`rar = ${this._rar}`);
+        // this.log(`error = ${error}`);
 
         this._s = sPrime;
         this._a = aPrime;
@@ -317,9 +336,12 @@ class DeepQLearner {
         this._setInitialState(initialState);
 
         let currentPreProcessedSequence = this.sequence.createPreProcessedSequence(this.sequenceSize);
-        let aPrime = this.getAction(currentPreProcessedSequence.toInput(this.sequenceSize), true);
+        let aPrime = this.getAction(currentPreProcessedSequence.toInput(this.sequenceSize), false);
 
         let result = executeActionCallback(this, aPrime); // { reward: 1, state: [6], isTerminal: false }
+        // this.log(`reward = ${result.reward}`);
+        // this.log(`state = ${result.state}`);
+
         let sequenceTPlus1 = this._s.clone();
         sequenceTPlus1.append(aPrime, result.state);
         let preProcessedTPlus1 = sequenceTPlus1.createPreProcessedSequence(this.sequenceSize);
@@ -343,10 +365,26 @@ class DeepQLearner {
         let toRet = temp.error;
 
         if (result.isTerminal) {
-            this.log(`Epoch ${this._epochNum} finished with ${this._tickNum} ticks.  Total Error = ${toRet}`);
+            this._rar *= this._radr;
+
+            let theWeights = this._neuralNetwork.getWeights();
+            let theWeightsJSON = JSON.stringify(theWeights);
+            if (!!window.localStorage) {
+                window.localStorage.setItem("DeepQWeights", theWeightsJSON);
+                this.log("DeepQWeights Set");
+            }
+
+            this.log(`Neural Network weights = ${theWeightsJSON}`);
             this._epochNum++;
-            this._tickNum = 0;
+
             this._neuralNetwork.epochs = this._epochNum;
+            this.log(`rar = ${this._rar}`);
+            this.log(`radr = ${this._radr}`);
+            this.log(`learningRate = ${this._neuralNetwork.learningRate}`);
+            this.log(`Epoch ${this._epochNum} finished with ${this._tickNum} ticks.  Total Error = ${toRet}`);
+
+
+            this._tickNum = 0;
         } else {
             this._tickNum++;
         }

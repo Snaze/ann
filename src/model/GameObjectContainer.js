@@ -7,20 +7,24 @@ import PowerUp from "./actors/PowerUp";
 import GameModal from "./GameModal";
 import SoundPlayer from "../utils/SoundPlayer";
 import KeyEventer from "../utils/KeyEventer";
-// import BinaryMatrix from "./utils/BinaryMatrix";
-// import Direction from "../utils/Direction";
+import GameMode from "./GameMode";
+import DeepQLearner from "./ai/dqn/DeepQLearner";
+import SimpleStateConverter from "./ai/SimpleStateConverter";
+import StateConverter from "./ai/StateConverter";
+import BinaryMatrix from "./utils/BinaryMatrix";
+import Direction from "../utils/Direction";
 
 const max_power_up_spawn_time = 90.0;
 const callback_type_level_finished = 0;
 const callback_type_game_over = 1;
-// const toBinaryIndices = {
-//     littleDot: 4,
-//     bigDot: 3,
-//     ghost: 2,
-//     player: 1,
-//     powerUp: 0,
-//     directionHeader: 0
-// };
+const toBinaryIndices = {
+    littleDot: 4,
+    bigDot: 3,
+    ghost: 2,
+    player: 1,
+    powerUp: 0,
+    directionHeader: 0
+};
 
 class GameObjectContainer extends DataSourceBase {
 
@@ -53,7 +57,19 @@ class GameObjectContainer extends DataSourceBase {
         ];
 
         this._gameTimerTickFinishedRef = (e) => this.gameTimerTickFinished(e);
-        GameTimer.instance.addTickFinishedCallback(this._gameTimerTickFinishedRef);
+        this._timerWired = false;
+
+        // This is used to create the feature vector to feed the Deep Q Learner
+        this._simpleStateConverter = new SimpleStateConverter();
+
+        // This is used to save / restore state between learning.  Mainly this is because of you are storing
+        // static times in the entities.  You should really just store ms or s remaining.
+        // TODO: Fix times issue.
+        this._stateConverter = new StateConverter();
+        this._previousState = null;
+        this._deepQLearner = null;
+        this._deepQLearnerCallbackRef = (deepQLearner, actionNum) => this._deepQLearnerCallback(deepQLearner, actionNum);
+        this._playerActionNum = 0;
 
         this._keyPressRef = (e) => this._keyPress(e);
         KeyEventer.instance.addCallback(this._keyPressRef, KeyEventer.CALLBACK_KEYDOWN);
@@ -67,6 +83,8 @@ class GameObjectContainer extends DataSourceBase {
         this._levelRunning = false;
         // this._binaryMatrix = null;
         this._graph = null;
+        this._gameMode = GameMode.PLAY;
+
         this.toIgnore.push("_state");
     }
 
@@ -88,6 +106,22 @@ class GameObjectContainer extends DataSourceBase {
         KeyEventer.instance.removeCallback(this._keyPressRef, KeyEventer.CALLBACK_KEYDOWN);
 
         super.dispose();
+    }
+
+    _wireGameTimer() {
+        if (!this._timerWired) {
+            this._timerWired = true;
+            GameTimer.instance.addTickFinishedCallback(this._gameTimerTickFinishedRef);
+        }
+    }
+
+    _wireQLearner() {
+        if (!this._timerWired) {
+            this._timerWired = true;
+            let initialState = this._simpleStateConverter.toFeatureVector(this);
+            // this._previousState = this._stateConverter.toFeatureVector(this);
+            this.deepQLearner.learn(this._deepQLearnerCallbackRef, initialState);
+        }
     }
 
     _nestedDataSourceChanged(e) {
@@ -130,16 +164,25 @@ class GameObjectContainer extends DataSourceBase {
                     object: this
                 });
             } else if (this._gameModal.mode === GameModal.MODAL_MODE_COUNTDOWN) {
-                this.resetAllGhostBrains();
-                this.paused = false;
-                this._restartLevelRef = null;
-                this._levelRunning = true;
+                this._runLevel();
             }
         }
     }
 
+    _runLevel() {
+        this.resetAllGhostBrains();
+        this.paused = false;
+        this._restartLevelRef = null;
+        this._levelRunning = true;
+    }
+
     _killIfCollision(thePlayer, theGhost, now) {
-        if (thePlayer.location.equals(theGhost.location)) {
+
+        if (thePlayer.location.equals(theGhost.location) ||
+            (!!thePlayer.prevLocation &&
+            !!theGhost.prevLocation &&
+            thePlayer.location.equals(theGhost.prevLocation) &&
+            theGhost.location.equals(thePlayer.prevLocation))) {
             if (thePlayer.attackModeFinishTime > now && theGhost.isScared) {
                 // GHOST IS DEAD SINCE PLAYER IS ATTACKING
                 if (theGhost.isAlive) {
@@ -151,8 +194,7 @@ class GameObjectContainer extends DataSourceBase {
                 if (thePlayer.isAlive) {
                     thePlayer.isAlive = false;
                     thePlayer.numLives -= 1;
-                    thePlayer.timerTick(this); // So it can learn one last time before moving state
-                    thePlayer.resetReward();
+                    // thePlayer.resetReward();
 
                     this.resetAllGhostBrains();
                     this.currentPlayerDead = true;
@@ -162,12 +204,10 @@ class GameObjectContainer extends DataSourceBase {
                     if (this._restartLevelRef === null) {
                         this._restartLevelRef = () => this.startOrRestartLevel();
                         let self = this;
-                        if (!thePlayer.aiMode) {
+                        if (this._gameMode !== GameMode.TRAIN) {
                             setTimeout(function () {
                                 self.startOrRestartLevel();
                             }, 3000);
-                        } else {
-                            self.startOrRestartLevel();
                         }
                     }
                 }
@@ -188,24 +228,32 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     _checkIfAllDotsEaten(thePlayer, theLevel) {
+        let levelFinished = false;
+
         if (thePlayer.dotsEaten === theLevel.numDots && !this.paused) {
         // if (thePlayer.dotsEaten >= 2 && !this.paused) {
 
-            this.level.blinkBorder = true;
-            this.resetAllGhostBrains();
+            levelFinished = true;
 
-            this._levelRunning = false;
-            this.paused = true;
+            if (this._gameMode !== GameMode.TRAIN) {
+                this.level.blinkBorder = true;
+                this.resetAllGhostBrains();
 
-            if (this.callback) {
-                setTimeout(function () {
-                    this.callback({
-                        callbackType: GameObjectContainer.CALLBACK_TYPE_LEVEL_FINISHED,
-                        object: this
-                    });
-                }.bind(this), 4000);
+                this._levelRunning = false;
+                this.paused = true;
+
+                if (!!this.callback) {
+                    setTimeout(function () {
+                        this.callback({
+                            callbackType: GameObjectContainer.CALLBACK_TYPE_LEVEL_FINISHED,
+                            object: this
+                        });
+                    }.bind(this), 4000);
+                }
             }
         }
+
+        return levelFinished;
     }
 
     startOrRestartLevel() {
@@ -214,22 +262,72 @@ class GameObjectContainer extends DataSourceBase {
         this.gameOver = false;
         this._levelRunning = false;
 
-        if (this.player.numLives === 0) {
-            this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
-        } else {
-            let count = this.player.aiMode ? 1: 3;
-            if (!this._levelFirstStart) {
-                this.gameModal.showCountDownModal(count);
+        if (this._gameMode === GameMode.PLAY) {
+            if (this.player.numLives === 0) {
+                this.gameModal.showGameOverModal(this.player.score, this.level.levelNum);
             } else {
-                this._levelFirstStart = false;
-                SoundPlayer.instance.play(SoundPlayer.instance.beginning, function () {
+                this._wireGameTimer();
+
+                let count = 3;
+                if (!this._levelFirstStart) {
                     this.gameModal.showCountDownModal(count);
-                }.bind(this));
+                } else {
+                    this._levelFirstStart = false;
+                    SoundPlayer.instance.play(SoundPlayer.instance.beginning, function () {
+                        this.gameModal.showCountDownModal(count);
+                    }.bind(this));
+                }
             }
+        } else if (this._gameMode === GameMode.TRAIN) {
+            this._player.learnMode = true;
+            this._player.resetNumLives();
+            this._runLevel();
+            this._wireQLearner();
         }
     }
 
+    _deepQLearnerCallback(deepQLearner, actionNum) {
+        // FIRST, restore previous state because Deep Q Learner may be slow.
+        // this._stateConverter.setFeatureVector(this, this._previousState);
+
+        // NEXT, store the action for the player to perform.
+        // console.log(`actionNum = ${actionNum}`);
+        this.playerActionNum = actionNum;
+
+        // NEXT, execute the game step.
+        let levelFinished = this.gameTimerTickFinished();
+        let isTerminal = false;
+
+        // If the player is killed restart the level.
+        if (!this.player.isAlive) {
+            this.startOrRestartLevel();
+            isTerminal = true;
+        }
+
+        // If the level is finish, fire the event to load the next level.
+        if (levelFinished && !!this.callback) {
+            this.callback({
+                callbackType: GameObjectContainer.CALLBACK_TYPE_LEVEL_FINISHED,
+                object: this
+            });
+
+            isTerminal = true;
+            this._runLevel();
+        }
+
+        // save new state
+        // this._previousState = this._stateConverter.toFeatureVector(this);
+
+        return {
+            reward: this.player.scoreDelta,
+            state: this._simpleStateConverter.toFeatureVector(this),
+            isTerminal: isTerminal
+        };
+    }
+
     gameTimerTickFinished() {
+
+        let levelFinished = false;
 
         if (!this.level.playerSpawnLocation.isValid || this.editMode) {
             return;
@@ -260,8 +358,10 @@ class GameObjectContainer extends DataSourceBase {
 
             this._pickUpPowerUpIfCollision(this.player, this.powerUp);
 
-            this._checkIfAllDotsEaten(this.player, this.level);
+            levelFinished = this._checkIfAllDotsEaten(this.player, this.level);
         }
+
+        return levelFinished;
     }
 
     checkAndSpawnPowerUp(now) {
@@ -315,23 +415,23 @@ class GameObjectContainer extends DataSourceBase {
         });
     }
 
-    // _updateBinaryMatrix() {
-    //     let directionBinary = Direction.toBinary(this.player.direction);
-    //     this._binaryMatrix.setBinaryHeaderValue(toBinaryIndices.directionHeader, directionBinary);
-    //
-    //     this._binaryMatrix.setBinaryValueAtLocation("player", this.player.location, toBinaryIndices.player, "1");
-    //
-    //     // If the player is at a current location, then he must have already eaten the dot.
-    //     this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.bigDot, "0");
-    //     this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.littleDot, "0");
-    //
-    //     this._binaryMatrix.setBinaryValueAtLocation("ghostRed", this.ghostRed.location, toBinaryIndices.ghost, "1");
-    //     this._binaryMatrix.setBinaryValueAtLocation("ghostBlue", this.ghostBlue.location, toBinaryIndices.ghost, "1");
-    //     this._binaryMatrix.setBinaryValueAtLocation("ghostOrange", this.ghostOrange.location, toBinaryIndices.ghost, "1");
-    //     this._binaryMatrix.setBinaryValueAtLocation("ghostPink", this.ghostPink.location, toBinaryIndices.ghost, "1");
-    //
-    //     this._binaryMatrix.setBinaryValueAtLocation("powerUp", this.powerUp.location, toBinaryIndices.powerUp, "1");
-    // }
+    _updateBinaryMatrix() {
+        let directionBinary = Direction.toBinary(this.player.direction);
+        this._binaryMatrix.setBinaryHeaderValue(toBinaryIndices.directionHeader, directionBinary);
+
+        this._binaryMatrix.setBinaryValueAtLocation("player", this.player.location, toBinaryIndices.player, "1");
+
+        // If the player is at a current location, then he must have already eaten the dot.
+        this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.bigDot, "0");
+        this._binaryMatrix.setBinaryValueAtLocation(null, this.player.location, toBinaryIndices.littleDot, "0");
+
+        this._binaryMatrix.setBinaryValueAtLocation("ghostRed", this.ghostRed.location, toBinaryIndices.ghost, "1");
+        this._binaryMatrix.setBinaryValueAtLocation("ghostBlue", this.ghostBlue.location, toBinaryIndices.ghost, "1");
+        this._binaryMatrix.setBinaryValueAtLocation("ghostOrange", this.ghostOrange.location, toBinaryIndices.ghost, "1");
+        this._binaryMatrix.setBinaryValueAtLocation("ghostPink", this.ghostPink.location, toBinaryIndices.ghost, "1");
+
+        this._binaryMatrix.setBinaryValueAtLocation("powerUp", this.powerUp.location, toBinaryIndices.powerUp, "1");
+    }
 
     get powerUp() {
         return this._powerUp;
@@ -457,17 +557,33 @@ class GameObjectContainer extends DataSourceBase {
         return this._gameModal;
     }
 
-    // get binaryMatrix() {
-    //
-    //     if (null === this._binaryMatrix) {
-    //         let theMatrix = this.level.toBinary();
-    //         this._binaryMatrix = new BinaryMatrix(theMatrix, 1);
-    //     }
-    //
-    //     this._updateBinaryMatrix();
-    //
-    //     return this._binaryMatrix;
-    // }
+    get gameMode() {
+        return this._gameMode;
+    }
+
+    set gameMode(value) {
+        this._gameMode = value;
+    }
+
+    get playerActionNum() {
+        return this._playerActionNum;
+    }
+
+    set playerActionNum(value) {
+        this._playerActionNum = value;
+    }
+
+    get binaryMatrix() {
+
+            if (null === this._binaryMatrix) {
+                let theMatrix = this.level.toBinary();
+                this._binaryMatrix = new BinaryMatrix(theMatrix, 1);
+            }
+
+            this._updateBinaryMatrix();
+
+            return this._binaryMatrix;
+        }
 
     get graph() {
         if (this._graph === null) {
@@ -475,6 +591,21 @@ class GameObjectContainer extends DataSourceBase {
         }
 
         return this._graph;
+    }
+
+    get deepQLearner() {
+        if (this._deepQLearner === null) {
+            let temp = this._simpleStateConverter.toFeatureVector(this);
+            let rar = 0.98;
+            let finalRar = 0.001;
+            let maxEpochs = 10000;
+            let radr = Math.pow((finalRar / rar), 1 / maxEpochs);
+
+            this._deepQLearner = new DeepQLearner(temp.length, 4, 0.03, 0.9, rar, radr, true, maxEpochs,
+                1, maxEpochs, 1000000, 4, 32, 100);
+        }
+
+        return this._deepQLearner;
     }
 
     static _trainingFeatureIndices = null;

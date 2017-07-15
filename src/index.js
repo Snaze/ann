@@ -4,17 +4,17 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 
-// import App from './App';
-// ReactDOM.render(
-//   <App />,
-//   document.getElementById('root')
-// );
-
-import NeuralNetworkTest from "./tests/NeuralNetworkTest";
+import App from './App';
 ReactDOM.render(
-    <NeuralNetworkTest />,
-    document.getElementById("root")
+  <App />,
+  document.getElementById('root')
 );
+
+// import NeuralNetworkTest from "./tests/NeuralNetworkTest";
+// ReactDOM.render(
+//     <NeuralNetworkTest />,
+//     document.getElementById("root")
+// );
 
 // import NeuralNetwork from "./ai/ann/NeuralNetwork";
 // import {default as NeuralNetworkModel} from "./model/ai/ann/NeuralNetwork";
@@ -68,7 +68,7 @@ ReactDOM.render(
 // import {default as MainMenuModel} from "./model/menus/MainMenu";
 //
 // function onSelectionCallback(e) {
-//     alert("Selected Player " + e.selectedPlayer);
+//     alert("Selected Player " + e.selectedValue);
 // }
 //
 // let mmm = new MainMenuModel();

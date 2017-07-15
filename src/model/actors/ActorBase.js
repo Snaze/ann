@@ -11,7 +11,7 @@ import KeyEventer from "../../utils/KeyEventer";
  * i.e. Player, Ghost, etc....
  */
 class ActorBase extends DataSourceBase {
-    static _aiMode = true;
+    static _aiMode = false;
     static _fastLearnMode = false;
     static _onKeyDownRef = null;
 

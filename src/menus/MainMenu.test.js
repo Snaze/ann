@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MainMenu from './MainMenu';
 import MainMenuModel from "../model/menus/MainMenu";
+import GameMode from "../model/GameMode";
 
 it('renders without crashing', () => {
     const div = document.createElement('div');
@@ -27,5 +28,5 @@ it('key down works crashing', () => {
     mm.keyDown("ArrowUp");
 
     // ASSERT
-    expect(mmm.selectedPlayer).toBe(MainMenuModel.SELECTED_PLAYERS_2);
+    expect(mmm.selectedValue).toBe(GameMode.WATCH_PRE_TRAINED);
 });

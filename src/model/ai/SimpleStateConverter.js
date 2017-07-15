@@ -3,8 +3,16 @@ import ConvertBase from "../../utils/ConvertBase";
 import ArrayUtils from "../../utils/ArrayUtils";
 
 const max_distance = 41;
+const max_living_state = 2;
+const max_direction = 15;
+const max_power_up_value = 5000;
 
 class SimpleStateConverter {
+
+    static get MAX_DISTANCE() { return max_distance; }
+    static get MAX_LIVING_STATE() { return max_living_state; }
+    static get MAX_DIRECTION() { return max_direction; }
+    static get MAX_POWER_UP_VALUE() { return max_power_up_value; }
 
     /**
      * This will create a 1-way feature vector to train the Deep Q Learner.
@@ -50,7 +58,7 @@ class SimpleStateConverter {
     _getPowerUpVector(goc) {
         let toRet = [];
         this._populateArrayWithCommonInfo(toRet, goc, goc.powerUp);
-        toRet.push(goc.powerUp.powerUpValue);
+        toRet.push(goc.powerUp.powerUpValue / max_power_up_value);
 
         return toRet;
     }
@@ -74,12 +82,12 @@ class SimpleStateConverter {
 
         if (commonEntity.isAlive) {
             if (!!commonEntity.isScared) {
-                theArray.push(1);
+                theArray.push(1 / max_living_state);
             } else {
-                theArray.push(2);
+                theArray.push(2 / max_living_state);
             }
         } else {
-            theArray.push(0);
+            theArray.push(0 / max_living_state);
         }
     }
 
@@ -91,6 +99,14 @@ class SimpleStateConverter {
         } else {
             distance--; // For some reason its returning distance + 1
         }
+
+        if (distance > max_distance) {
+            console.log("distance > max_distance");
+            distance = max_distance;
+        }
+
+        distance /= max_distance;
+
         return distance;
     }
 
@@ -105,6 +121,9 @@ class SimpleStateConverter {
         } else if (direction === Direction.DOWN) {
             directionNum = 1;
         }
+
+        directionNum /= max_direction;
+
         return directionNum;
     }
 
@@ -157,7 +176,7 @@ class SimpleStateConverter {
         }
 
         let decimalValue = parseInt(ConvertBase.bin2dec(binaryString), 10);
-        toRet.push(decimalValue);
+        toRet.push(decimalValue / max_direction);
 
         return toRet;
     }
@@ -203,7 +222,7 @@ class SimpleStateConverter {
         }
 
         if (closestDotLocation === null) {
-            toRet.push(max_distance);
+            toRet.push(max_distance / max_distance);
             toRet.push(0);
         } else {
             toRet.push(this._getDistanceBetweenLocations(goc, goc.player.location, closestDotLocation));
@@ -213,7 +232,7 @@ class SimpleStateConverter {
         }
 
         if (closestBigDotLocation === null) {
-            toRet.push(max_distance);
+            toRet.push(max_distance / max_distance);
             toRet.push(0);
         } else {
             toRet.push(this._getDistanceBetweenLocations(goc, goc.player.location, closestBigDotLocation));

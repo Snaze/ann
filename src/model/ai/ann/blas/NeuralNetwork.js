@@ -6,6 +6,7 @@ import ArrayUtils from "../../../../utils/ArrayUtils";
 // import WeightInitializer from "../WeightInitializer";
 // import Layer from "./Layer";
 import { Matrix, Vector } from "vectorious";
+import TimeRecorder from "../../../../utils/TimeRecorder";
 
 
 const neural_network_feed_forward_complete = 0;
@@ -47,6 +48,7 @@ class NeuralNetwork {
         this._callback=callback;
         this._layers = [];
         this._weights = null;
+        this._timeRecorder = new TimeRecorder();
 
         this._epoch = 0;
     }
@@ -94,17 +96,21 @@ class NeuralNetwork {
      */
     feedForward(inputMiniBatch) {
 
-        let miniBatchMatrix = new Matrix(inputMiniBatch);
-        // let originalWidth = miniBatchMatrix.shape[1];
-        let currentLayer, currentWeights;
+        let miniBatchMatrix, currentLayer, currentWeights, prevLayerOutput;
 
-        let prevLayerOutput = miniBatchMatrix;
+        this._timeRecorder.recordStart(`NN miniBatchMatrix creation`);
+        miniBatchMatrix = new Matrix(inputMiniBatch);
+        this._timeRecorder.recordEnd(`NN miniBatchMatrix creation`);
+
+        prevLayerOutput = miniBatchMatrix;
 
         for (let i = 0; i < this.layers.length; i++) {
             currentLayer = this.layers[i];
             currentWeights = this.weights[i];
 
+            this._timeRecorder.recordStart(`NN Entire FeedForward`);
             prevLayerOutput = currentLayer.feedForward(currentWeights, prevLayerOutput);
+            this._timeRecorder.recordEnd(`NN Entire FeedForward`);
         }
 
         return prevLayerOutput.toArray();

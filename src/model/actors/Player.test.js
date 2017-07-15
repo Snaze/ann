@@ -333,7 +333,7 @@ it ("scoreDelta works", () => {
     thePlayer.score += 50;
 
     // ASSERT
-    expect(thePlayer._scoreDelta).toBe(50);
+    expect(thePlayer._scoreDelta).toBeCloseTo(0.01);
 
 });
 

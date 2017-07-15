@@ -494,3 +494,8 @@ it ("distinct integers", () => {
     expect(ArrayUtils.isIn(toCheck, 4)).toBe(true);
     expect(ArrayUtils.isIn(toCheck, 5)).toBe(true);
 });
+
+it ("arrayIsCloseTo", () => {
+    expect(ArrayUtils.arrayIsCloseTo([0.1, 0.2, 0.3], [0.1, 0.2, 0.31], 0.1)).toBe(true);
+    expect(ArrayUtils.arrayIsCloseTo([0.1, 0.2, 0.3], [0.1, 0.2, 0.31], 1e-6)).toBe(false);
+});

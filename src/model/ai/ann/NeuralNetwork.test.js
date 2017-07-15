@@ -12,6 +12,7 @@ import BackPropFactory from "./backprop/BackPropFactory";
 // import Adam from "./blas/backprop/Adam";
 // import moment from "moment";
 // import math from "mathjs";
+// import TimeRecorder from "../../../utils/TimeRecorder";
 
 it ("NeuralNetork constructor works", () => {
     // CALL
@@ -516,7 +517,7 @@ it ("callback test", () => {
 });
 
 // it ("nn comparison", () => {
-//     let nnOldschool = new NeuralNetwork([1, 6, 6, 1], true,
+//     let nnOldschool = new NeuralNetwork([1, 84, 84, 84, 1], true,
 //         ActivationFunctions.lrelu, 0.03, WeightInitializer.COMPRESSED_NORMAL, null, true, 1e-3,
 //         BackPropFactory.BACK_PROP_TYPE_ADAM);
 //
@@ -525,8 +526,9 @@ it ("callback test", () => {
 //     let learningRate = new LearningRate(0.03, 1e-3, 100);
 //     let nnNewSchool = new NeuralNetworkMatrix(normalizer, weightInitializer, true, null);
 //     nnNewSchool.addLayer(new Layer(1, ActivationFunctions.lrelu, learningRate, new Adam()));
-//     nnNewSchool.addLayer(new Layer(32, ActivationFunctions.lrelu, learningRate, new Adam()));
-//     nnNewSchool.addLayer(new Layer(32, ActivationFunctions.lrelu, learningRate, new Adam()));
+//     nnNewSchool.addLayer(new Layer(84, ActivationFunctions.lrelu, learningRate, new Adam()));
+//     nnNewSchool.addLayer(new Layer(84, ActivationFunctions.lrelu, learningRate, new Adam()));
+//     nnNewSchool.addLayer(new Layer(84, ActivationFunctions.lrelu, learningRate, new Adam()));
 //     nnNewSchool.addLayer(new Layer(1, ActivationFunctions.identity, learningRate, new Adam()));
 //
 //     let input = []; // [0.35, 0.9]
@@ -563,22 +565,22 @@ it ("callback test", () => {
 //
 //             startTime = moment();
 //             nnOldschool.feedForward(miniBatch);
-//             oldSchoolFeedForwardTime.push(moment().diff(startTime, "ms"))
+//             oldSchoolFeedForwardTime.push(moment().diff(startTime, "ms"));
 //
 //             startTime = moment();
 //             nnOldschool.backPropagate(output);
-//             oldSchoolBackPropTime.push(moment().diff(startTime, "ms"))
+//             oldSchoolBackPropTime.push(moment().diff(startTime, "ms"));
 //
 //             miniBatch = ArrayUtils.take(newSchoolNormalizedInput, miniBatchSize, index);
 //             output = ArrayUtils.take(newSchoolExpectedOutput, miniBatchSize, index); //[newSchoolExpectedOutput[index]];
 //
 //             startTime = moment();
 //             nnNewSchool.feedForward(miniBatch);
-//             newSchoolFeedForwardTime.push(moment().diff(startTime, "ms"))
+//             newSchoolFeedForwardTime.push(moment().diff(startTime, "ms"));
 //
 //             startTime = moment();
 //             nnNewSchool.backPropagate(output);
-//             newSchoolBackPropTime.push(moment().diff(startTime, "ms"))
+//             newSchoolBackPropTime.push(moment().diff(startTime, "ms"));
 //         }
 //     }
 //
@@ -598,6 +600,8 @@ it ("callback test", () => {
 //
 //     console.log(`mean new school FeedForward time = ${meanNewSchoolFFTime}`);
 //     console.log(`mean new school BackProp time = ${meanNewSchoolBPTime}`);
+//
+//     new TimeRecorder().logSummary();
 //
 //     // expect(oldSchoolOutput[0][0]).toBeCloseTo(7);
 //     // expect(newSchoolOutput[0][0]).toBeCloseTo(7);
