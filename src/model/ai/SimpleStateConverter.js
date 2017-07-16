@@ -1,6 +1,7 @@
 import Direction from "../../utils/Direction";
-import ConvertBase from "../../utils/ConvertBase";
+// import ConvertBase from "../../utils/ConvertBase";
 import ArrayUtils from "../../utils/ArrayUtils";
+import { assert } from "../../utils/Assert";
 
 const max_distance = 41;
 const max_living_state = 2;
@@ -8,6 +9,10 @@ const max_direction = 15;
 const max_power_up_value = 5000;
 
 class SimpleStateConverter {
+
+    constructor() {
+        this._firstLength = null;
+    }
 
     static get MAX_DISTANCE() { return max_distance; }
     static get MAX_LIVING_STATE() { return max_living_state; }
@@ -30,6 +35,12 @@ class SimpleStateConverter {
         ArrayUtils.extend(toRet, this._getGhostVector(goc, goc.ghostPink));
         ArrayUtils.extend(toRet, this._getPowerUpVector(goc));
         ArrayUtils.extend(toRet, this._getDotFeatureVector(goc));
+
+        if (this._firstLength === null) {
+            this._firstLength = toRet.length;
+        }
+
+        assert (toRet.length === this._firstLength, "All Feature Vectors must be the same length");
 
         return toRet;
     }
@@ -77,8 +88,8 @@ class SimpleStateConverter {
         let distance = this._getDistanceBetweenLocations(goc, goc.player.location, commonEntity.location);
         theArray.push(distance);
         let direction = level.floydWarshall.getDirection(goc.player.location.toCellId(), commonEntity.location.toCellId());
-        let directionNum = this.convertDirectionToNumber(direction);
-        theArray.push(directionNum);
+        let directionArray = this.convertDirectionToNumber(direction);
+        ArrayUtils.extend(theArray, directionArray);
 
         if (commonEntity.isAlive) {
             if (!!commonEntity.isScared) {
@@ -101,7 +112,9 @@ class SimpleStateConverter {
         }
 
         if (distance > max_distance) {
-            console.log("distance > max_distance");
+            if (!!window.console) {
+                window.console.log("distance > max_distance");
+            }
             distance = max_distance;
         }
 
@@ -111,20 +124,19 @@ class SimpleStateConverter {
     }
 
     convertDirectionToNumber(direction) {
-        let directionNum = 0;
+        let toRet = ArrayUtils.create1D(4, 0);
+
         if (direction === Direction.LEFT) {
-            directionNum = 8;
+            toRet[0] = 1;
         } else if (direction === Direction.UP) {
-            directionNum = 4;
+            toRet[1] = 1;
         } else if (direction === Direction.RIGHT) {
-            directionNum = 2;
+            toRet[2] = 1;
         } else if (direction === Direction.DOWN) {
-            directionNum = 1;
+            toRet[3] = 1;
         }
 
-        directionNum /= max_direction;
-
-        return directionNum;
+        return toRet;
     }
 
     /**
@@ -145,38 +157,22 @@ class SimpleStateConverter {
             down: player.location.clone().moveInDirection(Direction.DOWN, level.height, level.width),
         };
 
-        let binaryString = "";
+        let binaryArray = [];
+        const buildBinaryArray = function (directionName) {
+            if (locations[directionName].equals(player.location) ||
+                !cell.canTraverseTo(level.getCellByLocation(locations[directionName]), level.width, level.height, true)) {
+                binaryArray.push(0);
+            } else {
+                binaryArray.push(1);
+            }
+        };
 
-        if (locations.left.equals(player.location) ||
-            !cell.canTraverseTo(level.getCellByLocation(locations.left), level.width, level.height, true)) {
-            binaryString += "0";
-        } else {
-            binaryString += "1";
-        }
+        buildBinaryArray("left");
+        buildBinaryArray("up");
+        buildBinaryArray("right");
+        buildBinaryArray("down");
 
-        if (locations.up.equals(player.location) ||
-            !cell.canTraverseTo(level.getCellByLocation(locations.up), level.width, level.height, true)) {
-            binaryString += "0";
-        } else {
-            binaryString += "1";
-        }
-
-        if (locations.right.equals(player.location) ||
-            !cell.canTraverseTo(level.getCellByLocation(locations.right), level.width, level.height, true)) {
-            binaryString += "0";
-        } else {
-            binaryString += "1";
-        }
-
-        if (locations.down.equals(player.location) ||
-            !cell.canTraverseTo(level.getCellByLocation(locations.down), level.width, level.height, true)) {
-            binaryString += "0";
-        } else {
-            binaryString += "1";
-        }
-
-        let decimalValue = parseInt(ConvertBase.bin2dec(binaryString), 10);
-        toRet.push(decimalValue / max_direction);
+        ArrayUtils.extend(toRet, binaryArray);
 
         return toRet;
     }
@@ -207,38 +203,39 @@ class SimpleStateConverter {
 
         };
 
-        // TODO: It looks like if there is a tie, it will prefer one direction
-        // over the other.  Look into making that random.
-        // Iterative Deepening
-        for (let searchDepth = 1; searchDepth < maxSearchDepth; searchDepth++) {
-            if (closestDotLocation !== null && closestBigDotLocation !== null) {
-                break;
-            }
-
-            goc.graph.breadthFirstSearch(goc.player.location.toCellId(),
-                callback,
-                [],
-                searchDepth);
-        }
+        goc.graph.breadthFirstSearch(goc.player.location.toCellId(),
+            callback);
 
         if (closestDotLocation === null) {
             toRet.push(max_distance / max_distance);
-            toRet.push(0);
+            ArrayUtils.extend(toRet, this.convertDirectionToNumber(Direction.NONE));
+
+            if (!!window.console) {
+                window.console.log("Cannot find closest dot");
+            }
+
         } else {
             toRet.push(this._getDistanceBetweenLocations(goc, goc.player.location, closestDotLocation));
             let direction = goc.level.floydWarshall.getDirection(goc.player.location.toCellId(),
                 closestDotLocation.toCellId());
-            toRet.push(this.convertDirectionToNumber(direction));
+            let directionArray = this.convertDirectionToNumber(direction);
+            ArrayUtils.extend(toRet, directionArray);
         }
 
         if (closestBigDotLocation === null) {
             toRet.push(max_distance / max_distance);
-            toRet.push(0);
+            ArrayUtils.extend(toRet, this.convertDirectionToNumber(Direction.NONE));
+
+            if (!!window.console) {
+                window.console.log("Cannot find closest big dot");
+            }
         } else {
             toRet.push(this._getDistanceBetweenLocations(goc, goc.player.location, closestBigDotLocation));
             let direction = goc.level.floydWarshall.getDirection(goc.player.location.toCellId(),
                 closestBigDotLocation.toCellId());
-            toRet.push(this.convertDirectionToNumber(direction));
+
+            let directionArray = this.convertDirectionToNumber(direction);
+            ArrayUtils.extend(toRet, directionArray);
         }
 
         return toRet;

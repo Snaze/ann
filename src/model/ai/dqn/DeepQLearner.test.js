@@ -233,13 +233,17 @@ it ("convertMiniBatchToPredictedValues", () => {
     expect(typeof(result[1].qValue)).toBe("number");
 });
 
-/**
- * Commenting this out for now since it takes forever.
- */
+// /**
+//  * Commenting this out for now since it takes forever.
+//  */
 // const testDeepQLearnerConverges = function (num_runs, finalRar=0.0000001) {
 //
 //     let rar = 0.98;
-//     let radr = Math.pow((finalRar / rar), num_runs);
+//     let radr = Math.pow((finalRar / rar), 1/ num_runs);
+//
+//     if (radr <= 0) {
+//         throw new Error("Invalid radr");
+//     }
 //
 //     let qLearner = new DeepQLearner(1, 2, 0.03, 0.99, rar, radr, false, 10, 2, num_runs);
 //     // let num_runs = 10000;
@@ -296,7 +300,7 @@ it ("convertMiniBatchToPredictedValues", () => {
 //     // let numRunsArray = [100, 200, 400, 800, 1600, 3200, 6400, 12800];
 //     // let numRunsArray = [100, 200, 400, 800, 1600];
 //     // let numRunsToAverage = 3;
-//     let numRunsArray = [100];
+//     let numRunsArray = [40000];
 //     let numRunsToAverage = 1;
 //     let totalTests = 100;
 //

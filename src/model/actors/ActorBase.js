@@ -188,6 +188,14 @@ class ActorBase extends DataSourceBase {
         this.direction = this._startDirection;
     }
 
+    isCollision(otherActor) {
+        return this.location.equals(otherActor.location) ||
+            (!!this.prevLocation &&
+             !!otherActor.prevLocation &&
+             this.location.equals(otherActor.prevLocation) &&
+             otherActor.location.equals(this.prevLocation));
+    }
+
     get paused() {
         return this._paused;
     }

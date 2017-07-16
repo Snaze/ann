@@ -374,7 +374,7 @@ class DeepQLearner {
                 this.log("DeepQWeights Set");
             }
 
-            this.log(`Neural Network weights = ${theWeightsJSON}`);
+            // this.log(`Neural Network weights = ${theWeightsJSON}`);
             this._epochNum++;
 
             this._neuralNetwork.epochs = this._epochNum;
@@ -554,10 +554,6 @@ class DeepQLearner {
         return this._numActions;
     }
 
-    get qValueSize() {
-        return this._qValueSize;
-    }
-
     get alpha() {
         return this._alpha;
     }
@@ -568,6 +564,10 @@ class DeepQLearner {
 
     get rar() {
         return this._rar;
+    }
+
+    set rar(value) {
+        this._rar = value;
     }
 
     get radr() {

@@ -178,11 +178,7 @@ class GameObjectContainer extends DataSourceBase {
 
     _killIfCollision(thePlayer, theGhost, now) {
 
-        if (thePlayer.location.equals(theGhost.location) ||
-            (!!thePlayer.prevLocation &&
-            !!theGhost.prevLocation &&
-            thePlayer.location.equals(theGhost.prevLocation) &&
-            theGhost.location.equals(thePlayer.prevLocation))) {
+        if (thePlayer.isCollision(theGhost)) {
             if (thePlayer.attackModeFinishTime > now && theGhost.isScared) {
                 // GHOST IS DEAD SINCE PLAYER IS ATTACKING
                 if (theGhost.isAlive) {
@@ -220,7 +216,7 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     _pickUpPowerUpIfCollision(thePlayer, thePowerup) {
-        if (thePlayer.location.equals(thePowerup.location)) {
+        if (thePlayer.isCollision(thePowerup)) {
             thePowerup.pickUp(thePlayer);
 
             this._resetPowerUpSpawnTime();
@@ -575,15 +571,15 @@ class GameObjectContainer extends DataSourceBase {
 
     get binaryMatrix() {
 
-            if (null === this._binaryMatrix) {
-                let theMatrix = this.level.toBinary();
-                this._binaryMatrix = new BinaryMatrix(theMatrix, 1);
-            }
-
-            this._updateBinaryMatrix();
-
-            return this._binaryMatrix;
+        if (null === this._binaryMatrix) {
+            let theMatrix = this.level.toBinary();
+            this._binaryMatrix = new BinaryMatrix(theMatrix, 1);
         }
+
+        this._updateBinaryMatrix();
+
+        return this._binaryMatrix;
+    }
 
     get graph() {
         if (this._graph === null) {
@@ -598,7 +594,7 @@ class GameObjectContainer extends DataSourceBase {
             let temp = this._simpleStateConverter.toFeatureVector(this);
             let rar = 0.98;
             let finalRar = 0.001;
-            let maxEpochs = 10000;
+            let maxEpochs = 1000;
             let radr = Math.pow((finalRar / rar), 1 / maxEpochs);
 
             this._deepQLearner = new DeepQLearner(temp.length, 4, 0.03, 0.9, rar, radr, true, maxEpochs,
