@@ -102,11 +102,10 @@ class Transition {
 
     /**
      * This will create a key for this Transition.
-     * @param size {Number} The size of each sequence.
      */
-    toKey(size) {
-        let sequenceKey = this._sequenceT.toKey(size);
-        let sequenceTPlus1Key = this._sequenceTPlus1.toKey(size);
+    toKey() {
+        let sequenceKey = this._sequenceT.toKey();
+        let sequenceTPlus1Key = this._sequenceTPlus1.toKey();
         let rewardKey = this._rewardT.toString();
         let actionKey = this._actionT.toString();
 

@@ -79,6 +79,7 @@ class DeepQLearner {
         this._miniBatchSize = miniBatchSize;
         this._learningInterval = null;
         this._learnTimeBuffer = learnTimeBuffer;
+        this._experienceReplayEnabled = true;
 
         this._nodesPerLayer = DeepQLearner.createNodesPerLayerArray(numActions,
             trainingVectorSize, numHiddenLayers, sequenceSize);
@@ -103,7 +104,7 @@ class DeepQLearner {
             BackPropFactory.BACK_PROP_TYPE_ADAM_MATRIX);
         toRet.maxEpochs = maxEpochs;
 
-        if (!!window.localStorage) {
+        if (typeof(window) !== "undefined" && !!window.localStorage) {
 
             let theWeightsJSON = window.localStorage.getItem("DeepQWeights");
             if (!!theWeightsJSON) {
@@ -114,7 +115,7 @@ class DeepQLearner {
                 }
             }
         }
-        if (!!window) {
+        if (typeof(window) !== "undefined") {
             window.neuralNetwork = toRet;
             if (!!console) {
                 console.log("window.neuralNetwork created");
@@ -158,7 +159,7 @@ class DeepQLearner {
     }
 
     log(toLog) {
-        if (this._verbose && !!console) {
+        if (this._verbose && typeof(console) !== "undefined") {
             console.log(toLog);
         }
     }
@@ -349,6 +350,11 @@ class DeepQLearner {
         this._s = preProcessedTPlus1;
         this._a = aPrime;
 
+        // If experience replay is disabled. Just return -1 here.
+        if (!this.experienceReplayEnabled) {
+            return -1.0;
+        }
+
         let transition = new Transition(currentPreProcessedSequence, aPrime, result.reward,
             preProcessedTPlus1, this._tickNum, 1e-9);
 
@@ -365,31 +371,39 @@ class DeepQLearner {
         let toRet = temp.error;
 
         if (result.isTerminal) {
-            this._rar *= this._radr;
-
-            let theWeights = this._neuralNetwork.getWeights();
-            let theWeightsJSON = JSON.stringify(theWeights);
-            if (!!window.localStorage) {
-                window.localStorage.setItem("DeepQWeights", theWeightsJSON);
-                this.log("DeepQWeights Set");
-            }
-
-            // this.log(`Neural Network weights = ${theWeightsJSON}`);
-            this._epochNum++;
-
-            this._neuralNetwork.epochs = this._epochNum;
-            this.log(`rar = ${this._rar}`);
-            this.log(`radr = ${this._radr}`);
-            this.log(`learningRate = ${this._neuralNetwork.learningRate}`);
-            this.log(`Epoch ${this._epochNum} finished with ${this._tickNum} ticks.  Total Error = ${toRet}`);
-
-
-            this._tickNum = 0;
+            this._incrementEpoch(toRet);
         } else {
             this._tickNum++;
         }
 
         return toRet;
+    }
+
+    _incrementEpoch(currentError) {
+        this._rar *= this._radr;
+
+        let theWeights = this._neuralNetwork.getWeights();
+        let theWeightsJSON = JSON.stringify(theWeights);
+        if (typeof(window) !== "undefined" && !!window.localStorage) {
+            window.localStorage.setItem("DeepQWeights", theWeightsJSON);
+            this.log("DeepQWeights Set");
+        }
+
+        // this.log(`Neural Network weights = ${theWeightsJSON}`);
+        this._epochNum++;
+
+        this._neuralNetwork.epochs = this._epochNum;
+        this.log(`rar = ${this._rar}`);
+        this.log(`radr = ${this._radr}`);
+        this.log(`learningRate = ${this._neuralNetwork.learningRate}`);
+        this.log(`Epoch ${this._epochNum} finished with ${this._tickNum} ticks.  Total Error = ${currentError}`);
+
+        this._tickNum = 0;
+
+        if (this._epochNum >= this._maxEpochs) {
+            this.log(`Max Epoch Reached.  Disabling Experience Replay`);
+            this.experienceReplayEnabled = false;
+        }
     }
 
     /**
@@ -628,6 +642,28 @@ class DeepQLearner {
 
     get tickNum() {
         return this._tickNum;
+    }
+
+    /**
+     * Use this property to control whether the NN should continue learning based on Experience Replay
+     * or the Learner should kicks off actions based on the optimal action value of the NN
+     * (without continuing to train).
+     *
+     * @returns {boolean}
+     */
+    get experienceReplayEnabled() {
+        return this._experienceReplayEnabled;
+    }
+
+    /**
+     * Use this property to control whether the NN should continue learning based on Experience Replay
+     * or the Learner should kicks off actions based on the optimal action value of the NN
+     * (without continuing to train).
+     *
+     * @param value {boolean}
+     */
+    set experienceReplayEnabled(value) {
+        this._experienceReplayEnabled = value;
     }
 }
 

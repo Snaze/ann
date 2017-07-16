@@ -3,6 +3,8 @@
 .idea
 .DS_Store
 
+# build files
+/lib
 
 # dependencies
 /node_modules

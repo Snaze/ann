@@ -14,7 +14,7 @@ class ReplayMemory {
     constructor(capacity) {
         this._capacity = capacity;
         this._data = ArrayUtils.create1D(capacity, null);
-        this._keys = {};
+        this._keys = Object.create(null);
         this._index = 0;
         this._maxIndex = 0;
     }
