@@ -318,7 +318,7 @@ class DeepQLearner {
      */
     _setInitialState(initialState) {
         if (this._tickNum === 0) {
-            this._s = new Sequence(initialState);
+            this._s = new Sequence(initialState, this.sequenceSize);
         }
     }
 
@@ -335,8 +335,8 @@ class DeepQLearner {
     _learnOne(executeActionCallback, initialState) {
         this._setInitialState(initialState);
 
-        let currentPreProcessedSequence = this.sequence.createPreProcessedSequence(this.sequenceSize);
-        let aPrime = this.getAction(currentPreProcessedSequence.toInput(this.sequenceSize), false);
+        let currentPreProcessedSequence = this.sequence.createPreProcessedSequence();
+        let aPrime = this.getAction(currentPreProcessedSequence.toInput(), false);
 
         let result = executeActionCallback(this, aPrime); // { reward: 1, state: [6], isTerminal: false }
         // this.log(`reward = ${result.reward}`);
@@ -344,7 +344,7 @@ class DeepQLearner {
 
         let sequenceTPlus1 = this._s.clone();
         sequenceTPlus1.append(aPrime, result.state);
-        let preProcessedTPlus1 = sequenceTPlus1.createPreProcessedSequence(this.sequenceSize);
+        let preProcessedTPlus1 = sequenceTPlus1.createPreProcessedSequence();
 
         this._s = preProcessedTPlus1;
         this._a = aPrime;
@@ -468,7 +468,7 @@ class DeepQLearner {
     convertMiniBatchToPredictedValues(miniBatchOfTransitions) {
         let miniBatchOfActions = [];
         let miniBatch = miniBatchOfTransitions.map(function (transition, index) {
-            let toRet = transition.sequenceT.toInput(this.sequenceSize);
+            let toRet = transition.sequenceT.toInput();
             miniBatchOfActions[index] = transition.actionT;
 
             assert (toRet.length === this.inputSize, "Invalid Input Size");
@@ -510,7 +510,7 @@ class DeepQLearner {
         // }
 
         let miniBatch = miniBatchOfTransitions.map(function (transition) {
-            let toRet = transition.sequenceTPlus1.toInput(this.sequenceSize);
+            let toRet = transition.sequenceTPlus1.toInput();
             assert (toRet.length === this.inputSize, "Invalid Input Size");
             return toRet;
         }.bind(this));

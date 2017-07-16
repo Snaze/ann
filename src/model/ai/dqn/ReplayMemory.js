@@ -14,6 +14,7 @@ class ReplayMemory {
     constructor(capacity) {
         this._capacity = capacity;
         this._data = ArrayUtils.create1D(capacity, null);
+        this._keys = {};
         this._index = 0;
         this._maxIndex = 0;
     }
@@ -42,11 +43,38 @@ class ReplayMemory {
     }
 
     /**
+     * Use this method to return the Transition key if possible.  Else it will just to toString()
+     * @param transition {Transition|*}
+     * @private
+     */
+    _getTransitionKey(transition) {
+        if (!!transition.toKey) {
+            return transition.toKey();
+        }
+
+        return transition.toString();
+    }
+
+    /**
      * This method will store the transition in memory.
      * @param transition {Transition} This is the transition object.
      */
     store(transition) {
+        let transitionKey = this._getTransitionKey(transition);
+
+        // We already have this transition
+        if (transitionKey in this._keys) {
+            return;
+        }
+
+        let transitionToRemove = this._data[this._index];
+        if (transitionToRemove !== null) {
+            let transitionKeyToRemove = this._getTransitionKey(transitionToRemove);
+            delete this._keys[transitionKeyToRemove];
+        }
+
         this._data[this._index] = transition;
+        this._keys[transitionKey] = true;
 
         this._incrementIndex();
         this._incrementMaxIndex();

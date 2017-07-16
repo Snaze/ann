@@ -300,7 +300,7 @@ it ("convertMiniBatchToPredictedValues", () => {
 //     // let numRunsArray = [100, 200, 400, 800, 1600, 3200, 6400, 12800];
 //     // let numRunsArray = [100, 200, 400, 800, 1600];
 //     // let numRunsToAverage = 3;
-//     let numRunsArray = [40000];
+//     let numRunsArray = [100];
 //     let numRunsToAverage = 1;
 //     let totalTests = 100;
 //

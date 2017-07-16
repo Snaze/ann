@@ -1,3 +1,5 @@
+// import ArrayUtils from "../../../utils/ArrayUtils";
+
 
 /**
  * This class represents a single transition.
@@ -96,6 +98,20 @@ class Transition {
      */
     get prevTdError() {
         return this._prevTdError;
+    }
+
+    /**
+     * This will create a key for this Transition.
+     * @param size {Number} The size of each sequence.
+     */
+    toKey(size) {
+        let sequenceKey = this._sequenceT.toKey(size);
+        let sequenceTPlus1Key = this._sequenceTPlus1.toKey(size);
+        let rewardKey = this._rewardT.toString();
+        let actionKey = this._actionT.toString();
+
+        let toRet = [sequenceKey, sequenceTPlus1Key, rewardKey, actionKey];
+        return toRet.join("_");
     }
 }
 

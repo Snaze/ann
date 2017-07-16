@@ -11,10 +11,12 @@ class Sequence {
     /**
      * This creates a Sequence object.
      * @param initialState {Array} This should be an array representing the initial state.
+     * @param size {Number} The max size of the sequence when you call preProcess
      */
-    constructor(initialState) {
+    constructor(initialState, size=4) {
         this._states = [initialState];
         this._actions = [];
+        this._size = size;
     }
 
     /**
@@ -30,12 +32,11 @@ class Sequence {
 
     /**
      * This will create a new Sequence containing "size" most recent states.
-     * @param size {Number} The number of most recent states to collect.
      */
-    createPreProcessedSequence(size) {
+    createPreProcessedSequence() {
 
-        let initialStateIndex = Math.max(0, this._states.length - size);
-        let toRet = new Sequence(this.states[initialStateIndex]);
+        let initialStateIndex = Math.max(0, this._states.length - this.size);
+        let toRet = new Sequence(this.states[initialStateIndex], this.size);
 
         for (let i = initialStateIndex + 1; i < this.states.length; i++) {
             toRet.append(this.actions[i-1], this.states[i]);
@@ -46,12 +47,11 @@ class Sequence {
 
     /**
      * This will return the entire sequence of states in a flattened array
-     * @param size {Number} This number of most recent states to collect.
      * @returns {Array} This will return the entire sequence of states in a flattened array.
      */
-    toInput(size) {
-        if (size <= this.states.length) {
-            let toFlatten = ArrayUtils.take(this.states, size, this.states.length - size);
+    toInput() {
+        if (this.size <= this.states.length) {
+            let toFlatten = ArrayUtils.take(this.states, this.size, this.states.length - this.size);
             return ArrayUtils.flatten(toFlatten);
         }
 
@@ -59,13 +59,22 @@ class Sequence {
 
         // This thing needs at least one state.
         let stateSize = this.states[0].length;
-        let properSize = stateSize * size;
+        let properSize = stateSize * this.size;
 
         let toRet = ArrayUtils.flatten(this.states);
         while (toRet.length < properSize) {
             toRet.unshift(0);
         }
         return toRet;
+    }
+
+    /**
+     * This will convert this Sequence into a key.
+     */
+    toKey() {
+        let input = this.toInput(this.size);
+        let arrayAsCharacters = input.map((item) => item.toString());
+        return arrayAsCharacters.join("");
     }
 
     /**
@@ -85,10 +94,18 @@ class Sequence {
     }
 
     /**
+     * The max size of the preprocessed transition.
+     * @returns {Number|*}
+     */
+    get size() {
+        return this._size;
+    }
+
+    /**
      * This will make a shallow-copy clone of this sequence object.
      */
     clone() {
-        let toRet = new Sequence(null);
+        let toRet = new Sequence(null, this.size);
 
         toRet._states = ArrayUtils.copy(this._states);
         toRet._actions = ArrayUtils.copy(this._actions);

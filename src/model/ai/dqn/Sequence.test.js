@@ -23,10 +23,10 @@ it ("append", () => {
 
 it ("createPreprocessedState", () => {
     // SETUP
-    let toCheck1 = new Sequence([0]);
-    let toCheck2 = new Sequence([0]);
+    let toCheck1 = new Sequence([0], 5);
+    let toCheck2 = new Sequence([0], 5);
     toCheck2.append(0, [1]);
-    let toCheck3 = new Sequence([0]);
+    let toCheck3 = new Sequence([0], 5);
     toCheck3.append(0, [1]);
     toCheck3.append(1, [2]);
     toCheck3.append(2, [3]);
@@ -35,9 +35,9 @@ it ("createPreprocessedState", () => {
     toCheck3.append(5, [6]);
 
     // CALL
-    let result1 = toCheck1.createPreProcessedSequence(5);
-    let result2 = toCheck2.createPreProcessedSequence(5);
-    let result3 = toCheck3.createPreProcessedSequence(5);
+    let result1 = toCheck1.createPreProcessedSequence();
+    let result2 = toCheck2.createPreProcessedSequence();
+    let result3 = toCheck3.createPreProcessedSequence();
 
     // ASSERT
     expect(ArrayUtils.arrayEquals(result1.states[0], [0])).toBe(true);
@@ -69,16 +69,16 @@ it ("clone", () => {
 
 it ("toInput", () => {
     // SETUP
-    let sequence = new Sequence([0]);
+    let sequence = new Sequence([0], 4);
     sequence.append(0, [1]);
     sequence.append(1, [2]);
     sequence.append(2, [3]);
     sequence.append(3, [4]);
     sequence.append(4, [5]);
-    sequence = sequence.createPreProcessedSequence(4);
+    sequence = sequence.createPreProcessedSequence();
 
     // CALL
-    let input = sequence.toInput(4);
+    let input = sequence.toInput();
 
     // ASSERT
     expect(ArrayUtils.arrayEquals([2, 3, 4, 5], input)).toBe(true);
@@ -86,11 +86,22 @@ it ("toInput", () => {
 
 it ("toInput on undersized Sequence", () => {
     // SETUP
-    let sequence = new Sequence([1]);
+    let sequence = new Sequence([1], 4);
 
     // CALL
-    let input = sequence.toInput(4);
+    let input = sequence.toInput();
 
     // ASSERT
     expect(ArrayUtils.arrayEquals([0, 0, 0, 1], input)).toBe(true);
+});
+
+it ("toKey", () => {
+    // SETUP
+    let sequence = new Sequence([1], 4);
+
+    // CALL
+    let key = sequence.toKey();
+
+    // ASSERT
+    expect(key).toBe("0001");
 });
