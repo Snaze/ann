@@ -187,3 +187,37 @@ it ("test getBinnedHeuristics", () => {
         expect(bh !== "NaN").toBe(true);
     });
 });
+
+it ("getBinnedStateArray", () => {
+    // SETUP
+    let stateHelper = new StateHelper(10);
+    let goc = createTestGameObjectContainer();
+
+    // CALL
+    let theArray = stateHelper.getBinnedStateArray(goc);
+
+    // ASSERT
+    expect(theArray).toBeInstanceOf(Array);
+});
+
+it ("_getClippedScore", () => {
+    let toCheck = new StateHelper(10);
+
+    expect(toCheck._getClippedScore(1000)).toBe(100);
+    expect(toCheck._getClippedScore(-1000)).toBe(-100);
+});
+
+it ("getStateArray", () => {
+    // SETUP
+    let goc = createTestGameObjectContainer();
+    let stateHelper = new StateHelper(10);
+
+    // CALL
+    let stateArray = stateHelper.getStateArray(goc);
+
+    expect(stateArray).toBeInstanceOf(Array);
+    stateArray.forEach(function (item) {
+        expect(item).toBeGreaterThanOrEqual(0);
+        expect(item).toBeLessThanOrEqual(1);
+    });
+});

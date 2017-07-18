@@ -5,6 +5,8 @@ import ConvertBase from "../../utils/ConvertBase";
 import Ghost from "../actors/Ghost";
 import GameObjectContainer from "../GameObjectContainer";
 import MathUtil from "./MathUtil";
+import { assert } from "../../utils/Assert";
+import MinMaxNormalizer from "./MinMaxNormalizer";
 
 const num_bins = 10;
 
@@ -20,19 +22,31 @@ class StateHelper {
         return StateHelper._numStates;
     }
 
-    constructor(searchDepth=8) {
+    constructor(searchDepth=16) {
         this._searchDepth = searchDepth;
 
         // TODO: Move these values to a common location
-        this._deathValue = -10000;
+        this._deathValue = -100;
         this._littleDotValue = 10;
         this._bigDotValue = 50;
-        this._unvisitedCellValue = 1000;
-        this._globalMin = Number.POSITIVE_INFINITY;
-        this._globalMax = Number.NEGATIVE_INFINITY;
+        this._unvisitedCellValue = 90;
+        this._absScores = [
+            Math.abs(this._deathValue),
+            Math.abs(this._littleDotValue),
+            Math.abs(this._bigDotValue),
+            Math.abs(this._unvisitedCellValue)
+        ];
         this._visitedCells = {};
         this._prevTraversedCells = null;
         this._prevLocation = null;
+        this._minMaxNormalizer = new MinMaxNormalizer("StateHelper", true);
+    }
+
+    _getClippedScore(potentialScore) {
+        let maxScore = Math.max(...this._absScores);
+
+        let min = Math.min(potentialScore, maxScore);
+        return Math.max(min, -maxScore);
     }
 
     getGhostHeuristic(distance, ghost) {
@@ -44,6 +58,8 @@ class StateHelper {
     }
 
     getDiscountedHeuristic(distance, value) {
+        value = this._getClippedScore(value);
+
         return ((this._searchDepth - distance) / this._searchDepth) * value;
         // return value;
     }
@@ -150,6 +166,14 @@ class StateHelper {
      * @param goc GameObjectContainer
      */
     getStateNumber(goc) {
+        let binnedHeuristics = this.getBinnedStateArray(goc);
+
+        let toConvert = binnedHeuristics.join("");
+        let toRet = ConvertBase.convert(toConvert).from(num_bins).to(10);
+        return parseInt(toRet, 10);
+    }
+
+    getBinnedStateArray(goc) {
         this._visitedCells[goc.player.location.toCellId()] = true;
 
         let traversedCells = {};
@@ -164,22 +188,41 @@ class StateHelper {
             topHeuristic, leftHeuristic, rightHeuristic, bottomHeuristic
         ];
 
-        let filteredHeuristics = _.filter(heuristics, function (h) { return h !== null; });
-        if (filteredHeuristics.length <= 0) {
-            return 0; // Hmmmmmmm
-        }
+        let filteredHeuristics = _.filter(heuristics, function (h) {
+            return h !== null;
+        });
+        assert(filteredHeuristics.length >= 0, "How would you not be able to move in any direction");
 
         let minValue = Math.min(...filteredHeuristics);
         let maxValue = Math.max(...filteredHeuristics);
 
-        this._globalMin = Math.min(minValue, this._globalMin);
-        this._globalMax = Math.max(maxValue, this._globalMax);
+        return this.getBinnedHeuristics(heuristics, minValue, maxValue);
+    }
 
-        let binnedHeuristics = this.getBinnedHeuristics(heuristics, minValue, maxValue);
+    /**
+     * Use this method to get the state vector to train the Deep Q Network.
+     *
+     * @param goc {GameObjectContainer}
+     * @returns {[*,*,*,*]}
+     */
+    getStateArray(goc) {
+        this._visitedCells[goc.player.location.toCellId()] = true;
 
-        let toConvert = binnedHeuristics.join("");
-        let toRet = ConvertBase.convert(toConvert).from(num_bins).to(10);
-        return parseInt(toRet, 10);
+        let traversedCells = Object.create(null);
+
+        let leftHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.LEFT, traversedCells);
+        let topHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.UP, traversedCells);
+        let rightHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.RIGHT, traversedCells);
+        let bottomHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.DOWN, traversedCells);
+
+        let temp = [
+            leftHeuristic === null ? 0 : leftHeuristic,
+            topHeuristic === null ? 0 : topHeuristic,
+            rightHeuristic === null ? 0 : rightHeuristic,
+            bottomHeuristic === null ? 0 : bottomHeuristic,
+        ];
+
+        return this._minMaxNormalizer.normalize(temp);
     }
 
     mapIndexToDirection(index) {

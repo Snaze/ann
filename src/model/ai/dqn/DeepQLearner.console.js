@@ -68,7 +68,7 @@ function doWork() {
     // let numRunsArray = [100, 200, 400, 800, 1600, 3200, 6400, 12800];
     // let numRunsArray = [100, 200, 400, 800, 1600];
     // let numRunsToAverage = 3;
-    let numRunsArray = [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1250, 1500, 1750, 2000];
+    let numRunsArray = [12000];
     let numRunsToAverage = 3;
     let totalTests = 100;
     // let numRunsArray = [100];

@@ -594,7 +594,7 @@ class GameObjectContainer extends DataSourceBase {
             let temp = this._simpleStateConverter.toFeatureVector(this);
             let rar = 0.98;
             let finalRar = 0.001;
-            let maxEpochs = 1000;
+            let maxEpochs = 1600;
             let radr = Math.pow((finalRar / rar), 1 / maxEpochs);
 
             this._deepQLearner = new DeepQLearner(temp.length, 4, 0.03, 0.9, rar, radr, true, maxEpochs,
