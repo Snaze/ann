@@ -1,4 +1,3 @@
-import Direction from "./Direction";
 import Eventer from "./Eventer";
 
 let _singleton = Symbol();
@@ -105,19 +104,15 @@ class KeyEventer {
         switch (e.key) {
             case "ArrowDown":
                 this._down = true;
-                this._lastArrowPressed = Direction.DOWN;
                 break;
             case "ArrowUp":
                 this._up = true;
-                this._lastArrowPressed = Direction.UP;
                 break;
             case "ArrowLeft":
                 this._left = true;
-                this._lastArrowPressed = Direction.LEFT;
                 break;
             case "ArrowRight":
                 this._right = true;
-                this._lastArrowPressed = Direction.RIGHT;
                 break;
             case "w":
             case "W":
@@ -163,27 +158,15 @@ class KeyEventer {
         switch (e.key) {
             case "ArrowDown":
                 this._down = false;
-                if (this._lastArrowPressed === Direction.DOWN) {
-                    this._lastArrowPressed = null;
-                }
                 break;
             case "ArrowUp":
                 this._up = false;
-                if (this._lastArrowPressed === Direction.UP) {
-                    this._lastArrowPressed = null;
-                }
                 break;
             case "ArrowLeft":
                 this._left = false;
-                if (this._lastArrowPressed === Direction.LEFT) {
-                    this._lastArrowPressed = null;
-                }
                 break;
             case "ArrowRight":
                 this._right = false;
-                if (this._lastArrowPressed === Direction.RIGHT) {
-                    this._lastArrowPressed = null;
-                }
                 break;
             case "w":
             case "W":

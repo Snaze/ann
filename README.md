@@ -1,7 +1,5 @@
-# React Pac-Man
+# Artificial Neural Network
 
-[![Build Status](https://travis-ci.org/Snaze/ReactPacMan.svg?branch=master)](https://travis-ci.org/Snaze/ReactPacMan)
+[![Build Status](https://travis-ci.org/Snaze/ann.svg?branch=master)](https://travis-ci.org/Snaze/ann)
 
-This is a basic implementation of Pac-Man using nothing but HTML5, CSS3, and ES6 using React.
-
-Try it out here: http://sbetzel.net/react_pac_man/index.html
+This is a basic implementation a Neural Network built with ES 6.
