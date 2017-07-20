@@ -4,6 +4,7 @@ import Location from "../Location";
 import Dot from "../Dot";
 import moment from "../../../node_modules/moment/moment";
 import Direction from "../../utils/Direction";
+import Rewards from "../ai/Rewards";
 
 it ("Player gender is valid", () => {
 
@@ -323,17 +324,17 @@ it ("every 10,000 points pac man gets a new life", () => {
     testScoreOver10000Increment(0, 100, false);
 });
 
-it ("scoreDelta works", () => {
+it ("currentReward works", () => {
     // SETUP
     let theLevel = new Level(3, 3);
     let thePlayer = new Player(theLevel, Player.MR_PAC_MAN);
     thePlayer.aiMode = true;
 
     // CALL
-    thePlayer.score += 50;
+    thePlayer.currentReward = Rewards.DOT_BIG;
 
     // ASSERT
-    expect(thePlayer._scoreDelta).toBeCloseTo(0.01);
+    expect(thePlayer._currentReward).toBeCloseTo(Rewards.DOT_BIG);
 
 });
 

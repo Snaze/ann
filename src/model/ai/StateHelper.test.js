@@ -74,90 +74,93 @@ const createTestGameObjectContainer = function () {
     return goc;
 };
 
-it ("getGhostHeuristic max distance", () => {
-    // SETUP
-    let stateHelper = new StateHelper();
-    let level = createTestLevel();
-    let goc = new GameObjectContainer(level);
+// it ("getGhostHeuristic max distance", () => {
+//     // SETUP
+//     let stateHelper = new StateHelper();
+//     let level = createTestLevel();
+//     let goc = new GameObjectContainer(level);
+//
+//     // CALL
+//     let heuristic = stateHelper.getGhostHeuristic(stateHelper.searchDepth, goc.ghostRed, goc);
+//
+//     // ASSERT
+//     expect(heuristic).toBe(0);
+// });
 
-    // CALL
-    let heuristic = stateHelper.getGhostHeuristic(stateHelper.searchDepth, goc.ghostRed, goc);
+// it ("getGhostHeuristic min distance", () => {
+//     // SETUP
+//     let stateHelper = new StateHelper();
+//     let level = createTestLevel();
+//     let goc = new GameObjectContainer(level);
+//
+//     // CALL
+//     let heuristic = stateHelper.getGhostHeuristic(0, goc.ghostRed, goc);
+//
+//     // ASSERT
+//     expect(heuristic).toBe(stateHelper.deathValue);
+// });
 
-    // ASSERT
-    expect(heuristic).toBe(0);
-});
+// it ("getGhostHeuristic middle distance", () => {
+//     // SETUP
+//     let stateHelper = new StateHelper();
+//     let level = createTestLevel();
+//     let goc = new GameObjectContainer(level);
+//
+//     // CALL
+//     let heuristic = stateHelper.getGhostHeuristic(Math.floor(stateHelper.searchDepth / 2), goc.ghostRed, goc);
+//
+//     // ASSERT
+//     expect(heuristic < 0 && heuristic > stateHelper.deathValue).toBe(true);
+// });
 
-it ("getGhostHeuristic min distance", () => {
-    // SETUP
-    let stateHelper = new StateHelper();
-    let level = createTestLevel();
-    let goc = new GameObjectContainer(level);
+// it ("getPowerUpHeuristic max distance", () => {
+//     // SETUP
+//     let stateHelper = new StateHelper();
+//
+//
+//     // CALL
+//     let heuristic = stateHelper.getDiscountedHeuristic(stateHelper.searchDepth, 100);
+//
+//     // ASSERT
+//     expect(heuristic).toBe(0);
+// });
 
-    // CALL
-    let heuristic = stateHelper.getGhostHeuristic(0, goc.ghostRed, goc);
+// it ("getPowerUpHeuristic min distance", () => {
+//     // SETUP
+//     let stateHelper = new StateHelper();
+//
+//     // CALL
+//     let heuristic = stateHelper.getDiscountedHeuristic(0, 100);
+//
+//     // ASSERT
+//     expect(heuristic).toBe(100);
+// });
 
-    // ASSERT
-    expect(heuristic).toBe(stateHelper.deathValue);
-});
-
-it ("getGhostHeuristic middle distance", () => {
-    // SETUP
-    let stateHelper = new StateHelper();
-    let level = createTestLevel();
-    let goc = new GameObjectContainer(level);
-
-    // CALL
-    let heuristic = stateHelper.getGhostHeuristic(Math.floor(stateHelper.searchDepth / 2), goc.ghostRed, goc);
-
-    // ASSERT
-    expect(heuristic < 0 && heuristic > stateHelper.deathValue).toBe(true);
-});
-
-it ("getPowerUpHeuristic max distance", () => {
-    // SETUP
-    let stateHelper = new StateHelper();
-
-
-    // CALL
-    let heuristic = stateHelper.getDiscountedHeuristic(stateHelper.searchDepth, 100);
-
-    // ASSERT
-    expect(heuristic).toBe(0);
-});
-
-it ("getPowerUpHeuristic min distance", () => {
-    // SETUP
-    let stateHelper = new StateHelper();
-
-    // CALL
-    let heuristic = stateHelper.getDiscountedHeuristic(0, 100);
-
-    // ASSERT
-    expect(heuristic).toBe(100);
-});
-
-it ("getPowerUpHeuristic mid distance", () => {
-    // SETUP
-    let stateHelper = new StateHelper();
-
-    // CALL
-    let heuristic = stateHelper.getDiscountedHeuristic(Math.floor(stateHelper.searchDepth / 2), 100);
-
-    // ASSERT
-    expect(heuristic > 0 && heuristic < 100).toBe(true);
-});
+// it ("getPowerUpHeuristic mid distance", () => {
+//     // SETUP
+//     let stateHelper = new StateHelper();
+//
+//     // CALL
+//     let heuristic = stateHelper.getDiscountedHeuristic(Math.floor(stateHelper.searchDepth / 2), 100);
+//
+//     // ASSERT
+//     expect(heuristic > 0 && heuristic < 100).toBe(true);
+// });
 
 it ("test getHeuristic", () => {
     // SETUP
     let goc = createTestGameObjectContainer();
     let stateHelper = new StateHelper();
     let startLocation = goc.player.location.clone().moveInDirection(Direction.UP, goc.level.width, goc.level.height);
+    let bottomLocation = goc.player.location.clone().moveInDirection(Direction.DOWN, goc.level.width, goc.level.height);
 
     // CALL
     let topHeuristic = stateHelper.getHeuristic(goc, startLocation);
+    let bottomHeuristic = stateHelper.getHeuristic(goc, bottomLocation);
 
     // ASSERT
     expect(topHeuristic > 0).toBe(true);
+    expect(bottomHeuristic).toBeLessThanOrEqual(0);
 });
 
 it ("test getStateNumber", () => {
@@ -200,12 +203,12 @@ it ("getBinnedStateArray", () => {
     expect(theArray).toBeInstanceOf(Array);
 });
 
-it ("_getClippedScore", () => {
-    let toCheck = new StateHelper(10);
-
-    expect(toCheck._getClippedScore(1000)).toBe(100);
-    expect(toCheck._getClippedScore(-1000)).toBe(-100);
-});
+// it ("_getClippedScore", () => {
+//     let toCheck = new StateHelper(10);
+//
+//     expect(toCheck._getClippedScore(1000)).toBe(100);
+//     expect(toCheck._getClippedScore(-1000)).toBe(-100);
+// });
 
 it ("getStateArray", () => {
     // SETUP

@@ -7,6 +7,7 @@ import moment from "../../../node_modules/moment/moment";
 import EasingFunctions from "../../utils/EasingFunctions";
 import SoundPlayer from "../../utils/SoundPlayer";
 import PlayerAgent from "./PlayerBrains/PlayerAgent";
+import Rewards from "../ai/Rewards";
 
 const mr_pac_man = 0;
 const mrs_pac_man = 1;
@@ -16,7 +17,7 @@ const max_cell_duration = 0.175;
 const min_attack_duration = 0.0; // seconds
 const max_attack_duration = 8.0; // seconds
 const new_life_increment = 10000;
-const max_score_delta = 5000;
+// const max_score_delta = 5000;
 
 
 class Player extends ActorBase {
@@ -53,7 +54,7 @@ class Player extends ActorBase {
         this._prevLocation = this.location.clone();
         this._numLives = 3;
         this._originalNumLives = this._numLives;
-        this._scoreDelta = -1 / max_score_delta;
+        this._currentReward = Rewards.DEFAULT_TICK;
         this._state = 0;
         this._learnMode = false;
 
@@ -107,11 +108,13 @@ class Player extends ActorBase {
 
         if (cell.dotType === Dot.LITTLE) {
             this.score = this.score + 10;
+            this._currentReward = Rewards.DOT_LITTLE;
             cell.dotType = Dot.NONE;
             this._setValueAndRaiseOnChange("_dotsEaten", this._dotsEaten + 1);
             SoundPlayer.instance.play(SoundPlayer.instance.chompSmall);
         } else if (cell.dotType === Dot.BIG) {
             this._eatBigDot(cell);
+
             // SoundPlayer.instance.chomp.stop();
             SoundPlayer.instance.play(SoundPlayer.instance.chompBig);
         }
@@ -119,6 +122,7 @@ class Player extends ActorBase {
 
     _eatBigDot(cell) {
         this.score = this.score + 50;
+        this._currentReward = Rewards.DOT_BIG;
         cell.dotType = Dot.NONE;
 
         // This use to be here but ghosts wouldn't turn blue again
@@ -167,7 +171,7 @@ class Player extends ActorBase {
 
         let decimalDirection = goc.playerActionNum;
         let newDirection = Direction.decimalToDirection(decimalDirection);
-        this._scoreDelta = -1 / max_score_delta;
+        this._currentReward = Rewards.DEFAULT_TICK;
 
         // console.log(`decimalDirection = ${decimalDirection}, newDirection = ${newDirection}`);
 
@@ -228,7 +232,7 @@ class Player extends ActorBase {
     }
 
     set score(value) {
-        this._scoreDelta = (value - this.score) / max_score_delta;
+        // this._currentReward = (value - this.score) / max_score_delta;
 
         let origValue = Math.floor(this.score / new_life_increment);
         let newValue = Math.floor(value / new_life_increment);
@@ -276,7 +280,7 @@ class Player extends ActorBase {
 
         if (this._isAlive && !value) {
             SoundPlayer.instance.play(SoundPlayer.instance.death);
-            this._scoreDelta = -0.3; // Special case.  -1 is max neg reward.  Think -5000 / 5000 = -5000 / max_score_delta
+            this._currentReward = Rewards.DEATH; // Special case.  -1 is max neg reward.  Think -5000 / 5000 = -5000 / max_score_delta
         }
 
         super.isAlive = value;
@@ -326,12 +330,16 @@ class Player extends ActorBase {
         this._learnMode = value;
     }
 
-    get scoreDelta() {
-        return this._scoreDelta;
+    get currentReward() {
+        return this._currentReward;
+    }
+
+    set currentReward(value) {
+        this._currentReward = value;
     }
 
     resetReward() {
-        this._scoreDelta = null;
+        this._currentReward = null;
     }
 
     resetAnimating(raiseEvent=false) {

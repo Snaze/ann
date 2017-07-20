@@ -67,6 +67,19 @@ class MinMaxNormalizer {
         return this._cache;
     }
 
+    get minValue() {
+        return this.cache.min;
+    }
+
+    get maxValue() {
+        return this.cache.max;
+    }
+
+    get midValue() {
+        let half = (this.maxValue - this.minValue) / 2;
+        return half / 2;
+    }
+
     /**
      * THis will persist the cache to localStorage.
      * @private

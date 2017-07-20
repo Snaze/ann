@@ -9,10 +9,12 @@ import SoundPlayer from "../utils/SoundPlayer";
 import KeyEventer from "../utils/KeyEventer";
 import GameMode from "./GameMode";
 import DeepQLearner from "./ai/dqn/DeepQLearner";
-import SimpleStateConverter from "./ai/SimpleStateConverter";
-import StateConverter from "./ai/StateConverter";
+// import SimpleStateConverter from "./ai/SimpleStateConverter";
+// import StateConverter from "./ai/StateConverter";
+import StateHelper from "./ai/StateHelper";
 import BinaryMatrix from "./utils/BinaryMatrix";
 import Direction from "../utils/Direction";
+import Rewards from "./ai/Rewards";
 
 const max_power_up_spawn_time = 90.0;
 const callback_type_level_finished = 0;
@@ -60,13 +62,10 @@ class GameObjectContainer extends DataSourceBase {
         this._timerWired = false;
 
         // This is used to create the feature vector to feed the Deep Q Learner
-        this._simpleStateConverter = new SimpleStateConverter();
+        // this._simpleStateConverter = new SimpleStateConverter();
+        this._stateHelper = new StateHelper();
+        this._tickNumber = 0;
 
-        // This is used to save / restore state between learning.  Mainly this is because of you are storing
-        // static times in the entities.  You should really just store ms or s remaining.
-        // TODO: Fix times issue.
-        this._stateConverter = new StateConverter();
-        this._previousState = null;
         this._deepQLearner = null;
         this._deepQLearnerCallbackRef = (deepQLearner, actionNum) => this._deepQLearnerCallback(deepQLearner, actionNum);
         this._playerActionNum = 0;
@@ -118,8 +117,9 @@ class GameObjectContainer extends DataSourceBase {
     _wireQLearner() {
         if (!this._timerWired) {
             this._timerWired = true;
-            let initialState = this._simpleStateConverter.toFeatureVector(this);
+            // let initialState = this._simpleStateConverter.toFeatureVector(this);
             // this._previousState = this._stateConverter.toFeatureVector(this);
+            let initialState = this._stateHelper.getStateArray(this);
             this.deepQLearner.learn(this._deepQLearnerCallbackRef, initialState);
         }
     }
@@ -183,6 +183,7 @@ class GameObjectContainer extends DataSourceBase {
                 // GHOST IS DEAD SINCE PLAYER IS ATTACKING
                 if (theGhost.isAlive) {
                     theGhost.kill(this.player, GameObjectContainer.nextKillScore);
+                    thePlayer.currentReward = Rewards.KILL_GHOST;
                 }
             } else if (theGhost.isAlive) {
                 // PLAYER IS DEAD SINCE PLAYER IS NOT ATTACKING
@@ -218,6 +219,7 @@ class GameObjectContainer extends DataSourceBase {
     _pickUpPowerUpIfCollision(thePlayer, thePowerup) {
         if (thePlayer.isCollision(thePowerup)) {
             thePowerup.pickUp(thePlayer);
+            thePlayer.currentReward = Rewards.POWER_UP;
 
             this._resetPowerUpSpawnTime();
         }
@@ -230,6 +232,7 @@ class GameObjectContainer extends DataSourceBase {
         // if (thePlayer.dotsEaten >= 2 && !this.paused) {
 
             levelFinished = true;
+            thePlayer.currentReward = Rewards.WIN;
 
             if (this._gameMode !== GameMode.TRAIN) {
                 this.level.blinkBorder = true;
@@ -283,6 +286,7 @@ class GameObjectContainer extends DataSourceBase {
     }
 
     _deepQLearnerCallback(deepQLearner, actionNum) {
+        this._tickNumber++;
         // FIRST, restore previous state because Deep Q Learner may be slow.
         // this._stateConverter.setFeatureVector(this, this._previousState);
 
@@ -301,12 +305,15 @@ class GameObjectContainer extends DataSourceBase {
         }
 
         // If the level is finish, fire the event to load the next level.
-        if (levelFinished && !!this.callback) {
-            this.callback({
-                callbackType: GameObjectContainer.CALLBACK_TYPE_LEVEL_FINISHED,
-                object: this
-            });
+        if (levelFinished) {
+            if (!!this.callback) {
+                this.callback({
+                    callbackType: GameObjectContainer.CALLBACK_TYPE_LEVEL_FINISHED,
+                    object: this
+                });
+            }
 
+            this.player.currentReward = Rewards.WIN;
             isTerminal = true;
             this._runLevel();
         }
@@ -314,9 +321,16 @@ class GameObjectContainer extends DataSourceBase {
         // save new state
         // this._previousState = this._stateConverter.toFeatureVector(this);
 
+        let state = this._stateHelper.getStateArray(this);
+        // let predictedDirection = this._stateHelper.getPredictedDirection(state);
+        //
+        // if (typeof(console) !== "undefined") {
+        //     console.log(`reward = ${this.player.currentReward}, direction = ${predictedDirection}, state = ${state}`);
+        // }
+
         return {
-            reward: this.player.scoreDelta,
-            state: this._simpleStateConverter.toFeatureVector(this),
+            reward: this.player.currentReward,
+            state: state,
             isTerminal: isTerminal
         };
     }
@@ -591,7 +605,8 @@ class GameObjectContainer extends DataSourceBase {
 
     get deepQLearner() {
         if (this._deepQLearner === null) {
-            let temp = this._simpleStateConverter.toFeatureVector(this);
+            // let temp = this._simpleStateConverter.toFeatureVector(this);
+            let temp = this._stateHelper.getStateArray(this);
             let rar = 0.98;
             let finalRar = 0.001;
             let maxEpochs = 1600;

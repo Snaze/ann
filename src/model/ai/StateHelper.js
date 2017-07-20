@@ -3,10 +3,11 @@ import Dot from "../Dot";
 import _ from "../../../node_modules/lodash/lodash";
 import ConvertBase from "../../utils/ConvertBase";
 import Ghost from "../actors/Ghost";
-import GameObjectContainer from "../GameObjectContainer";
+// import GameObjectContainer from "../GameObjectContainer";
 import MathUtil from "./MathUtil";
 import { assert } from "../../utils/Assert";
 import MinMaxNormalizer from "./MinMaxNormalizer";
+import Rewards from "./Rewards";
 
 const num_bins = 10;
 
@@ -26,42 +27,20 @@ class StateHelper {
         this._searchDepth = searchDepth;
 
         // TODO: Move these values to a common location
-        this._deathValue = -100;
-        this._littleDotValue = 10;
-        this._bigDotValue = 50;
-        this._unvisitedCellValue = 90;
-        this._absScores = [
-            Math.abs(this._deathValue),
-            Math.abs(this._littleDotValue),
-            Math.abs(this._bigDotValue),
-            Math.abs(this._unvisitedCellValue)
-        ];
+        this._discountFactor = 0.9;
+
         this._visitedCells = {};
         this._prevTraversedCells = null;
         this._prevLocation = null;
         this._minMaxNormalizer = new MinMaxNormalizer("StateHelper", true);
     }
 
-    _getClippedScore(potentialScore) {
-        let maxScore = Math.max(...this._absScores);
-
-        let min = Math.min(potentialScore, maxScore);
-        return Math.max(min, -maxScore);
-    }
-
-    getGhostHeuristic(distance, ghost) {
+    getGhostHeuristic(ghost) {
         if (ghost.scaredState === Ghost.SCARED_STATE_NOT_SCARED) {
-            return this.getDiscountedHeuristic(distance, this.deathValue);
+            return Rewards.DEATH;
         }
 
-        return this.getDiscountedHeuristic(distance, GameObjectContainer.peekNextKillScore());
-    }
-
-    getDiscountedHeuristic(distance, value) {
-        value = this._getClippedScore(value);
-
-        return ((this._searchDepth - distance) / this._searchDepth) * value;
-        // return value;
+        return Rewards.KILL_GHOST;
     }
 
     getHeuristic(goc, startLocation, traversedCells=null) {
@@ -75,37 +54,41 @@ class StateHelper {
                     traversedCells[vertex.id] = cell;
                 }
 
+                let currentScore = 0;
+
                 let distance = goc.level.floydWarshall.getPathDistance(startLocation.toCellId(), vertex.id);
 
+                if (typeof(distance) === "undefined") {
+                    return;
+                }
+
                 if (cell.dotType === Dot.LITTLE) {
-                    score += this.getDiscountedHeuristic(distance, this.littleDotValue);
+                    currentScore += Rewards.DOT_LITTLE;
                 } else if (cell.dotType === Dot.BIG) {
-                    score += this.getDiscountedHeuristic(distance, this.bigDotValue);
+                    currentScore += Rewards.DOT_BIG;
                 }
 
                 if (cell.location.equals(goc.ghostRed.location)) {
-                    score += this.getGhostHeuristic(distance, goc.ghostRed, goc);
+                    currentScore += this.getGhostHeuristic(goc.ghostRed);
                 }
 
                 if (cell.location.equals(goc.ghostBlue.location)) {
-                    score += this.getGhostHeuristic(distance, goc.ghostBlue, goc);
+                    currentScore += this.getGhostHeuristic(goc.ghostBlue);
                 }
 
                 if (cell.location.equals(goc.ghostOrange.location)) {
-                    score += this.getGhostHeuristic(distance, goc.ghostOrange, goc);
+                    currentScore += this.getGhostHeuristic(goc.ghostOrange);
                 }
 
                 if (cell.location.equals(goc.ghostPink.location)) {
-                    score += this.getGhostHeuristic(distance, goc.ghostPink, goc);
+                    currentScore += this.getGhostHeuristic(goc.ghostPink);
                 }
 
                 if (cell.location.equals(goc.powerUp.location)) {
-                    score += this.getDiscountedHeuristic(distance, goc.powerUp.powerUpValue);
+                    currentScore += Rewards.POWER_UP;
                 }
 
-                if (cell.location.toCellId() in this._visitedCells) {
-                    score += this.getDiscountedHeuristic(distance, this.unvisitedCellValue);
-                }
+                score += currentScore * Math.pow(this._discountFactor, distance-1);
 
             }.bind(this),
             [goc.player.location.toCellId()],
@@ -124,7 +107,7 @@ class StateHelper {
             return this.getHeuristic(goc, location, traversedCells);
         }
 
-        return null;
+        return this._minMaxNormalizer.midValue;
     }
 
     getBinnedHeuristics(heuristics, minValue, maxValue) {
@@ -210,19 +193,35 @@ class StateHelper {
 
         let traversedCells = Object.create(null);
 
-        let leftHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.LEFT, traversedCells);
         let topHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.UP, traversedCells);
+        let leftHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.LEFT, traversedCells);
         let rightHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.RIGHT, traversedCells);
         let bottomHeuristic = this.getHeuristicFromPlayerMovedInDirection(goc, Direction.DOWN, traversedCells);
 
+        this._highlightTraversedCells(traversedCells);
+
         let temp = [
-            leftHeuristic === null ? 0 : leftHeuristic,
-            topHeuristic === null ? 0 : topHeuristic,
-            rightHeuristic === null ? 0 : rightHeuristic,
-            bottomHeuristic === null ? 0 : bottomHeuristic,
+            topHeuristic,
+            leftHeuristic,
+            rightHeuristic,
+            bottomHeuristic,
         ];
 
-        return this._minMaxNormalizer.normalize(temp);
+        let toRet = this._minMaxNormalizer.normalize(temp);
+        assert (!Number.isNaN(toRet[0]), `0 - Cannot be NaN - toRet = ${toRet}`);
+        assert (!Number.isNaN(toRet[1]), `1 - Cannot be NaN - toRet = ${toRet}`);
+        assert (!Number.isNaN(toRet[2]), `2 - Cannot be NaN - toRet = ${toRet}`);
+        assert (!Number.isNaN(toRet[3]), `3 - Cannot be NaN - toRet = ${toRet}`);
+        return toRet;
+    }
+
+    /**
+     * This will return the direction that is predicted by the heuristic array to be best.
+     * @param heuristicArray {Array}
+     */
+    getPredictedDirection(heuristicArray) {
+        let maxIndex = MathUtil.argMax(heuristicArray);
+        return this.mapIndexToDirection(maxIndex);
     }
 
     mapIndexToDirection(index) {
@@ -242,6 +241,9 @@ class StateHelper {
                 theDirection = Direction.DOWN;
                 break;
             default:
+                if (typeof(console) !== "undefined") {
+                    console.log(`index = ${index}`);
+                }
                 throw new Error("Unknown direction");
         }
 
@@ -302,16 +304,12 @@ class StateHelper {
     _highlightTraversedCells(traversedCells) {
         if (this._prevTraversedCells) {
             for (let cellId in this._prevTraversedCells) {
-                if (this._prevTraversedCells.hasOwnProperty(cellId)) {
-                    this._prevTraversedCells[cellId].highlighted = false;
-                }
+                this._prevTraversedCells[cellId].highlighted = false;
             }
         }
 
         for (let cellId in traversedCells) {
-            if (traversedCells.hasOwnProperty(cellId)) {
-                traversedCells[cellId].highlighted = true;
-            }
+            traversedCells[cellId].highlighted = true;
         }
 
         this._prevTraversedCells = traversedCells;
@@ -343,10 +341,6 @@ class StateHelper {
 
     get bigDotValue() {
         return this._bigDotValue;
-    }
-
-    get unvisitedCellValue() {
-        return this._unvisitedCellValue;
     }
 
 

@@ -203,6 +203,7 @@ class Ghost extends ActorBase {
         this.points.show(this.location);
         this.prevKilledByAttackModeId = player.attackModeId;
         player.score += killScore;
+
         SoundPlayer.instance.play(SoundPlayer.instance.eatghost);
     }
 
