@@ -2,7 +2,7 @@ html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: Black;
+  background: White;
 }
 
 #root {
@@ -12,7 +12,7 @@ html, body {
 
 .App {
   text-align: center;
-  background: Black;
+  background: White;
 }
 
 .App-logo {
