@@ -4,4 +4,4 @@
 
 This is a basic implementation a Neural Network built with ES 6.
 
-:D
+Try it out at [http://sbetzel.net/ann/index.html](http://sbetzel.net/ann/index.html).
